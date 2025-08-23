@@ -24,6 +24,8 @@ export default function ClientList() {
     const [response, setResponse] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
     const [loading, setLoading] = useState(false);
+    console.log(response);
+    
 
 
     // Tab state
