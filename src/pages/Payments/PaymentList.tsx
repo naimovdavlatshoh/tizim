@@ -10,6 +10,7 @@ import { useSearch } from "../../context/SearchContext";
 import { toast } from "react-hot-toast";
 import { useModal } from "../../hooks/useModal";
 import AddPaymentModal from "./AddPayment";
+import Loader from "../../components/ui/loader/Loader";
 
 interface Payment {
     payment_id: number;
@@ -21,6 +22,7 @@ interface Payment {
     payment_type: number;
     comments?: string;
     created_at?: string;
+    payment_type_text: string;
 }
 
 export default function PaymentList() {
@@ -31,6 +33,7 @@ export default function PaymentList() {
     const [totalPages, setTotalPages] = useState<number>(1);
     const [status, setStatus] = useState<boolean>(false);
     const { isOpen, openModal, closeModal } = useModal();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (currentPage === "payments") {
@@ -45,6 +48,7 @@ export default function PaymentList() {
     }, [searchQuery, currentPage, status, page]);
 
     const fetchPayments = async (): Promise<void> => {
+        setLoading(true);
         try {
             const response: any = await GetDataSimple(
                 `api/payments/list?page=${page}&limit=10`
@@ -56,9 +60,11 @@ export default function PaymentList() {
 
             setFilteredPayments(paymentsData);
             setTotalPages(totalPagesData);
+            setLoading(false);
         } catch (error) {
             console.error("Error fetching payments:", error);
             toast.error("Ошибка при загрузке платежей");
+            setLoading(false);
         }
     };
 
@@ -108,6 +114,10 @@ export default function PaymentList() {
     const handleAddPayment = (): void => {
         openModal();
     };
+
+    if (loading) {
+        return <Loader />;
+    }
 
     return (
         <>
@@ -170,7 +180,7 @@ export default function PaymentList() {
                     )}
 
                     <TablePayment
-                        payments={filteredPayments}
+                        payments={filteredPayments as any}
                         changeStatus={changeStatus}
                     />
 

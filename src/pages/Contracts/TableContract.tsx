@@ -18,6 +18,7 @@ import {
 // import { DeleteData } from "../../service/data";
 // import { Link } from "react-router";
 import Linkto from "../../components/ui/link/LinkTo";
+import { formatCurrency } from "../../utils/numberFormat";
 
 interface Contract {
     contract_id: number;
@@ -86,8 +87,6 @@ TableContractProps) {
     // const [selectedContract, setSelectedContract] = useState<Contract | null>(
     //     null
     // );
-
-
 
     const handleRowClick = (contract: Contract) => {
         // Handle row click if needed
@@ -182,8 +181,7 @@ TableContractProps) {
                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                     onClick={() => handleRowClick(contract)}
                                 >
-                                    {contract.contract_price?.toLocaleString()}{" "}
-                                    сум
+                                    {formatCurrency(contract.contract_price)}
                                 </TableCell>
                                 <TableCell
                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"

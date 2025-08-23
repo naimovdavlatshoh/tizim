@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 import TableContract from "./TableContract.tsx";
 import { useSearch } from "../../context/SearchContext";
 import { toast } from "react-hot-toast";
+import Loader from "../../components/ui/loader/Loader.tsx";
 
 export default function ContractList() {
     const navigate = useNavigate();
@@ -19,9 +20,9 @@ export default function ContractList() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [status, setStatus] = useState(false);
-    // const [response, setResponse] = useState("");
     console.log(contracts);
-    
+
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (currentPage === "contracts") {
@@ -36,6 +37,7 @@ export default function ContractList() {
     }, [searchQuery, currentPage, status, page]);
 
     const fetchContracts = async () => {
+        setLoading(true);
         try {
             const response: any = await GetDataSimple(
                 `api/contracts/list?page=${page}&limit=10`
@@ -48,9 +50,11 @@ export default function ContractList() {
             setContracts(contractsData);
             setFilteredContracts(contractsData);
             setTotalPages(totalPagesData);
+            setLoading(false);
         } catch (error) {
             console.error("Error fetching contracts:", error);
             toast.error("Ошибка при загрузке контрактов");
+            setLoading(false);
         }
     };
 
@@ -100,6 +104,10 @@ export default function ContractList() {
     const handleAddContract = () => {
         navigate("/contracts/add");
     };
+
+    if (loading) {
+        return <Loader />;
+    }
 
     return (
         <>

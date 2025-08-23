@@ -8,6 +8,7 @@ import AddUserModal from "./AddUser";
 import TableUser from "./TableUser";
 import Pagination from "../../components/common/Pagination.tsx"; // 👈 yangi component
 import { Toaster } from "react-hot-toast";
+import Loader from "../../components/ui/loader/Loader.tsx";
 
 export default function ClientList() {
     const [users, setUsers] = useState([]);
@@ -17,17 +18,24 @@ export default function ClientList() {
     const [status, setStatus] = useState(false);
     const [response, setResponse] = useState("");
     console.log(response);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        setLoading(true);
         GetDataSimple(`api/user/list?page=${page}&limit=10`).then((res) => {
             setUsers(res?.result || []);
             setTotalPages(res?.pages || 1);
+            setLoading(false);
         });
     }, [status, page]);
 
     const changeStatus = () => {
         setStatus(!status);
     };
+
+    if (loading) {
+        return <Loader />;
+    }
 
     return (
         <>

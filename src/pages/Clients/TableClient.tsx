@@ -1,4 +1,4 @@
-import { PencilIcon } from "../../icons";
+import { DownloadIcon, PencilIcon } from "../../icons";
 import {
     Table,
     TableBody,
@@ -97,6 +97,12 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                 isHeader
                                 className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
+                                #
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
                                 Имя клиента
                             </TableCell>
                             <TableCell
@@ -105,49 +111,13 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                             >
                                 Номер телефона
                             </TableCell>
-                            <TableCell
+                            {/* <TableCell
                                 isHeader
                                 className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
                                 Название компании
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Адрес компании
-                            </TableCell>
+                            </TableCell> */}
 
-                            <TableCell
-                                isHeader
-                                className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Банковский счет
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Адрес банка
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                ИНН
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                МФО
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                ОКЕД
-                            </TableCell>
                             <TableCell
                                 isHeader
                                 className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -159,11 +129,17 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
 
                     {/* Table Body */}
                     <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                        {users?.map((order: Users) => (
+                        {users?.map((order: Users, index: number) => (
                             <TableRow
                                 key={order.client_id}
                                 className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                             >
+                                <TableCell
+                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                    onClick={() => handleRowClick(order)}
+                                >
+                                   {index+1}
+                                </TableCell>
                                 <TableCell
                                     className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                     onClick={() => handleRowClick(order)}
@@ -183,7 +159,7 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                         "phone_number"
                                     )}
                                 </TableCell>
-                                <TableCell
+                                {/* <TableCell
                                     className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                     onClick={() => handleRowClick(order)}
                                 >
@@ -191,52 +167,8 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                         order.business_name,
                                         "business_name"
                                     )}
-                                </TableCell>
-                                <TableCell
-                                    className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(order)}
-                                >
-                                    {renderFieldValue(
-                                        order.business_address,
-                                        "business_address"
-                                    )}
-                                </TableCell>
-                                <TableCell
-                                    className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(order)}
-                                >
-                                    {renderFieldValue(
-                                        order.bank_account,
-                                        "bank_account"
-                                    )}
-                                </TableCell>
-                                <TableCell
-                                    className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(order)}
-                                >
-                                    {renderFieldValue(
-                                        order.bank_address,
-                                        "bank_address"
-                                    )}
-                                </TableCell>
-                                <TableCell
-                                    className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(order)}
-                                >
-                                    {renderFieldValue(order.inn, "inn")}
-                                </TableCell>
-                                <TableCell
-                                    className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(order)}
-                                >
-                                    {renderFieldValue(order.mfo, "mfo")}
-                                </TableCell>
-                                <TableCell
-                                    className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(order)}
-                                >
-                                    {renderFieldValue(order.oked, "oked")}
-                                </TableCell>
+                                </TableCell> */}
+
                                 <TableCell className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <Button
                                         className="mr-2"
@@ -248,6 +180,20 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                         variant="outline"
                                         startIcon={
                                             <PencilIcon className="size-4" />
+                                        }
+                                    >
+                                        {""}
+                                    </Button>
+                                    <Button
+                                        className="mr-2"
+                                        // onClick={() => {
+                                        //     openModal();
+                                        //     setSelectedUser(order);
+                                        // }}
+                                        size="xs"
+                                        variant="primary"
+                                        startIcon={
+                                            <DownloadIcon className="size-4" />
                                         }
                                     >
                                         {""}

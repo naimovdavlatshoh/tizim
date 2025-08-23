@@ -17,6 +17,8 @@ import {
 import Linkto from "../../components/ui/link/LinkTo";
 import Button from "../../components/ui/button/Button";
 import SendResultModal from "./SendResultModal";
+import { formatCurrency } from "../../utils/numberFormat";
+import Loader from "../../components/ui/loader/Loader.tsx";
 
 interface MyContract {
     contract_id: string;
@@ -77,9 +79,11 @@ const MyContracts = () => {
 
             setContracts(contractsData);
             setTotalPages(totalPagesData);
+            setLoading(false);
         } catch (error) {
             console.error("Error fetching my contracts:", error);
             toast.error("Ошибка при загрузке моих контрактов");
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -135,6 +139,10 @@ const MyContracts = () => {
     //             return "Неизвестно";
     //     }
     // };
+
+    if (loading) {
+        return <Loader />;
+    }
 
     return (
         <>
@@ -254,10 +262,11 @@ const MyContracts = () => {
                                                     handleRowClick(contract)
                                                 }
                                             >
-                                                {parseFloat(
-                                                    contract.worker_price
-                                                ).toLocaleString()}{" "}
-                                                сум
+                                                {formatCurrency(
+                                                    parseFloat(
+                                                        contract.worker_price
+                                                    )
+                                                )}
                                             </TableCell>
                                             <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"

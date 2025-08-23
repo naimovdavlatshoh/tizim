@@ -196,7 +196,7 @@ const generateDocument = async (contractData: any) => {
         client_name: contractData?.client_name || "N/A",
         business_name: contractData?.business_name || "N/A",
         phone_number: contractData?.phone_number || "N/A",
-        business_address: contractData?.business_address || "N/A",
+        client_address: contractData?.business_address || "N/A",
 
         // Bank info
         bank_account: contractData?.bank_account || "N/A",

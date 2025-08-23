@@ -16,6 +16,8 @@ import {
 } from "../../../components/ui/table";
 import Linkto from "../../../components/ui/link/LinkTo";
 import AssignModal from "../NewContracts/AssignModal";
+import { formatCurrency } from "../../../utils/numberFormat";
+import Loader from "../../../components/ui/loader/Loader.tsx";
 
 interface PendingContract {
     contract_id: string;
@@ -68,9 +70,11 @@ const PendingContracts = () => {
 
             setContracts(contractsData);
             setTotalPages(totalPagesData);
+            setLoading(false);
         } catch (error) {
             console.error("Error fetching pending contracts:", error);
             toast.error("Ошибка при загрузке контрактов в процессе");
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -91,6 +95,10 @@ const PendingContracts = () => {
         // Refresh the contracts list after successful assignment
         fetchPendingContracts();
     };
+
+    if (loading) {
+        return <Loader />;
+    }
 
     return (
         <>
@@ -211,10 +219,11 @@ const PendingContracts = () => {
                                                         handleRowClick(contract)
                                                     }
                                                 >
-                                                    {parseFloat(
-                                                        contract.worker_price
-                                                    ).toLocaleString()}{" "}
-                                                    сум
+                                                    {formatCurrency(
+                                                        parseFloat(
+                                                            contract.worker_price
+                                                        )
+                                                    )}
                                                 </TableCell>
                                                 <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"

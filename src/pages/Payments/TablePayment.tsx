@@ -9,6 +9,7 @@ import {
 import { toast } from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
 import { DeleteData } from "../../service/data";
+import { formatAmount } from "../../utils/numberFormat";
 
 interface Payment {
     payment_id: number;
@@ -17,9 +18,10 @@ interface Payment {
     client_name?: string;
     is_advance: number;
     amount: number;
-    payment_type: number;
+    payment_type: string;
     comments?: string;
     created_at?: string;
+    payment_type_text: string;
 }
 
 interface TablePaymentProps {
@@ -46,31 +48,16 @@ export default function TablePayment({
         setDeleteModalOpen(false);
     };
 
-    const getPaymentTypeText = (type: number): string => {
-        switch (type) {
-            case 1:
-                return "Наличка";
-            case 2:
-                return "На карту";
-            case 3:
-                return "Перечисление";
-            default:
-                return "Неизвестно";
-        }
-    };
-
     const getAdvanceText = (isAdvance: number): string => {
         return isAdvance === 1 ? "Да" : "Нет";
     };
 
-    const formatAmount = (amount: number): string => {
-        return new Intl.NumberFormat("ru-RU").format(amount);
-    };
+    // formatAmount function is now imported from utils
 
-    const formatDate = (dateString: string): string => {
-        if (!dateString) return "-";
-        return new Date(dateString).toLocaleDateString("ru-RU");
-    };
+    // const formatDate = (dateString: string): string => {
+    //     if (!dateString) return "-";
+    //     return new Date(dateString).toLocaleDateString("ru-RU");
+    // };
 
     return (
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -176,23 +163,22 @@ export default function TablePayment({
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         <span
                                             className={`px-2 py-1 rounded-full text-xs ${
-                                                payment.payment_type === 1
+                                                payment.payment_type === "1"
                                                     ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
-                                                    : payment.payment_type === 2
+                                                    : payment.payment_type ===
+                                                      "2"
                                                     ? "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400"
                                                     : "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400"
                                             }`}
                                         >
-                                            {getPaymentTypeText(
-                                                payment.payment_type
-                                            )}
+                                            {payment.payment_type_text}
                                         </span>
                                     </TableCell>
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200 max-w-xs truncate">
                                         {payment.comments || "-"}
                                     </TableCell>
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
-                                        {formatDate(payment.created_at || "")}
+                                        {payment.created_at || ""}
                                     </TableCell>
                                     {/* <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         <div className="flex items-center gap-2">

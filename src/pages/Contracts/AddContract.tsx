@@ -9,6 +9,7 @@ import DatePicker from "../../components/form/date-picker";
 import Button from "../../components/ui/button/Button";
 import { GetDataSimple, PostDataTokenJson } from "../../service/data";
 import PageMeta from "../../components/common/PageMeta";
+// import { formatCurrency } from "../../utils/numberFormat";
 
 interface Client {
     client_id: number;
@@ -44,6 +45,8 @@ const AddContract = () => {
     const [clients, setClients] = useState<Client[]>([]);
     const [labTests, setLabTests] = useState<LabTest[]>([]);
     const [loading, setLoading] = useState(false);
+    const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+    const [searchingClients, setSearchingClients] = useState(false);
     const [formData, setFormData] = useState<ContractFormData>({
         contract_number: "",
         object_address: "",
@@ -62,8 +65,18 @@ const AddContract = () => {
         laboratory: [],
     });
 
+    // formatCurrency function is now imported from utils
+
+    // fetchClients is now handled by searchClients
+
+    // Initialize filtered clients when clients change
     useEffect(() => {
-        fetchClients();
+        setFilteredClients(clients);
+    }, [clients]);
+
+    // Initial load of all clients
+    useEffect(() => {
+        searchClients("");
     }, []);
 
     // Laboratoriya testlarini contract_tarif ga qarab yuklash
@@ -76,15 +89,39 @@ const AddContract = () => {
         }
     }, [formData.contract_tarif, formData.contract_type]);
 
-    const fetchClients = async () => {
+    // fetchClients function is now replaced by searchClients
+
+    const searchClients = async (keyword: string) => {
+        setSearchingClients(true);
+
         try {
-            const response = await GetDataSimple(
-                "api/clients/list?page=1&limit=100"
-            );
-            setClients(response?.result || []);
+            if (keyword.trim().length === 0) {
+                // Empty search - fetch all clients from backend
+                const response = await GetDataSimple(
+                    "api/clients/list?page=1&limit=100"
+                );
+                const allClients = response?.result || [];
+                setClients(allClients);
+                setFilteredClients(allClients);
+            } else if (keyword.trim().length >= 3) {
+                // Search with keyword
+                const response = await PostDataTokenJson(
+                    `api/clients/search?keyword=${encodeURIComponent(keyword)}`,
+                    {}
+                );
+                const searchResults = response?.data?.result || [];
+                setFilteredClients(searchResults);
+            } else {
+                // Less than 3 characters - show current clients
+                setFilteredClients(clients);
+            }
         } catch (error) {
-            console.error("Error fetching clients:", error);
+            console.error("Error searching/fetching clients:", error);
             toast.error("Ошибка при загрузке клиентов");
+            // Fallback to showing current clients
+            setFilteredClients(clients);
+        } finally {
+            setSearchingClients(false);
         }
     };
 
@@ -201,7 +238,9 @@ const AddContract = () => {
             }));
 
             toast.success(
-                `План рассрочки создан! Ежемесячный платеж: ${monthlyFee.toLocaleString()} сум`
+                `План рассрочки создан! Ежемесячный платеж: ${monthlyFee.toLocaleString(
+                    "ru-RU"
+                )} сум`
             );
         }
     };
@@ -324,20 +363,25 @@ const AddContract = () => {
                                     Клиент *
                                 </label>
                                 <Select
-                                    options={clients.map((client) => ({
+                                    options={filteredClients.map((client) => ({
                                         value: client.client_id,
-                                        label:
-                                            client.business_name ||
-                                            client.client_name,
+                                        label: client?.business_name
+                                            ? client?.business_name +
+                                              " " +
+                                              client?.client_name
+                                            : client.client_name,
                                     }))}
                                     placeholder="Выберите клиента"
-                                    onChange={(value) =>
+                                    onChange={(value) => {
                                         handleInputChange(
                                             "client_id",
                                             parseInt(value)
-                                        )
-                                    }
+                                        );
+                                    }}
                                     defaultValue=""
+                                    searchable={true}
+                                    onSearch={searchClients}
+                                    searching={searchingClients}
                                 />
                             </div>
                             <div>
@@ -466,7 +510,9 @@ const AddContract = () => {
                                         )
                                     }
                                     min="0"
+                                    placeholder="Введите стоимость контракта"
                                 />
+
                             </div>
                             <div className="flex items-end">
                                 <button
@@ -492,7 +538,7 @@ const AddContract = () => {
                                 {formData.plan.map((planItem, index) => (
                                     <div
                                         key={index}
-                                        className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                        className="flex items-end gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
                                     >
                                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
@@ -546,6 +592,7 @@ const AddContract = () => {
                                                     }
                                                     min="0"
                                                 />
+
                                             </div>
                                         </div>
                                         {formData.plan.length > 1 && (

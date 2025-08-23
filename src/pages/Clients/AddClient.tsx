@@ -35,10 +35,10 @@ interface LegalEntityClientData {
     mfo: number;
     oked: number;
     business_address: string;
-    client_address: string;
-    passport_series: string;
-    passport_given_by: string;
-    passport_given_date: string;
+    // client_address: string; // Commented out - not needed for legal entities
+    // passport_series: string; // Commented out - not needed for legal entities
+    // passport_given_by: string; // Commented out - not needed for legal entities
+    // passport_given_date: string; // Commented out - not needed for legal entities
 }
 
 type ClientData = IndividualClientData | LegalEntityClientData;
@@ -75,10 +75,10 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
         mfo: "",
         oked: "",
         business_address: "",
-        client_address: "",
-        passport_series: "",
-        passport_given_by: "",
-        passport_given_date: "",
+        // client_address: "", // Commented out - not needed for legal entities
+        // passport_series: "", // Commented out - not needed for legal entities
+        // passport_given_by: "", // Commented out - not needed for legal entities
+        // passport_given_date: "", // Commented out - not needed for legal entities
     });
 
     // File state for both forms
@@ -197,10 +197,10 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 mfo: Number(legalData.mfo),
                 oked: Number(legalData.oked),
                 business_address: legalData.business_address,
-                client_address: legalData.client_address,
-                passport_series: legalData.passport_series,
-                passport_given_by: legalData.passport_given_by,
-                passport_given_date: legalData.passport_given_date,
+                // client_address: legalData.client_address, // Commented out - not needed for legal entities
+                // passport_series: legalData.passport_series, // Commented out - not needed for legal entities
+                // passport_given_by: legalData.passport_given_by, // Commented out - not needed for legal entities
+                // passport_given_date: legalData.passport_given_date, // Commented out - not needed for legal entities
             };
 
             await submitClientData(payload);
@@ -253,10 +253,10 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                     mfo: legalPayload.mfo,
                     oked: legalPayload.oked,
                     business_address: legalPayload.business_address,
-                    client_address: legalPayload.client_address,
-                    passport_series: legalPayload.passport_series,
-                    passport_given_by: legalPayload.passport_given_by,
-                    passport_given_date: legalPayload.passport_given_date,
+                    // client_address: legalPayload.client_address, // Commented out - not needed for legal entities
+                    // passport_series: legalPayload.passport_series, // Commented out - not needed for legal entities
+                    // passport_given_by: legalPayload.passport_given_by, // Commented out - not needed for legal entities
+                    // passport_given_date: legalPayload.passport_given_date, // Commented out - not needed for legal entities
                 };
                 formData.append("data", JSON.stringify(data));
 
@@ -308,10 +308,10 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             mfo: "",
             oked: "",
             business_address: "",
-            client_address: "",
-            passport_series: "",
-            passport_given_by: "",
-            passport_given_date: "",
+            // client_address: "", // Commented out - not needed for legal entities
+            // passport_series: "", // Commented out - not needed for legal entities
+            // passport_given_by: "", // Commented out - not needed for legal entities
+            // passport_given_date: "", // Commented out - not needed for legal entities
         });
 
         setSelectedFile(null);
@@ -604,74 +604,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                             }
                         />
                     </div>
-                    <div>
-                        <Label htmlFor="legalClientAddress">
-                            Адрес клиента *
-                        </Label>
-                        <Input
-                            type="text"
-                            id="legalClientAddress"
-                            placeholder="Адрес клиента"
-                            value={legalData.client_address}
-                            onChange={(e) =>
-                                handleLegalInputChange(
-                                    "client_address",
-                                    e.target.value
-                                )
-                            }
-                        />
-                    </div>
-                    <div>
-                        <Label htmlFor="legalPassportSeries">
-                            Серия паспорта *
-                        </Label>
-                        <Input
-                            type="text"
-                            id="legalPassportSeries"
-                            placeholder="AA1234567"
-                            value={legalData.passport_series}
-                            onChange={(e) =>
-                                handleLegalInputChange(
-                                    "passport_series",
-                                    e.target.value
-                                )
-                            }
-                        />
-                    </div>
-                    <div>
-                        <Label htmlFor="legalPassportGivenBy">
-                            Кем выдан паспорт *
-                        </Label>
-                        <Input
-                            type="text"
-                            id="legalPassportGivenBy"
-                            placeholder="Buxoro viloyati Buxoro shahar IIB"
-                            value={legalData.passport_given_by}
-                            onChange={(e) =>
-                                handleLegalInputChange(
-                                    "passport_given_by",
-                                    e.target.value
-                                )
-                            }
-                        />
-                    </div>
-                    <div>
-                        <Label htmlFor="legalPassportGivenDate">
-                            Дата выдачи паспорта *
-                        </Label>
-                        <Input
-                            type="date"
-                            id="legalPassportGivenDate"
-                            value={legalData.passport_given_date}
-                            onChange={(e) =>
-                                handleLegalInputChange(
-                                    "passport_given_date",
-                                    e.target.value
-                                )
-                            }
-                        />
-                    </div>
-                    <div className="md:col-span-2">
+                    <div >
                         <Label htmlFor="fileUpload">Файл *</Label>
                         <input
                             type="file"
@@ -686,6 +619,13 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                             </p>
                         )}
                     </div>
+                    {/*
+                    // Commented out - not needed for legal entities:
+                    // - Адрес клиента (client_address)
+                    // - Серия паспорта (passport_series)
+                    // - Кем выдан паспорт (passport_given_by)
+                    // - Дата выдачи паспорта (passport_given_date)
+                    */}
                 </div>
             )}
 

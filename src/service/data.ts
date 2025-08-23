@@ -1,5 +1,19 @@
 import axios from "axios";
-// import { useEffect } from "react";
+import { handleAuthError } from "../utils/authUtils";
+
+// Add response interceptor to handle 401 errors globally
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        // Handle 401 Unauthorized errors globally
+        if (handleAuthError(error)) {
+            // Return a resolved promise to prevent further error handling
+            // The page will reload automatically
+            return Promise.resolve({ data: { handled: true } });
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const BASE_URL = "https://apitizim.argon.uz/";
 

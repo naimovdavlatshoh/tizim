@@ -24,27 +24,26 @@ export default function ClientList() {
     const [response, setResponse] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
     const [loading, setLoading] = useState(false);
-    console.log(response);
+
 
     // Tab state
     const [activeTab, setActiveTab] = useState("all"); // "all", "individual", "legal"
 
     useEffect(() => {
-        setLoading(true);
+
         if (currentPage === "clients") {
             if (searchQuery.trim()) {
-                // Search query bo'lsa search API ni chaqirish
                 performSearch(searchQuery);
-                setLoading(false);
+
             } else {
-                // Search query bo'lmasa oddiy list ni yuklash
                 fetchClients();
-                setLoading(false);
+
             }
         }
     }, [searchQuery, currentPage, status, page]);
 
     const fetchClients = async () => {
+        setLoading(true);
         try {
             const response: any = await GetDataSimple(
                 `api/clients/list?page=${page}&limit=10`
@@ -57,6 +56,7 @@ export default function ClientList() {
             // setClients(clientsData);
             setFilteredClients(clientsData);
             setTotalPages(totalPagesData);
+            setLoading(false);
         } catch (error) {
             console.error("Error fetching clients:", error);
             toast.error("Что-то пошло не так при загрузке клиентов");

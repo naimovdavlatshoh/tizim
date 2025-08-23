@@ -25,7 +25,10 @@ export default function SignInForm() {
             .then((res: any) => {
                 localStorage.setItem("token", res.data.jwt);
                 localStorage.setItem("role_id", res.data.role_id);
+                localStorage.setItem("login", res.data.login);
+                localStorage.setItem("name", res.data.firstname + " " + res.data.lastname);
                 toast.success(res.data.message);
+                console.log(res.data);
 
                 setTimeout(() => {
                     window.location.reload();

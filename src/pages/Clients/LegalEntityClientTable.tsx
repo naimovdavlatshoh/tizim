@@ -1,4 +1,4 @@
-import { PencilIcon } from "../../icons";
+import { DownloadIcon, PencilIcon } from "../../icons";
 import {
     Table,
     TableBody,
@@ -91,6 +91,12 @@ export default function LegalEntityClientTable({
                                 isHeader
                                 className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
+                                #
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
                                 Название компании
                             </TableCell>
                             <TableCell
@@ -146,77 +152,101 @@ export default function LegalEntityClientTable({
 
                     {/* Table Body */}
                     <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                        {users?.map((client: LegalEntityClient) => (
-                            <TableRow
-                                key={client.client_id}
-                                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                            >
-                                <TableCell
-                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(client)}
+                        {users?.map(
+                            (client: LegalEntityClient, index: number) => (
+                                <TableRow
+                                    key={client.client_id}
+                                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                 >
-                                    {renderFieldValue(client.business_name)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(client)}
-                                >
-                                    {renderFieldValue(client.client_name)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(client)}
-                                >
-                                    {renderFieldValue(client.phone_number)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(client)}
-                                >
-                                    {renderFieldValue(client.business_address)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(client)}
-                                >
-                                    {renderFieldValue(client.bank_account)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(client)}
-                                >
-                                    {renderFieldValue(client.inn)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(client)}
-                                >
-                                    {renderFieldValue(client.mfo)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(client)}
-                                >
-                                    {renderFieldValue(client.oked)}
-                                </TableCell>
-                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                    <Button
-                                        className="mr-2"
-                                        onClick={() => {
-                                            openModal();
-                                            setSelectedUser(client);
-                                        }}
-                                        size="xs"
-                                        variant="outline"
-                                        startIcon={
-                                            <PencilIcon className="size-4" />
-                                        }
+                                    <TableCell
+                                        className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
                                     >
-                                        {""}
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                                        {index + 1}
+                                    </TableCell>
+                                    <TableCell
+                                        className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
+                                    >
+                                        {renderFieldValue(client.business_name)}
+                                    </TableCell>
+                                    <TableCell
+                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
+                                    >
+                                        {renderFieldValue(client.client_name)}
+                                    </TableCell>
+                                    <TableCell
+                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
+                                    >
+                                        {renderFieldValue(client.phone_number)}
+                                    </TableCell>
+                                    <TableCell
+                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
+                                    >
+                                        {renderFieldValue(
+                                            client.business_address
+                                        )}
+                                    </TableCell>
+                                    <TableCell
+                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
+                                    >
+                                        {renderFieldValue(client.bank_account)}
+                                    </TableCell>
+                                    <TableCell
+                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
+                                    >
+                                        {renderFieldValue(client.inn)}
+                                    </TableCell>
+                                    <TableCell
+                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
+                                    >
+                                        {renderFieldValue(client.mfo)}
+                                    </TableCell>
+                                    <TableCell
+                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        onClick={() => handleRowClick(client)}
+                                    >
+                                        {renderFieldValue(client.oked)}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        <Button
+                                            className="mr-2"
+                                            onClick={() => {
+                                                openModal();
+                                                setSelectedUser(client);
+                                            }}
+                                            size="xs"
+                                            variant="outline"
+                                            startIcon={
+                                                <PencilIcon className="size-4" />
+                                            }
+                                        >
+                                            {""}
+                                        </Button>
+                                        <Button
+                                            className="mr-2"
+                                            // onClick={() => {
+                                            //     openModal();
+                                            //     setSelectedUser(order);
+                                            // }}
+                                            size="xs"
+                                            variant="primary"
+                                            startIcon={
+                                                <DownloadIcon className="size-4" />
+                                            }
+                                        >
+                                            {""}
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        )}
                     </TableBody>
                 </Table>
             </div>

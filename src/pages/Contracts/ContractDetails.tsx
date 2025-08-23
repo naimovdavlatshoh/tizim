@@ -6,6 +6,7 @@ import { GetDataSimple, PostDataToken } from "../../service/data";
 import generateChequeFromData from "../../utils/contractGeneratorFile";
 import Loader from "../../components/ui/loader/Loader";
 import toast from "react-hot-toast";
+import { formatCurrency } from "../../utils/numberFormat";
 
 // Beautiful outline icons
 const ContractIcon = () => (
@@ -175,7 +176,7 @@ interface Contract {
     mfo: number;
     oked: number;
     business_address: string;
-    contract_status: number;
+    contract_status: string;
     contract_status_text: string;
     contract_payment_status: number;
     contract_payment_status_text: string;
@@ -318,11 +319,11 @@ const ContractDetails = () => {
         }
     };
 
-    const getStatusColor = (status: number) => {
+    const getStatusColor = (status: string) => {
         switch (status) {
-            case 2:
+            case "2":
                 return "success";
-            case 1:
+            case "1":
                 return "warning";
             default:
                 return "error";
@@ -340,12 +341,28 @@ const ContractDetails = () => {
         }
     };
 
-    const formatCurrency = (amount: number) => {
-        return amount.toLocaleString() + " сум";
-    };
+    // formatCurrency function is now imported from utils
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("ru-RU");
+    };
+
+    const getMonthName = (monthNumber: number): string => {
+        const months = [
+            "Январь",
+            "Февраль",
+            "Март",
+            "Апрель",
+            "Май",
+            "Июнь",
+            "Июль",
+            "Август",
+            "Сентябрь",
+            "Октябрь",
+            "Ноябрь",
+            "Декабрь",
+        ];
+        return months[monthNumber - 1] || `Месяц ${monthNumber}`;
     };
 
     if (loading) {
@@ -418,48 +435,50 @@ const ContractDetails = () => {
 
                 <div className="mt-4 flex items-center gap-3">
                     {/* File Upload Button */}
-                    <div className="relative">
-                        <input
-                            type="file"
-                            accept=".pdf"
-                            onChange={handleFileUpload}
-                            className="hidden"
-                            id="pdf-upload"
-                            disabled={uploading}
-                        />
-                        <label
-                            htmlFor="pdf-upload"
-                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-md font-medium cursor-pointer transition-colors ${
-                                uploading
-                                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                                    : "bg-green-600 text-white hover:bg-green-700"
-                            }`}
-                        >
-                            {uploading ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    Загрузка...
-                                </>
-                            ) : (
-                                <>
-                                    <svg
-                                        className="w-5 h-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={1.5}
-                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                                        />
-                                    </svg>
-                                    Загрузить PDF
-                                </>
-                            )}
-                        </label>
-                    </div>
+                    {currentContract.contract_status === "1" && (
+                        <div className="relative">
+                            <input
+                                type="file"
+                                accept=".pdf"
+                                onChange={handleFileUpload}
+                                className="hidden"
+                                id="pdf-upload"
+                                disabled={uploading}
+                            />
+                            <label
+                                htmlFor="pdf-upload"
+                                className={`inline-flex items-center gap-2 px-4 py-2 rounded-md font-medium cursor-pointer transition-colors ${
+                                    uploading
+                                        ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                                        : "bg-green-600 text-white hover:bg-green-700"
+                                }`}
+                            >
+                                {uploading ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                        Загрузка...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg
+                                            className="w-5 h-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={1.5}
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                                            />
+                                        </svg>
+                                        Загрузить PDF
+                                    </>
+                                )}
+                            </label>
+                        </div>
+                    )}
 
                     {/* Download Document Button */}
                     <button
@@ -672,14 +691,16 @@ const ContractDetails = () => {
                                             }
                                         >
                                             <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {payment.month_of_payment}
+                                                {getMonthName(
+                                                    payment.month_of_payment
+                                                )}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 {formatCurrency(
                                                     payment.monthly_fee
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 {formatCurrency(
                                                     payment.given_amount
                                                 )}

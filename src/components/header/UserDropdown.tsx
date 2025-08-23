@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
+import { clearAuthData } from "../../utils/authUtils";
 
 export default function UserDropdown() {
     const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +14,7 @@ export default function UserDropdown() {
     }
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
+        clearAuthData();
         window.location.reload();
     };
 
@@ -28,7 +29,7 @@ export default function UserDropdown() {
                 </span>
 
                 <span className="block mr-1 font-medium text-theme-sm">
-                    Musharof
+                    {localStorage.getItem("login")}
                 </span>
                 <svg
                     className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
@@ -57,10 +58,7 @@ export default function UserDropdown() {
             >
                 <div>
                     <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-                        Musharof Chowdhury
-                    </span>
-                    <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-                        randomuser@pimjo.com
+                        {localStorage.getItem("name")}
                     </span>
                 </div>
 

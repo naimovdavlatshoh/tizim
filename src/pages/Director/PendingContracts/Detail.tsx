@@ -1,7 +1,8 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import ComponentCard from "../../../components/common/ComponentCard";
 import Badge from "../../../components/ui/badge/Badge";
+import { formatCurrency } from "../../../utils/numberFormat";
 import { GetDataSimple } from "../../../service/data";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
@@ -149,11 +150,7 @@ const PendingContractDetail = () => {
         }
     };
 
-    const formatCurrency = (amount: string) => {
-        const numAmount = parseFloat(amount);
-        if (isNaN(numAmount)) return "0 сум";
-        return numAmount.toLocaleString() + " сум";
-    };
+    // formatCurrency function is now imported from utils
 
     const formatDate = (dateString: string | null) => {
         if (!dateString) return "Не указано";

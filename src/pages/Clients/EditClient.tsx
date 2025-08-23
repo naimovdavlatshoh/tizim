@@ -102,8 +102,26 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
             passport_given_by: passportGivenBy || undefined,
             passport_given_date: passportGivenDate || undefined,
         };
+        const payload2 = {
+            client_name: clientName,
+            phone_number: phoneNumber,
+            business_name: businessName || undefined,
+            business_address: businessAddress || undefined,
+            bank_account: bankAccount || undefined,
+            bank_address: bankAddress || undefined,
+            inn: inn || undefined,
+            mfo: mfo || undefined,
+            oked: oked || undefined,
+            // client_address: clientAddress || undefined,
+            // passport_series: passportSeries || undefined,
+            // passport_given_by: passportGivenBy || undefined,
+            // passport_given_date: passportGivenDate || undefined,
+        };
 
-        PostDataTokenJson(`api/clients/update/${client?.client_id}`, payload)
+        PostDataTokenJson(
+            `api/clients/update/${client?.client_id}`,
+            client?.client_type === "1" ? payload2 : payload
+        )
             .then((res: any) => {
                 if (res?.status === 200 || res?.success) {
                     changeStatus();
@@ -117,10 +135,12 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                 }
             })
             .catch((error: any) => {
-                console.error("Ошибка:", error);
+                onClose();
                 const errorMessage =
                     error?.response?.data?.error || "Что-то пошло не так";
                 setResponse(errorMessage);
+                // console.log(error);
+
                 // Toast faqat backend dan response kelganda
                 toast.error(errorMessage);
             })
@@ -250,59 +270,13 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                                 onChange={(e) => setOked(e.target.value)}
                             />
                         </div>
-                        <div>
-                            <Label htmlFor="clientAddress">Адрес клиента</Label>
-                            <Input
-                                type="text"
-                                id="clientAddress"
-                                placeholder="Адрес клиента"
-                                value={clientAddress}
-                                onChange={(e) =>
-                                    setClientAddress(e.target.value)
-                                }
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="passportSeries">
-                                Серия паспорта
-                            </Label>
-                            <Input
-                                type="text"
-                                id="passportSeries"
-                                placeholder="AA1234567"
-                                value={passportSeries}
-                                onChange={(e) =>
-                                    setPassportSeries(e.target.value)
-                                }
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="passportGivenBy">
-                                Кем выдан паспорт
-                            </Label>
-                            <Input
-                                type="text"
-                                id="passportGivenBy"
-                                placeholder="Кем выдан паспорт"
-                                value={passportGivenBy}
-                                onChange={(e) =>
-                                    setPassportGivenBy(e.target.value)
-                                }
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="passportGivenDate">
-                                Дата выдачи паспорта
-                            </Label>
-                            <Input
-                                type="date"
-                                id="passportGivenDate"
-                                value={passportGivenDate}
-                                onChange={(e) =>
-                                    setPassportGivenDate(e.target.value)
-                                }
-                            />
-                        </div>
+                        {/*
+                        // Commented out - not needed for legal entities:
+                        // - Адрес клиента (client_address)
+                        // - Серия паспорта (passport_series)
+                        // - Кем выдан паспорт (passport_given_by)
+                        // - Дата выдачи паспорта (passport_given_date)
+                        */}
                         <div className="md:col-span-2">
                             <Label htmlFor="file">Файл</Label>
                             <input

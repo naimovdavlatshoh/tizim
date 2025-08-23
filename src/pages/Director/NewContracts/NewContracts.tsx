@@ -17,6 +17,8 @@ import {
 import Linkto from "../../../components/ui/link/LinkTo";
 import Button from "../../../components/ui/button/Button";
 import AssignModal from "./AssignModal";
+import { formatCurrency } from "../../../utils/numberFormat";
+import Loader from "../../../components/ui/loader/Loader.tsx";
 
 interface NewContract {
     contract_id: string;
@@ -48,6 +50,7 @@ const NewContracts = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
+
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] =
         useState<NewContract | null>(null);
@@ -69,9 +72,11 @@ const NewContracts = () => {
 
             setContracts(contractsData);
             setTotalPages(totalPagesData);
+            setLoading(false);
         } catch (error) {
             console.error("Error fetching new contracts:", error);
             toast.error("Ошибка при загрузке новых контрактов");
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -90,6 +95,10 @@ const NewContracts = () => {
         // Refresh the contracts list after successful assignment
         fetchNewContracts();
     };
+
+    if (loading) {
+        return <Loader />;
+    }
 
     return (
         <>
@@ -209,10 +218,11 @@ const NewContracts = () => {
                                                     handleRowClick(contract)
                                                 }
                                             >
-                                                {parseFloat(
-                                                    contract.worker_price
-                                                ).toLocaleString()}{" "}
-                                                сум
+                                                {formatCurrency(
+                                                    parseFloat(
+                                                        contract.worker_price
+                                                    )
+                                                )}
                                             </TableCell>
                                             <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
