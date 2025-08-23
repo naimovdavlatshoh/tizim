@@ -35,15 +35,21 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
     const [response, setResponse] = useState("");
     const [selectedUser, setSelectedUser] = useState<Users | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     console.log(response);
 
-    const onDeleteUser = () => {
-        DeleteData(`api/user/delete/${selectedUser?.user_id}`).then(() => {
-            toast.success("Пользователь успешно удален");
+    const onDeleteUser = async () => {
+        setIsDeleting(true);
+        try {
+            await DeleteData(`api/user/delete/${selectedUser?.user_id}`);
+            toast.success("Пользователь успешно удален!");
             changeStatus();
-        });
-
-        setDeleteModalOpen(false);
+        } catch (error) {
+            toast.error("Что-то пошло не так при удалении пользователя");
+        } finally {
+            setIsDeleting(false);
+            setDeleteModalOpen(false);
+        }
     };
 
     return (
@@ -167,6 +173,7 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                         ? `${selectedUser.firstname} ${selectedUser.lastname}`
                         : ""
                 }
+                isDeleting={isDeleting}
             />
         </div>
     );

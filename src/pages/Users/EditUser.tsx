@@ -29,6 +29,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [roleId, setRoleId] = useState<number | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const options = [
         { value: 1, label: "Директор" },
@@ -61,6 +62,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             return;
         }
 
+        setIsLoading(true);
+
         const payload: any = {
             firstname,
             lastname,
@@ -91,6 +94,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     error?.response?.data?.error || "Произошла ошибка";
                 setResponse(errorMessage);
                 toast.error(errorMessage);
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     };
 
@@ -202,9 +208,21 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     <button
                         type="button"
                         onClick={handleSubmit}
-                        className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                        disabled={isLoading}
+                        className={`px-4 py-2 rounded-md text-white transition-colors ${
+                            isLoading
+                                ? "bg-blue-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700"
+                        }`}
                     >
-                        Сохранить изменения
+                        {isLoading ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Сохранение...
+                            </div>
+                        ) : (
+                            "Сохранить изменения"
+                        )}
                     </button>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 // import React from "react";
 
+import { useState } from "react";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 
@@ -8,6 +9,7 @@ interface DeleteUserModalProps {
     onClose: () => void;
     onDelete: () => void;
     userName?: string;
+    isDeleting?: boolean;
 }
 
 export default function DeleteUserModal({
@@ -15,7 +17,21 @@ export default function DeleteUserModal({
     onClose,
     onDelete,
     userName,
+    isDeleting = false,
 }: DeleteUserModalProps) {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleDelete = async () => {
+        setIsLoading(true);
+        try {
+            await onDelete();
+        } catch (error) {
+            console.error("Error deleting user:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <Modal
             isOpen={isOpen}
@@ -32,11 +48,26 @@ export default function DeleteUserModal({
                 </p>
 
                 <div className="mt-6 flex justify-end gap-3">
-                    <Button variant="outline" onClick={onClose}>
+                    <Button
+                        variant="outline"
+                        onClick={onClose}
+                        disabled={isLoading}
+                    >
                         Отмена
                     </Button>
-                    <Button variant="danger" onClick={onDelete}>
-                        Удалить
+                    <Button
+                        variant="danger"
+                        onClick={handleDelete}
+                        disabled={isLoading || isDeleting}
+                    >
+                        {isLoading || isDeleting ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Удаление...
+                            </div>
+                        ) : (
+                            "Удалить"
+                        )}
                     </Button>
                 </div>
             </div>

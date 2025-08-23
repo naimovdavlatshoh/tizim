@@ -29,6 +29,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [roleId, setRoleId] = useState<number | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const options = [
         { value: 1, label: "Директор" },
@@ -52,6 +53,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             alert("Пожалуйста, заполните все поля.");
             return;
         }
+
+        setIsLoading(true);
 
         const payload = {
             firstname,
@@ -89,6 +92,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                 setFathername("");
                 setLogin("");
                 setPassword("");
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     };
 
@@ -182,9 +188,21 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className="px-4 py-2 rounded-md bg-blue-600 text-white"
+                        disabled={isLoading}
+                        className={`px-4 py-2 rounded-md text-white transition-colors ${
+                            isLoading
+                                ? "bg-blue-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700"
+                        }`}
                     >
-                        Сохранить
+                        {isLoading ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Сохранение...
+                            </div>
+                        ) : (
+                            "Сохранить"
+                        )}
                     </button>
                 </div>
             </div>

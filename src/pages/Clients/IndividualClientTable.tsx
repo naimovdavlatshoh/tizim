@@ -43,21 +43,23 @@ export default function IndividualClientTable({
     console.log(response);
 
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [clientDetailsModalOpen, setClientDetailsModalOpen] = useState(false);
     const [selectedClient, setSelectedClient] =
         useState<IndividualClient | null>(null);
 
-    const onDeleteUser = () => {
-        DeleteData(`api/user/delete/${selectedUser?.client_id}`)
-            .then(() => {
-                toast.success("Пользователь успешно удален!");
-                changeStatus();
-            })
-            .catch(() => {
-                toast.error("Что-то пошло не так при удалении пользователя");
-            });
-
-        setDeleteModalOpen(false);
+    const onDeleteUser = async () => {
+        setIsDeleting(true);
+        try {
+            await DeleteData(`api/user/delete/${selectedUser?.client_id}`);
+            toast.success("Пользователь успешно удален!");
+            changeStatus();
+        } catch (error) {
+            toast.error("Что-то пошло не так при удалении пользователя");
+        } finally {
+            setIsDeleting(false);
+            setDeleteModalOpen(false);
+        }
     };
 
     const handleRowClick = (client: IndividualClient) => {
@@ -242,6 +244,7 @@ export default function IndividualClientTable({
                 onClose={() => setDeleteModalOpen(false)}
                 onDelete={onDeleteUser}
                 userName={selectedUser ? `${selectedUser.client_name}` : ""}
+                isDeleting={isDeleting}
             />
             <ClientDetailsModal
                 isOpen={clientDetailsModalOpen}

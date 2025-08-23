@@ -1,5 +1,6 @@
 // import React from "react";
 
+import { useState } from "react";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import { toast } from "react-hot-toast";
@@ -9,6 +10,7 @@ interface DeleteUserModalProps {
     onClose: () => void;
     onDelete: () => void;
     userName?: string;
+    isDeleting?: boolean;
 }
 
 export default function DeleteUserModal({
@@ -16,14 +18,20 @@ export default function DeleteUserModal({
     onClose,
     onDelete,
     userName,
+    isDeleting = false,
 }: DeleteUserModalProps) {
-    const handleDelete = () => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleDelete = async () => {
+        setIsLoading(true);
         try {
-            onDelete();
+            await onDelete();
             toast.success("Клиент успешно удален!");
             onClose();
         } catch (error) {
             toast.error("Что-то пошло не так при удалении клиента");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -73,6 +81,7 @@ export default function DeleteUserModal({
                         variant="outline"
                         onClick={onClose}
                         className="px-4 py-2"
+                        disabled={isLoading}
                     >
                         Отмена
                     </Button>
@@ -80,8 +89,16 @@ export default function DeleteUserModal({
                         variant="danger"
                         onClick={handleDelete}
                         className="px-4 py-2"
+                        disabled={isLoading || isDeleting}
                     >
-                        Удалить
+                        {isLoading || isDeleting ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Удаление...
+                            </div>
+                        ) : (
+                            "Удалить"
+                        )}
                     </Button>
                 </div>
             </div>

@@ -16,7 +16,7 @@ import {
 } from "../../../components/ui/table";
 import Linkto from "../../../components/ui/link/LinkTo";
 import AssignModal from "../NewContracts/AssignModal";
-import { formatCurrency } from "../../../utils/numberFormat";
+// import { formatCurrency } from "../../../utils/numberFormat";
 import Loader from "../../../components/ui/loader/Loader.tsx";
 
 interface PendingContract {
@@ -143,7 +143,7 @@ const PendingContracts = () => {
                                         >
                                             Клиент
                                         </TableCell>
-                                        <TableCell
+                                        {/* <TableCell
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
@@ -154,7 +154,7 @@ const PendingContracts = () => {
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
                                             Адрес объекта
-                                        </TableCell>
+                                        </TableCell> */}
                                         <TableCell
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -173,12 +173,12 @@ const PendingContracts = () => {
                                         >
                                             Исполнитель
                                         </TableCell>
-                                        <TableCell
+                                        {/* <TableCell
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
                                             Комментарии
-                                        </TableCell>
+                                        </TableCell> */}
                                         <TableCell
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -213,7 +213,7 @@ const PendingContracts = () => {
                                                 >
                                                     {contract.client_name}
                                                 </TableCell>
-                                                <TableCell
+                                                {/* <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
                                                         handleRowClick(contract)
@@ -232,7 +232,7 @@ const PendingContracts = () => {
                                                     }
                                                 >
                                                     {contract.object_address}
-                                                </TableCell>
+                                                </TableCell> */}
                                                 <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
@@ -275,7 +275,7 @@ const PendingContracts = () => {
                                                         </span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell
+                                                {/* <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
                                                         handleRowClick(contract)
@@ -283,7 +283,7 @@ const PendingContracts = () => {
                                                 >
                                                     {contract.comments ||
                                                         "Нет комментариев"}
-                                                </TableCell>
+                                                </TableCell> */}
                                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                     <div className="flex items-center gap-2">
                                                         <Linkto

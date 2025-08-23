@@ -52,6 +52,7 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [clientDetailsModalOpen, setClientDetailsModalOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Users | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     console.log(response);
 
     // Helper function to render field value or "Не указано" badge
@@ -68,17 +69,18 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
         return value;
     };
 
-    const onDeleteUser = () => {
-        DeleteData(`api/user/delete/${selectedUser?.client_id}`)
-            .then(() => {
-                toast.success("Пользователь успешно удален!");
-                changeStatus();
-            })
-            .catch(() => {
-                toast.error("Что-то пошло не так при удалении пользователя");
-            });
-
-        setDeleteModalOpen(false);
+    const onDeleteUser = async () => {
+        setIsDeleting(true);
+        try {
+            await DeleteData(`api/user/delete/${selectedUser?.client_id}`);
+            toast.success("Пользователь успешно удален!");
+            changeStatus();
+        } catch (error) {
+            toast.error("Что-то пошло не так при удалении пользователя");
+        } finally {
+            setIsDeleting(false);
+            setDeleteModalOpen(false);
+        }
     };
 
     const handleRowClick = (client: Users) => {
@@ -138,7 +140,7 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                     className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                     onClick={() => handleRowClick(order)}
                                 >
-                                   {index+1}
+                                    {index + 1}
                                 </TableCell>
                                 <TableCell
                                     className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
@@ -233,6 +235,7 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                         ? `${selectedUser.firstname} ${selectedUser.lastname}`
                         : ""
                 }
+                isDeleting={isDeleting}
             />
             <ClientDetailsModal
                 isOpen={clientDetailsModalOpen}

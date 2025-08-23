@@ -44,21 +44,23 @@ export default function LegalEntityClientTable({
         null
     );
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [clientDetailsModalOpen, setClientDetailsModalOpen] = useState(false);
     const [selectedClient, setSelectedClient] =
         useState<LegalEntityClient | null>(null);
 
-    const onDeleteUser = () => {
-        DeleteData(`api/user/delete/${selectedUser?.client_id}`)
-            .then(() => {
-                toast.success("Пользователь успешно удален!");
-                changeStatus();
-            })
-            .catch(() => {
-                toast.error("Что-то пошло не так при удалении пользователя");
-            });
-
-        setDeleteModalOpen(false);
+    const onDeleteUser = async () => {
+        setIsDeleting(true);
+        try {
+            await DeleteData(`api/user/delete/${selectedUser?.client_id}`);
+            toast.success("Пользователь успешно удален!");
+            changeStatus();
+        } catch (error) {
+            toast.error("Что-то пошло не так при удалении пользователя");
+        } finally {
+            setIsDeleting(false);
+            setDeleteModalOpen(false);
+        }
     };
 
     console.log(response);
@@ -263,6 +265,7 @@ export default function LegalEntityClientTable({
                 onClose={() => setDeleteModalOpen(false)}
                 onDelete={onDeleteUser}
                 userName={selectedUser ? `${selectedUser.business_name}` : ""}
+                isDeleting={isDeleting}
             />
             <ClientDetailsModal
                 isOpen={clientDetailsModalOpen}

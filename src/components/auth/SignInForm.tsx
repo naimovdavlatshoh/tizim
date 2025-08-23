@@ -13,10 +13,13 @@ export default function SignInForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     // const navigate = useNavigate();
     // const [isChecked, setIsChecked] = useState(false);
     const handleSubmit = (e: any) => {
         e.preventDefault();
+        setIsLoading(true);
+
         const data = {
             login: login.trim(),
             password: password,
@@ -26,7 +29,10 @@ export default function SignInForm() {
                 localStorage.setItem("token", res.data.jwt);
                 localStorage.setItem("role_id", res.data.role_id);
                 localStorage.setItem("login", res.data.login);
-                localStorage.setItem("name", res.data.firstname + " " + res.data.lastname);
+                localStorage.setItem(
+                    "name",
+                    res.data.firstname + " " + res.data.lastname
+                );
                 toast.success(res.data.message);
                 console.log(res.data);
 
@@ -37,6 +43,9 @@ export default function SignInForm() {
 
             .catch(() => {
                 toast.error("Что-то пошло не так");
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     };
 
@@ -180,8 +189,19 @@ export default function SignInForm() {
                   </Link>
                 </div> */}
                                 <div>
-                                    <Button className="w-full" size="sm">
-                                        Sign in
+                                    <Button
+                                        className="w-full"
+                                        size="sm"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                Вход...
+                                            </div>
+                                        ) : (
+                                            "Sign in"
+                                        )}
                                     </Button>
                                 </div>
                             </div>
