@@ -35,55 +35,55 @@ const generateDocument = async (contractData: any) => {
     };
 
     const numberToWords = (num: number): string => {
-        if (num === 0) return "ноль";
+        if (num === 0) return "нол";
 
         const ones = [
             "",
-            "один",
-            "два",
-            "три",
-            "четыре",
-            "пять",
-            "шесть",
-            "семь",
-            "восемь",
-            "девять",
+            "бир",
+            "икки",
+            "уч",
+            "тўрт",
+            "беш",
+            "олти",
+            "етти",
+            "саккиз",
+            "тўққиз",
         ];
         const teens = [
-            "десять",
-            "одиннадцать",
-            "двенадцать",
-            "тринадцать",
-            "четырнадцать",
-            "пятнадцать",
-            "шестнадцать",
-            "семнадцать",
-            "восемнадцать",
-            "девятнадцать",
+            "ўн",
+            "ўн бир",
+            "ўн икки",
+            "ўн уч",
+            "ўн тўрт",
+            "ўн беш",
+            "ўн олти",
+            "ўн етти",
+            "ўн саккиз",
+            "ўн тўққиз",
         ];
         const tens = [
             "",
             "",
-            "двадцать",
-            "тридцать",
-            "сорок",
-            "пятьдесят",
-            "шестьдесят",
-            "семьдесят",
-            "восемьдесят",
-            "девяносто",
+            "йигирма",
+            "ўттиз",
+            "қирқ",
+            "эллик",
+            "олтмиш",
+            "етмиш",
+            "саксон",
+            "тўқсон",
         ];
         const hundreds = [
             "",
-            "сто",
-            "двести",
-            "триста",
-            "четыреста",
-            "пятьсот",
-            "шестьсот",
-            "семьсот",
-            "восемьсот",
-            "девятьсот",
+            "юз",
+            "икки юз",
+            "уч юз",
+            "тўрт юз",
+            "беш юз",
+            "олти юз",
+            "етти юз",
+            "саккиз юз",
+            "тўққиз юз",
         ];
 
         const convertGroup = (n: number): string => {
@@ -119,7 +119,7 @@ const generateDocument = async (contractData: any) => {
             remaining = Math.floor(remaining / 1000);
         }
 
-        const groupNames = ["", "тысяч", "миллионов", "миллиардов"];
+        const groupNames = ["", "минг", "миллион", "миллиард"];
 
         let result = "";
         for (let i = 0; i < groups.length; i++) {
@@ -132,7 +132,7 @@ const generateDocument = async (contractData: any) => {
             }
         }
 
-        return result.trim() + " сум";
+        return result.trim() + " сўм";
     };
 
     // Pre-fetch QR code image if it's a URL
@@ -213,6 +213,7 @@ const generateDocument = async (contractData: any) => {
         created_at: contractData?.created_at
             ? formatDate(contractData.created_at)
             : "N/A",
+        contract_date_text: contractData?.contract_date_text,
 
         // Laboratory tests
         lab_tests_count: contractData?.laboratory?.length || 0,
@@ -257,18 +258,18 @@ const generateDocument = async (contractData: any) => {
 
     // Monthly payments for specific months (if needed)
     const monthNames: any = {
-        1: "yanvar",
-        2: "fevral",
-        3: "mart",
-        4: "aprel",
-        5: "may",
-        6: "iyun",
-        7: "iyul",
-        8: "avgust",
-        9: "sentyabr",
-        10: "oktabr",
-        11: "noyabr",
-        12: "dekabr",
+        1: "январ",
+        2: "феврал",
+        3: "март",
+        4: "апрел",
+        5: "май",
+        6: "июн",
+        7: "июл",
+        8: "август",
+        9: "сентябр",
+        10: "октябр",
+        11: "ноябр",
+        12: "декабр",
     };
 
     // Add monthly payments to template data
