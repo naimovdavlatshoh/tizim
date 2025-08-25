@@ -18,10 +18,8 @@ export default function ExpenseCategoryList() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [status, setStatus] = useState(false);
-    const [response, setResponse] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
     const [loading, setLoading] = useState(false);
-    console.log(response);
 
     useEffect(() => {
         if (currentPage === "expense-categories") {

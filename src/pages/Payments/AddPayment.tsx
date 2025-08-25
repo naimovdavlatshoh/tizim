@@ -319,8 +319,8 @@ export default function AddPaymentModal({
                     <TextArea
                         placeholder="Введите комментарий"
                         value={formData.comments}
-                        onChange={(value: string) =>
-                            handleInputChange("comments", value)
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                            handleInputChange("comments", e.target.value)
                         }
                         rows={3}
                     />
