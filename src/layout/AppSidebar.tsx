@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router";
 import { IoDocumentLockOutline } from "react-icons/io5";
 import { MdPendingActions } from "react-icons/md";
 import { GrMoney } from "react-icons/gr";
+import { TbCategory } from "react-icons/tb";
 
 // Assume these icons are imported from an icon library
 import {
@@ -79,6 +80,12 @@ const navItems: NavItem[] = [
         name: "Платежи",
         icon: <GrMoney />,
         path: "/payments",
+        roles: [1, 2], // Admin va Director
+    },
+    {
+        name: "Категории расходов",
+        icon: <TbCategory />,
+        path: "/expense-categories",
         roles: [1, 2], // Admin va Director
     },
     // {

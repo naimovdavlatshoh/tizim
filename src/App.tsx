@@ -25,6 +25,7 @@ import ContractList from "./pages/Contracts/ContractList";
 import ContractDetails from "./pages/Contracts/ContractDetails";
 import AddContract from "./pages/Contracts/AddContract";
 import PaymentList from "./pages/Payments/PaymentList";
+import ExpenseCategoryList from "./pages/ExpenseCategories/ExpenseCategoryList";
 import { SearchProvider } from "./context/SearchContext";
 import NewContracts from "./pages/Director/NewContracts/NewContracts";
 import NewContractDetail from "./pages/Director/NewContracts/Detail";
@@ -127,6 +128,10 @@ export default function App() {
                                 element={<MyContractDetail />}
                             />
                             <Route path="/payments" element={<PaymentList />} />
+                            <Route
+                                path="/expense-categories"
+                                element={<ExpenseCategoryList />}
+                            />
 
                             {/* Ui Elements */}
                             <Route path="/alerts" element={<Alerts />} />

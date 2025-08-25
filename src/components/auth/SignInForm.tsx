@@ -192,6 +192,7 @@ export default function SignInForm() {
                                     <Button
                                         className="w-full"
                                         size="sm"
+                                        type="submit"
                                         disabled={isLoading}
                                     >
                                         {isLoading ? (
