@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { GetDataSimple } from "../../service/data";
+import { GetDataSimpleBlob } from "../../service/data";
 import { toast } from "react-hot-toast";
 import { Modal } from "../../components/ui/modal";
 import { TbFaceId } from "react-icons/tb";
@@ -25,26 +25,36 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
         setSelectedFaceId(faceId);
         setIsImageModalOpen(true);
         setLoadingImage(true);
+        setFaceImage(""); // reset
 
         try {
-            const response: any = await GetDataSimple(
-                `api/faceid/faceimage/${faceId.face_id}`
+            // 👉 backenddan blob sifatida olish
+            const response: Blob = await GetDataSimpleBlob(
+                `api/faceid/faceimage/${faceId.face_id}`,
+                { responseType: "blob" }
             );
 
-            if (response?.data) {
-                setFaceImage(response.data);
+            console.log("API Response (blob):", response);
+
+            if (response && response instanceof Blob) {
+                const objectUrl = URL.createObjectURL(response);
+                setFaceImage(objectUrl);
             } else {
-                // toast.error("Rasm topilmadi");
+                console.error("API blob qaytarmadi!");
+                toast.error("Rasmni o'qib bo'lmadi");
             }
         } catch (error) {
             console.error("Error fetching face image:", error);
-            // toast.error("Rasm yuklanmadi");
+            toast.error("Rasm yuklanmadi");
         } finally {
             setLoadingImage(false);
         }
     };
 
     const closeImageModal = () => {
+        if (faceImage) {
+            URL.revokeObjectURL(faceImage); // 🔥 memory leak bo‘lmasligi uchun
+        }
         setIsImageModalOpen(false);
         setSelectedFaceId(null);
         setFaceImage("");
@@ -127,21 +137,23 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
                             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : faceImage ? (
-                        <div className="flex justify-center">
+                        <div className="flex flex-col items-center py-3">
                             <img
                                 src={faceImage}
                                 alt={`Face ID ${selectedFaceId?.face_id}`}
                                 className="max-w-full max-h-96 rounded-lg shadow-lg"
-                                onError={(e) => {
-                                    console.error("Image load error:", e);
+                                onError={() => {
+                                    console.error("Image load error");
                                     toast.error("Rasm yuklanmadi");
+                                    setFaceImage("");
+                                }}
+                                onLoad={() => {
+                                    console.log("Image loaded successfully");
                                 }}
                             />
                         </div>
                     ) : (
-                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                            Нет лица
-                        </div>
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400"></div>
                     )}
                 </div>
             </Modal>

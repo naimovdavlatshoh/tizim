@@ -1,19 +1,32 @@
 import axios from "axios";
 import { handleAuthError } from "../utils/authUtils";
 
-// Add response interceptor to handle 401 errors globally
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
-        // Handle 401 Unauthorized errors globally
+
         if (handleAuthError(error)) {
-            // Return a resolved promise to prevent further error handling
-            // The page will reload automatically
+
             return Promise.resolve({ data: { handled: true } });
         }
         return Promise.reject(error);
     }
 );
+
+export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
+    const token = localStorage.getItem("token"); // yoki sessionStorage
+
+    const response = await axios.get(BASE_URL + url, {
+        responseType: config.responseType || "json", // blob yoki json
+        headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...config.headers,
+        },
+        ...config,
+    });
+
+    return response.data;
+};
 
 export const BASE_URL = "https://apitizim.argon.uz/";
 
