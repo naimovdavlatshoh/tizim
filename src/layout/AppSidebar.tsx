@@ -4,6 +4,8 @@ import { IoDocumentLockOutline } from "react-icons/io5";
 import { MdPendingActions } from "react-icons/md";
 import { GrMoney } from "react-icons/gr";
 import { TbCategory } from "react-icons/tb";
+import { TbFaceId } from "react-icons/tb";
+
 
 // Assume these icons are imported from an icon library
 import {
@@ -23,6 +25,7 @@ import {
     DocsIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import { useSearch } from "../context/SearchContext";
 // import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
@@ -86,6 +89,18 @@ const navItems: NavItem[] = [
         name: "Категории расходов",
         icon: <TbCategory />,
         path: "/expense-categories",
+        roles: [1, 2], // Admin va Director
+    },
+    {
+        name: "Расходы",
+        icon: <GrMoney />,
+        path: "/expenses",
+        roles: [1, 2], // Admin va Director
+    },
+    {
+        name: "Face ID",
+        icon: <TbFaceId />,
+        path: "/face-id",
         roles: [1, 2], // Admin va Director
     },
     // {
@@ -154,6 +169,7 @@ const othersItems: NavItem[] = [
 
 const AppSidebar: React.FC = () => {
     const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+    const { setCurrentPage } = useSearch();
     const location = useLocation();
 
     // Get user role from localStorage
@@ -214,6 +230,28 @@ const AppSidebar: React.FC = () => {
             }
         }
     }, [openSubmenu]);
+
+    // Set current page for search context
+    useEffect(() => {
+        const path = location.pathname;
+        if (path === "/expenses") {
+            setCurrentPage("expenses");
+        } else if (path === "/faceid") {
+            setCurrentPage("faceid");
+        } else if (path === "/expense-categories") {
+            setCurrentPage("expense-categories");
+        } else if (path === "/clients") {
+            setCurrentPage("clients");
+        } else if (path === "/contracts") {
+            setCurrentPage("contracts");
+        } else if (path === "/payments") {
+            setCurrentPage("payments");
+        } else if (path === "/users") {
+            setCurrentPage("users");
+        } else {
+            setCurrentPage("");
+        }
+    }, [location.pathname, setCurrentPage]);
 
     const handleSubmenuToggle = (
         index: number,

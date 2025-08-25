@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+    createContext,
+    useContext,
+    useState,
+    ReactNode,
+    useEffect,
+} from "react";
 
 interface SearchContextType {
     searchQuery: string;
@@ -17,6 +23,11 @@ export const SearchProvider: React.FC<{ children: ReactNode }> = ({
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState("");
     const [isSearching, setIsSearching] = useState(false);
+
+    // Reset search query when current page changes
+    useEffect(() => {
+        setSearchQuery("");
+    }, [currentPage]);
 
     return (
         <SearchContext.Provider

@@ -103,9 +103,9 @@ export default function ExpenseCategoryList() {
                     desc={
                         <button
                             onClick={openModal}
-                            className="inline-flex items-center justify-center rounded-md bg-brand-500 py-2 px-10 text-center font-medium text-white hover:bg-brand-600 lg:px-8 xl:px-10"
+                            className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition-colors"
                         >
-                            Добавить категорию
+                            + Добавить категорию
                         </button>
                     }
                 >

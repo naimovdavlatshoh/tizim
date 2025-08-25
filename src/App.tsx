@@ -26,6 +26,8 @@ import ContractDetails from "./pages/Contracts/ContractDetails";
 import AddContract from "./pages/Contracts/AddContract";
 import PaymentList from "./pages/Payments/PaymentList";
 import ExpenseCategoryList from "./pages/ExpenseCategories/ExpenseCategoryList";
+import ExpenseList from "./pages/Expenses";
+import FaceIdList from "./pages/FaceId";
 import { SearchProvider } from "./context/SearchContext";
 import NewContracts from "./pages/Director/NewContracts/NewContracts";
 import NewContractDetail from "./pages/Director/NewContracts/Detail";
@@ -132,6 +134,8 @@ export default function App() {
                                 path="/expense-categories"
                                 element={<ExpenseCategoryList />}
                             />
+                            <Route path="/expenses" element={<ExpenseList />} />
+                            <Route path="/face-id" element={<FaceIdList />} />
 
                             {/* Ui Elements */}
                             <Route path="/alerts" element={<Alerts />} />
