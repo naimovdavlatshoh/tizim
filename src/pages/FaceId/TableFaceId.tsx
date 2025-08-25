@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { GetDataSimple } from "../../service/data";
 import { toast } from "react-hot-toast";
 import { Modal } from "../../components/ui/modal";
-import { EyeIcon } from "../../icons";
 import { TbFaceId } from "react-icons/tb";
 
 interface FaceId {
