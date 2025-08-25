@@ -3,6 +3,7 @@ import Button from "../../components/ui/button/Button.tsx";
 import { toast } from "react-hot-toast";
 import { DeleteData } from "../../service/data.ts";
 import { Modal } from "../../components/ui/modal/index.tsx";
+import { TrashBinIcon } from "../../icons/index.ts";
 
 interface Expense {
     expenses_id: number;
@@ -144,9 +145,13 @@ export default function TableExpense({
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <Button
                                         onClick={() => openDeleteModal(expense)}
-                                        className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
+                                        size="xs"
+                                        variant="danger"
+                                        startIcon={
+                                            <TrashBinIcon className="size-4" />
+                                        }
                                     >
-                                        Удалить
+                                        {""}
                                     </Button>
                                 </td>
                             </tr>
