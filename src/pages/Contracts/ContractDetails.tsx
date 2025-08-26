@@ -274,7 +274,7 @@ const ContractDetails = () => {
 
     useEffect(() => {
         if (id) {
-            GetDataSimple(`api/contracts/qr/${id}`).then((res) => {
+            GetDataSimple(`api/contracts/qrcode/${id}`).then((res) => {
                 console.log(res);
                 setQrCode(res.success);
             });

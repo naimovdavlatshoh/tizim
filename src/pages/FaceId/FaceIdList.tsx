@@ -5,14 +5,16 @@ import { toast } from "react-hot-toast";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadCrumb from "../../components/common/PageBreadCrumb";
-
+import Pagination from "../../components/common/Pagination";
 import Loader from "../../components/ui/loader/Loader";
 import TableFaceId from "./TableFaceId";
 
 interface FaceId {
     face_id: number;
     name: string;
-    created_at: string;
+    work_date: string;
+    arrival_time: string;
+    leave_time: string;
 }
 
 const FaceIdList: React.FC = () => {
@@ -65,45 +67,34 @@ const FaceIdList: React.FC = () => {
             />
             <PageBreadCrumb pageTitle="Face ID" />
 
-            <div className="mx-auto max-w-screen-2xl  ">
+            <div className="mx-auto max-w-screen-2xl">
                 <ComponentCard
                     title="Face ID"
-                    desc="Управление Face ID пользователей"
+                    desc={""}
                 >
                     {loading ? (
                         <div className="flex justify-center items-center py-8">
                             <Loader />
                         </div>
                     ) : (
-                        <TableFaceId
-                            faceIds={filteredFaceIds}
-                            changeStatus={changeStatus}
-                        />
+                        <>
+                            <TableFaceId
+                                faceIds={filteredFaceIds}
+                                changeStatus={changeStatus}
+                            />
+
+                            {totalPages > 1 && (
+                                <div className="mt-4">
+                                    <Pagination
+                                        currentPage={page}
+                                        totalPages={totalPages}
+                                        onPageChange={handlePageChange}
+                                    />
+                                </div>
+                            )}
+                        </>
                     )}
                 </ComponentCard>
-
-                {!loading && totalPages > 1 && (
-                    <div className="mt-6 flex justify-center">
-                        <div className="flex space-x-2">
-                            {Array.from(
-                                { length: totalPages },
-                                (_, i) => i + 1
-                            ).map((pageNum) => (
-                                <button
-                                    key={pageNum}
-                                    onClick={() => handlePageChange(pageNum)}
-                                    className={`px-3 py-2 rounded ${
-                                        page === pageNum
-                                            ? "bg-blue-500 text-white"
-                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                                    }`}
-                                >
-                                    {pageNum}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
             </div>
         </>
     );

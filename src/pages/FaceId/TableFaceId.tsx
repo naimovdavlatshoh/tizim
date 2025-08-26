@@ -7,7 +7,9 @@ import { TbFaceId } from "react-icons/tb";
 interface FaceId {
     face_id: number;
     name: string;
-    created_at: string;
+    work_date: string;
+    arrival_time: string;
+    leave_time: string;
 }
 
 interface TableFaceIdProps {
@@ -67,13 +69,19 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700">
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
-                                ID
+                                #
                             </th>
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
                                 Имя
                             </th>
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
-                                Создан
+                                Дата работы
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
+                                Время входа
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
+                                Время выхода
                             </th>
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
                                 Действия
@@ -91,19 +99,27 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
                                 </td>
                             </tr>
                         ) : (
-                            faceIds.map((faceId) => (
+                            faceIds.map((faceId, index) => (
                                 <tr
                                     key={faceId.face_id}
                                     className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                                 >
                                     <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                                        {faceId.face_id}
+                                        {index + 1}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                                        {faceId.name}
+                                        {faceId?.name}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                                        {faceId.created_at}
+                                        {faceId?.work_date}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                        {faceId?.arrival_time}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                        {faceId?.leave_time
+                                            ? faceId.leave_time
+                                            : "Нет данных"}
                                     </td>
                                     <td className="px-4 py-3">
                                         <button
@@ -128,7 +144,7 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
                 <div className="p-6">
                     <div className="mb-4">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Face ID: {selectedFaceId?.face_id}
+                            {selectedFaceId?.name}
                         </h3>
                     </div>
 
