@@ -103,7 +103,7 @@ const NewContracts = () => {
     return (
         <>
             <PageMeta
-                title="Новые контракты"
+                title="BNM Tizim"
                 description="Список новых контрактов"
             />
             <PageBreadcrumb pageTitle="Новые контракты" />

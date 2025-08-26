@@ -103,7 +103,7 @@ const PendingContracts = () => {
     return (
         <>
             <PageMeta
-                title="Контракты в процессе"
+                title="BNM Tizim"
                 description="Список контрактов в процессе выполнения"
             />
             <PageBreadcrumb pageTitle="Контракты в процессе" />

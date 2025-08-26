@@ -62,7 +62,7 @@ const FaceIdList: React.FC = () => {
     return (
         <>
             <PageMeta
-                title="Face ID - Tizim"
+                title="BNM Tizim"
                 description="Управление Face ID пользователей"
             />
             <PageBreadCrumb pageTitle="Face ID" />

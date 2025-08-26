@@ -137,7 +137,7 @@ export default function ExpenseList() {
 
     return (
         <>
-            <PageMeta title="Расходы" description="Список расходов" />
+            <PageMeta title="BNM Tizim" description="Список расходов" />
             <PageBreadcrumb pageTitle="Расходы" />
             <ComponentCard
                 title="Список расходов"

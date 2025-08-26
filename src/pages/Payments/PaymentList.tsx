@@ -121,7 +121,7 @@ export default function PaymentList() {
 
     return (
         <>
-            <PageMeta title="Платежи" description="Список платежей с поиском" />
+            <PageMeta title="BNM Tizim" description="Список платежей с поиском" />
             <PageBreadcrumb pageTitle="Платежи" />
             <div className="space-y-6">
                 <ComponentCard

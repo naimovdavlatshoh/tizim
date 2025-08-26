@@ -25,7 +25,7 @@ export default function ClientList() {
     const { isOpen, openModal, closeModal } = useModal();
     const [loading, setLoading] = useState(false);
     console.log(response);
-    
+
 
 
     // Tab state
@@ -128,7 +128,7 @@ export default function ClientList() {
 
     return (
         <>
-            <PageMeta title="Список клиентов" description="Список клиентов" />
+            <PageMeta title="BNM Tizim" description="Список клиентов" />
             <PageBreadcrumb pageTitle="Клиенты" />
             <ComponentCard
                 title="Список клиентов"

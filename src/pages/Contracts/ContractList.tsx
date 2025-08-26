@@ -112,7 +112,7 @@ export default function ContractList() {
     return (
         <>
             <PageMeta
-                title="Контракты"
+                title="BNM Tizim"
                 description="Список контрактов с поиском"
             />
             <PageBreadcrumb pageTitle="Контракты" />

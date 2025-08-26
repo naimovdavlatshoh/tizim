@@ -91,7 +91,7 @@ export default function ExpenseCategoryList() {
     return (
         <>
             <PageMeta
-                title="Категории расходов"
+                title="BNM Tizim"
                 description="Список категорий расходов"
             />
 
