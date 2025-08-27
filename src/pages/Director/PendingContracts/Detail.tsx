@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import ComponentCard from "../../../components/common/ComponentCard";
 import Badge from "../../../components/ui/badge/Badge";
 import { formatCurrency } from "../../../utils/numberFormat";
-import { GetDataSimple } from "../../../service/data";
+import { GetDataSimple, PostDataTokenJson } from "../../../service/data";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
+import { Modal } from "../../../components/ui/modal";
+import Button from "../../../components/ui/button/Button";
+import TextArea from "../../../components/form/input/TextArea";
+import Label from "../../../components/form/Label";
+import { toast } from "react-hot-toast";
 
 interface PendingContract {
     contract_id: string;
@@ -57,7 +62,12 @@ const PendingContractDetail = () => {
     const { id } = useParams();
     const [contract, setContract] = useState<PendingContract | null>(null);
     const [loading, setLoading] = useState(true);
-
+    const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [acceptComments, setAcceptComments] = useState("");
+    const [cancelComments, setCancelComments] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
     useEffect(() => {
         if (id) {
             fetchContractDetails();
@@ -86,6 +96,74 @@ const PendingContractDetail = () => {
             console.error("Error fetching contract details:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleAcceptContract = async () => {
+        if (!acceptComments.trim()) {
+            toast.error("Пожалуйста, введите комментарии");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const response = await PostDataTokenJson(
+                "api/appointment/accept/result",
+                {
+                    contract_id: parseInt(contract!.contract_id),
+                    comments: acceptComments.trim(),
+                }
+            );
+
+            if (response?.status === 200 || response?.data?.success) {
+                toast.success("Контракт успешно одобрен!");
+                setIsAcceptModalOpen(false);
+                setAcceptComments("");
+                // Refresh contract data
+                fetchContractDetails();
+                navigate("/pending-contracts");
+            } else {
+                toast.error("Ошибка при одобрении контракта");
+            }
+        } catch (error) {
+            console.error("Error accepting contract:", error);
+            toast.error("Произошла ошибка при одобрении контракта");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleCancelContract = async () => {
+        if (!cancelComments.trim()) {
+            toast.error("Пожалуйста, введите комментарии");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const response = await PostDataTokenJson(
+                "api/appointment/cancel/result",
+                {
+                    contract_id: parseInt(contract!.contract_id),
+                    comments: cancelComments.trim(),
+                }
+            );
+
+            if (response?.status === 200 || response?.data?.success) {
+                toast.success("Контракт успешно отклонен!");
+                setIsCancelModalOpen(false);
+                setCancelComments("");
+                // Refresh contract data
+                navigate("/pending-contracts");
+                fetchContractDetails();
+            } else {
+                toast.error("Ошибка при отклонении контракта");
+            }
+        } catch (error) {
+            console.error("Error canceling contract:", error);
+            toast.error("Произошла ошибка при отклонении контракта");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -205,6 +283,24 @@ const PendingContractDetail = () => {
                                 {formatCurrency(contract.worker_price)}
                             </p>
                         </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <Button
+                            variant="primary"
+                            onClick={() => setIsAcceptModalOpen(true)}
+                            disabled={isSubmitting}
+                        >
+                            Одобрить
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={() => setIsCancelModalOpen(true)}
+                            disabled={isSubmitting}
+                        >
+                            Отказать
+                        </Button>
                     </div>
                 </ComponentCard>
 
@@ -512,6 +608,88 @@ const PendingContractDetail = () => {
                     </ComponentCard>
                 )}
             </div>
+
+            {/* Accept Contract Modal */}
+            <Modal
+                isOpen={isAcceptModalOpen}
+                onClose={() => setIsAcceptModalOpen(false)}
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Одобрить контракт
+                    </h3>
+                    <div className="space-y-4">
+                        <div>
+                            <Label>Комментарии *</Label>
+                            <TextArea
+                                placeholder="Введите комментарии для одобрения..."
+                                value={acceptComments}
+                                onChange={(e) =>
+                                    setAcceptComments(e.target.value)
+                                }
+                                rows={4}
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3 pt-4">
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsAcceptModalOpen(false)}
+                                disabled={isSubmitting}
+                            >
+                                Отмена
+                            </Button>
+                            <Button
+                                variant="primary"
+                                onClick={handleAcceptContract}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? "Обработка..." : "Одобрить"}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Cancel Contract Modal */}
+            <Modal
+                isOpen={isCancelModalOpen}
+                onClose={() => setIsCancelModalOpen(false)}
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Отказать в контракте
+                    </h3>
+                    <div className="space-y-4">
+                        <div>
+                            <Label>Комментарии *</Label>
+                            <TextArea
+                                placeholder="Введите причину отказа..."
+                                value={cancelComments}
+                                onChange={(e) =>
+                                    setCancelComments(e.target.value)
+                                }
+                                rows={4}
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3 pt-4">
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsCancelModalOpen(false)}
+                                disabled={isSubmitting}
+                            >
+                                Отмена
+                            </Button>
+                            <Button
+                                variant="danger"
+                                onClick={handleCancelContract}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? "Обработка..." : "Отказать"}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </>
     );
 };

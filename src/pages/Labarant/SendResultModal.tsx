@@ -195,7 +195,7 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
                     >
                         Отмена
                     </Button>
-                    <Button disabled={loading}>
+                    <Button type="submit" disabled={loading}>
                         {loading ? "Отправка..." : "Отправить"}
                     </Button>
                 </div>

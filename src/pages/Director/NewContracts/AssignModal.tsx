@@ -219,7 +219,7 @@ const AssignModal: React.FC<AssignModalProps> = ({
                     >
                         Отмена
                     </Button>
-                    <Button disabled={loading}>
+                    <Button type="submit" disabled={loading}>
                         {loading ? "Назначение..." : "Назначить"}
                     </Button>
                 </div>
