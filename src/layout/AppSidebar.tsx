@@ -6,7 +6,6 @@ import { GrMoney } from "react-icons/gr";
 import { TbCategory } from "react-icons/tb";
 import { TbFaceId } from "react-icons/tb";
 
-
 // Assume these icons are imported from an icon library
 import {
     // BoxCubeIcon,
@@ -71,6 +70,12 @@ const navItems: NavItem[] = [
         name: "Контракты в процессе",
         icon: <MdPendingActions />,
         path: "/pending-contracts",
+        roles: [1, 2], // Faqat Director
+    },
+    {
+        name: "Завершенные контракты",
+        icon: <DocsIcon />,
+        path: "/completed-contracts",
         roles: [1, 2], // Faqat Director
     },
     {

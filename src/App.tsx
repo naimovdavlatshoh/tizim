@@ -33,6 +33,8 @@ import NewContracts from "./pages/Director/NewContracts/NewContracts";
 import NewContractDetail from "./pages/Director/NewContracts/Detail";
 import PendingContracts from "./pages/Director/PendingContracts/PendingContracts";
 import PendingContractDetail from "./pages/Director/PendingContracts/Detail";
+import CompletedContracts from "./pages/Director/CompletedContracts/CompletedContracts";
+import CompletedContractDetail from "./pages/Director/CompletedContracts/Detail";
 import MyContracts from "./pages/Labarant/MyContracts";
 import MyContractDetail from "./pages/Labarant/Detail";
 
@@ -120,6 +122,14 @@ export default function App() {
                             <Route
                                 path="/pending-contracts/:id"
                                 element={<PendingContractDetail />}
+                            />
+                            <Route
+                                path="/completed-contracts"
+                                element={<CompletedContracts />}
+                            />
+                            <Route
+                                path="/completed-contracts/:id"
+                                element={<CompletedContractDetail />}
                             />
                             <Route
                                 path="/my-contracts"

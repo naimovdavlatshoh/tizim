@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
 import DeleteUserModal from "./DeleteClient";
 import ClientDetailsModal from "./ClientDetailsModal";
-import { DeleteData } from "../../service/data";
+import { DeleteData, GetDataSimpleBlob } from "../../service/data";
 
 interface Users {
     client_id: number;
@@ -53,6 +53,9 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
     const [clientDetailsModalOpen, setClientDetailsModalOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Users | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [downloadingClientId, setDownloadingClientId] = useState<
+        number | null
+    >(null);
     console.log(response);
 
     // Helper function to render field value or "Не указано" badge
@@ -86,6 +89,37 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
     const handleRowClick = (client: Users) => {
         setSelectedClient(client);
         setClientDetailsModalOpen(true);
+    };
+
+    const handleDownloadClientDocument = async (clientId: number) => {
+        setDownloadingClientId(clientId);
+        try {
+            const response = await GetDataSimpleBlob(
+                `api/clients/document/${clientId}`,
+                { responseType: "blob" }
+            );
+
+            if (response && response instanceof Blob) {
+                // Create download link
+                const url = window.URL.createObjectURL(response);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `client_document_${clientId}.pdf`; // or appropriate filename
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+                toast.success("Документ успешно загружен!");
+            } else {
+                toast.error("Ошибка при загрузке документа");
+            }
+        } catch (error) {
+            console.error("Error downloading client document:", error);
+            toast.error("Ошибка при загрузке документа");
+        } finally {
+            setDownloadingClientId(null);
+        }
     };
 
     return (
@@ -188,17 +222,24 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                     </Button>
                                     <Button
                                         className="mr-2"
-                                        // onClick={() => {
-                                        //     openModal();
-                                        //     setSelectedUser(order);
-                                        // }}
+                                        onClick={() =>
+                                            handleDownloadClientDocument(
+                                                order.client_id
+                                            )
+                                        }
                                         size="xs"
                                         variant="primary"
                                         startIcon={
                                             <DownloadIcon className="size-4" />
                                         }
+                                        disabled={
+                                            downloadingClientId ===
+                                            order.client_id
+                                        }
                                     >
-                                        {""}
+                                        {downloadingClientId === order.client_id
+                                            ? "..."
+                                            : ""}
                                     </Button>
                                     {/* <Button
                                         onClick={() => {
