@@ -23,6 +23,7 @@ interface CompletedContract {
     contract_status: string;
     object_address: string;
     worker_price: string;
+    contract_price: string;
     deadline_date: string;
     days_diff: string;
     days_diff_text: string;
@@ -180,7 +181,7 @@ const CompletedContracts = () => {
                                     <TableRow>
                                         <TableCell className="pl-5 py-3 text-left">
                                             <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                               #
+                                                #
                                             </span>
                                         </TableCell>
                                         <TableCell className="pl-5 py-3 text-left">
@@ -224,7 +225,10 @@ const CompletedContracts = () => {
                                 {/* Table Body */}
                                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                     {contracts?.map(
-                                        (contract: CompletedContract, index: number) => (
+                                        (
+                                            contract: CompletedContract,
+                                            index: number
+                                        ) => (
                                             <TableRow
                                                 key={contract.contract_id}
                                                 className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -278,7 +282,8 @@ const CompletedContracts = () => {
                                                         handleRowClick(contract)
                                                     }
                                                 >
-                                                    {contract.worker_price} сум
+                                                    {contract.contract_price}{" "}
+                                                    сум
                                                 </TableCell>
                                                 <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
