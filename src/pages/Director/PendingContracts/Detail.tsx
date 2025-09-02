@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {  useParams } from "react-router";
+import { useParams } from "react-router";
 import ComponentCard from "../../../components/common/ComponentCard";
 import Badge from "../../../components/ui/badge/Badge";
 import { formatCurrency } from "../../../utils/numberFormat";
@@ -70,7 +70,7 @@ const PendingContractDetail = () => {
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const [appointmentInfo, setAppointmentInfo] = useState<any>(null);
     const [loadingInfo, setLoadingInfo] = useState(false);
-    const [comment, setComment] = useState("");
+    const [comments, setComments] = useState<{ [key: string]: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
     // const navigate = useNavigate();
@@ -128,8 +128,9 @@ const PendingContractDetail = () => {
         }
     };
 
-    const handleAcceptContract = async () => {
-        if (!comment.trim()) {
+    const handleAcceptContract = async (taskId: string) => {
+        const comment = comments[taskId];
+        if (!comment?.trim()) {
             toast.error("Пожалуйста, введите комментарии");
             return;
         }
@@ -140,6 +141,7 @@ const PendingContractDetail = () => {
                 "api/appointment/accept/result",
                 {
                     contract_id: parseInt(contract!.contract_id),
+                    task_id: parseInt(taskId),
                     comments: comment.trim(),
                 }
             );
@@ -147,7 +149,7 @@ const PendingContractDetail = () => {
             if (response?.status === 200 || response?.data?.success) {
                 toast.success("Контракт успешно одобрен!");
                 setIsInfoModalOpen(false);
-                setComment("");
+                setComments({});
                 // Refresh contract data
                 fetchContractDetails();
             } else {
@@ -161,8 +163,9 @@ const PendingContractDetail = () => {
         }
     };
 
-    const handleCancelContract = async () => {
-        if (!comment.trim()) {
+    const handleCancelContract = async (taskId: string) => {
+        const comment = comments[taskId];
+        if (!comment?.trim()) {
             toast.error("Пожалуйста, введите комментарии");
             return;
         }
@@ -173,6 +176,7 @@ const PendingContractDetail = () => {
                 "api/appointment/cancel/result",
                 {
                     contract_id: parseInt(contract!.contract_id),
+                    task_id: parseInt(taskId),
                     comments: comment.trim(),
                 }
             );
@@ -180,7 +184,7 @@ const PendingContractDetail = () => {
             if (response?.status === 200 || response?.data?.success) {
                 toast.success("Контракт успешно отклонен!");
                 setIsInfoModalOpen(false);
-                setComment("");
+                setComments({});
                 // Refresh contract data
                 fetchContractDetails();
             } else {
@@ -316,7 +320,18 @@ const PendingContractDetail = () => {
 
             <div className="space-y-6">
                 {/* Contract Header */}
-                <ComponentCard title={`Контракт №${contract.contract_number}`}>
+                <ComponentCard
+                    title={`Контракт №${contract.contract_number}`}
+                    desc={
+                        <Button
+                            variant="primary"
+                            onClick={handleGetAppointmentInfo}
+                            disabled={loadingInfo}
+                        >
+                            {loadingInfo ? "Загрузка..." : "Информация"}
+                        </Button>
+                    }
+                >
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">
                             <Badge
@@ -339,15 +354,7 @@ const PendingContractDetail = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <Button
-                            variant="primary"
-                            onClick={handleGetAppointmentInfo}
-                            disabled={loadingInfo}
-                        >
-                            {loadingInfo ? "Загрузка..." : "Информация"}
-                        </Button>
-                    </div>
+                    <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700"></div>
                 </ComponentCard>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -372,60 +379,82 @@ const PendingContractDetail = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Название компании
-                                </p>
-                                <p className="font-medium">
-                                    {contract.business_name}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Адрес компании
-                                </p>
-                                <p className="font-medium">
-                                    {contract.business_address}
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">ИНН</p>
-                                    <p className="font-medium">
-                                        {contract.inn}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">МФО</p>
-                                    <p className="font-medium">
-                                        {contract.mfo}
-                                    </p>
-                                </div>
+                            {contract.business_name && (
                                 <div>
                                     <p className="text-sm text-gray-500">
-                                        ОКЕД
+                                        Название компании
                                     </p>
                                     <p className="font-medium">
-                                        {contract.oked}
+                                        {contract.business_name}
                                     </p>
                                 </div>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Банковский счет
-                                </p>
-                                <p className="font-medium">
-                                    {contract.bank_account}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Адрес банка
-                                </p>
-                                <p className="font-medium">
-                                    {contract.bank_address}
-                                </p>
-                            </div>
+                            )}
+                            {contract.business_address && (
+                                <div>
+                                    <p className="text-sm text-gray-500">
+                                        Адрес компании
+                                    </p>
+                                    <p className="font-medium">
+                                        {contract.business_address}
+                                    </p>
+                                </div>
+                            )}
+                            {(contract.inn ||
+                                contract.mfo ||
+                                contract.oked) && (
+                                <div className="grid grid-cols-3 gap-4">
+                                    {contract.inn && (
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                ИНН
+                                            </p>
+                                            <p className="font-medium">
+                                                {contract.inn}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {contract.mfo && (
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                МФО
+                                            </p>
+                                            <p className="font-medium">
+                                                {contract.mfo}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {contract.oked && (
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                ОКЕД
+                                            </p>
+                                            <p className="font-medium">
+                                                {contract.oked}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {contract.bank_account && (
+                                <div>
+                                    <p className="text-sm text-gray-500">
+                                        Банковский счет
+                                    </p>
+                                    <p className="font-medium">
+                                        {contract.bank_account}
+                                    </p>
+                                </div>
+                            )}
+                            {contract.bank_address && (
+                                <div>
+                                    <p className="text-sm text-gray-500">
+                                        Адрес банка
+                                    </p>
+                                    <p className="font-medium">
+                                        {contract.bank_address}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </ComponentCard>
 
@@ -509,11 +538,10 @@ const PendingContractDetail = () => {
                 </div>
 
                 {/* Laboratory Tests */}
-                <ComponentCard title="Лабораторные тесты">
-                    <div className="space-y-3">
-                        {contract.laboratory &&
-                        contract.laboratory.length > 0 ? (
-                            contract.laboratory.map((test, index) => (
+                {contract.laboratory && contract.laboratory.length > 0 && (
+                    <ComponentCard title="Лабораторные тесты">
+                        <div className="space-y-3">
+                            {contract.laboratory.map((test, index) => (
                                 <div
                                     key={test.lab_test_id}
                                     className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
@@ -530,14 +558,10 @@ const PendingContractDetail = () => {
                                         {getTestTypeText(test.test_type)}
                                     </Badge>
                                 </div>
-                            ))
-                        ) : (
-                            <p className="text-gray-500 text-center py-4">
-                                Лабораторные тесты не найдены
-                            </p>
-                        )}
-                    </div>
-                </ComponentCard>
+                            ))}
+                        </div>
+                    </ComponentCard>
+                )}
 
                 {/* Results for Director */}
                 {contract.result_for_director && (
@@ -798,6 +822,28 @@ const PendingContractDetail = () => {
                                                                     key={index}
                                                                     className="bg-white dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
                                                                 >
+                                                                    {/* Task Header with Status */}
+                                                                    <div className="flex items-center justify-between mb-3">
+                                                                        <h6 className="font-medium text-gray-900 dark:text-white">
+                                                                            Задача
+                                                                            #
+                                                                            {index +
+                                                                                1}
+                                                                        </h6>
+                                                                        {task.task_status_text && (
+                                                                            <Badge
+                                                                                color={getTaskStatusColor(
+                                                                                    task.task_status ||
+                                                                                        "1"
+                                                                                )}
+                                                                            >
+                                                                                {
+                                                                                    task.task_status_text
+                                                                                }
+                                                                            </Badge>
+                                                                        )}
+                                                                    </div>
+
                                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                         <div>
                                                                             <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -844,6 +890,105 @@ const PendingContractDetail = () => {
                                                                             </div>
                                                                         </div>
                                                                     </div>
+
+                                                                    {/* Task Items */}
+                                                                    {task.task_item &&
+                                                                        task
+                                                                            .task_item
+                                                                            .length >
+                                                                            0 && (
+                                                                            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+                                                                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                                                    Элементы
+                                                                                    задачи
+                                                                                </div>
+                                                                                <div className="space-y-2">
+                                                                                    {task.task_item.map(
+                                                                                        (
+                                                                                            item: any,
+                                                                                            itemIndex: number
+                                                                                        ) => (
+                                                                                            <div
+                                                                                                key={
+                                                                                                    itemIndex
+                                                                                                }
+                                                                                                className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
+                                                                                            >
+                                                                                                {/* Item Header */}
+                                                                                                <div className="flex items-center justify-between mb-2">
+                                                                                                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                                                        Элемент
+                                                                                                        #
+                                                                                                        {itemIndex +
+                                                                                                            1}
+                                                                                                    </div>
+                                                                                                    {item.task_status_text && (
+                                                                                                        <Badge
+                                                                                                            color={getTaskStatusColor(
+                                                                                                                item.task_status ||
+                                                                                                                    "1"
+                                                                                                            )}
+                                                                                                            size="sm"
+                                                                                                        >
+                                                                                                            {
+                                                                                                                item.task_status_text
+                                                                                                            }
+                                                                                                        </Badge>
+                                                                                                    )}
+                                                                                                </div>
+
+                                                                                                {/* Item Content */}
+                                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                                                                    <div>
+                                                                                                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                                                                            Комментарии
+                                                                                                        </div>
+                                                                                                        <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                                                                            {item.comments ||
+                                                                                                                "Не указано"}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div>
+                                                                                                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                                                                            Дата
+                                                                                                            создания
+                                                                                                        </div>
+                                                                                                        <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                                                                            {item.created_at
+                                                                                                                ? new Date(
+                                                                                                                      item.created_at
+                                                                                                                  ).toLocaleDateString(
+                                                                                                                      "ru-RU"
+                                                                                                                  )
+                                                                                                                : "Не указано"}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div>
+                                                                                                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                                                                            От
+                                                                                                            кого
+                                                                                                        </div>
+                                                                                                        <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                                                                            {item.from_user_name ||
+                                                                                                                "Не указано"}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div>
+                                                                                                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                                                                            Кому
+                                                                                                        </div>
+                                                                                                        <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                                                                            {item.to_user_name ||
+                                                                                                                "Не указано"}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        )
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
 
                                                                     {/* Download Button for Document */}
                                                                     {task.document_id && (
@@ -892,6 +1037,86 @@ const PendingContractDetail = () => {
                                                                             </Button>
                                                                         </div>
                                                                     )}
+
+                                                                    {/* Comment Input and Action Buttons only for the last task */}
+                                                                    {index ===
+                                                                        appointmentInfo
+                                                                            .tasks
+                                                                            .length -
+                                                                            1 && (
+                                                                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                                                                            <div className="space-y-3">
+                                                                                <div>
+                                                                                    <Label>
+                                                                                        Комментарии
+                                                                                        *
+                                                                                    </Label>
+                                                                                    <TextArea
+                                                                                        placeholder="Введите комментарии..."
+                                                                                        value={
+                                                                                            comments[
+                                                                                                task
+                                                                                                    .task_id
+                                                                                            ] ||
+                                                                                            ""
+                                                                                        }
+                                                                                        onChange={(
+                                                                                            e
+                                                                                        ) =>
+                                                                                            setComments(
+                                                                                                (
+                                                                                                    prev
+                                                                                                ) => ({
+                                                                                                    ...prev,
+                                                                                                    [task.task_id]:
+                                                                                                        e
+                                                                                                            .target
+                                                                                                            .value,
+                                                                                                })
+                                                                                            )
+                                                                                        }
+                                                                                        rows={
+                                                                                            2
+                                                                                        }
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="flex justify-end gap-2">
+                                                                                    <Button
+                                                                                        variant="primary"
+                                                                                        size="sm"
+                                                                                        onClick={() =>
+                                                                                            handleAcceptContract(
+                                                                                                task.task_id
+                                                                                            )
+                                                                                        }
+                                                                                        disabled={
+                                                                                            isSubmitting
+                                                                                        }
+                                                                                    >
+                                                                                        {isSubmitting
+                                                                                            ? "Обработка..."
+                                                                                            : "Одобрить"}
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        variant="danger"
+                                                                                        size="sm"
+                                                                                        onClick={() =>
+                                                                                            handleCancelContract(
+                                                                                                task.task_id
+                                                                                            )
+                                                                                        }
+                                                                                        disabled={
+                                                                                            isSubmitting
+                                                                                        }
+                                                                                    >
+                                                                                        {isSubmitting
+                                                                                            ? "Обработка..."
+                                                                                            : "Отказать"}
+                                                                                    </Button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             )
                                                         )}
@@ -923,50 +1148,18 @@ const PendingContractDetail = () => {
                             </div>
                         )}
 
-                        {/* Comment Input and Action Buttons */}
+                        {/* Close Button */}
                         {appointmentInfo && (
                             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label>Комментарии *</Label>
-                                        <TextArea
-                                            placeholder="Введите комментарии..."
-                                            value={comment}
-                                            onChange={(e) =>
-                                                setComment(e.target.value)
-                                            }
-                                            rows={3}
-                                        />
-                                    </div>
-                                    <div className="flex justify-end gap-3">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() =>
-                                                setIsInfoModalOpen(false)
-                                            }
-                                            disabled={isSubmitting}
-                                        >
-                                            Закрыть
-                                        </Button>
-                                        <Button
-                                            variant="primary"
-                                            onClick={handleAcceptContract}
-                                            disabled={isSubmitting}
-                                        >
-                                            {isSubmitting
-                                                ? "Обработка..."
-                                                : "Одобрить"}
-                                        </Button>
-                                        <Button
-                                            variant="danger"
-                                            onClick={handleCancelContract}
-                                            disabled={isSubmitting}
-                                        >
-                                            {isSubmitting
-                                                ? "Обработка..."
-                                                : "Отказать"}
-                                        </Button>
-                                    </div>
+                                <div className="flex justify-end">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() =>
+                                            setIsInfoModalOpen(false)
+                                        }
+                                    >
+                                        Закрыть
+                                    </Button>
                                 </div>
                             </div>
                         )}

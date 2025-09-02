@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import ComponentCard from "../../components/common/ComponentCard";
 import Badge from "../../components/ui/badge/Badge";
-import { GetDataSimple, PostDataToken, PostSimple } from "../../service/data";
+import { BASE_URL, GetDataSimple, PostDataToken } from "../../service/data";
 import generateChequeFromData from "../../utils/contractGeneratorFile";
 import Loader from "../../components/ui/loader/Loader";
 import toast from "react-hot-toast";
 import { formatCurrency } from "../../utils/numberFormat";
+import axios from "axios";
 
 // Beautiful outline icons
 const ContractIcon = () => (
@@ -495,12 +496,24 @@ const ContractDetails = () => {
                             } else {
                                 // For other contract types, download from API
                                 try {
-                                    const response = await PostSimple(
-                                        `api/contracts/wordcreate/${currentContract.contract_id}`
+                                    const response = await axios.post(
+                                        `${BASE_URL}api/contracts/wordcreate/${currentContract.contract_id}`,
+                                        {},
+                                        {
+                                            responseType: "blob",
+
+                                            headers: {
+                                                Authorization: `Bearer ${localStorage.getItem(
+                                                    "token"
+                                                )}`, // 🔑 token qo‘shildi
+                                            },
+                                        } // DOCX ni to‘g‘ri olish uchun
                                     );
+
                                     const blob = new Blob([response.data], {
                                         type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                     });
+
                                     const url =
                                         window.URL.createObjectURL(blob);
                                     const link = document.createElement("a");
@@ -510,12 +523,8 @@ const ContractDetails = () => {
                                     link.click();
                                     document.body.removeChild(link);
                                     window.URL.revokeObjectURL(url);
-                                } catch (error) {
-                                    console.error(
-                                        "Error downloading DOCX:",
-                                        error
-                                    );
-                                    toast.error("Ошибка при скачивании DOCX");
+                                } catch (err) {
+                                    console.error("Download error:", err);
                                 }
                             }
                         }}
@@ -553,97 +562,119 @@ const ContractDetails = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <BuildingIcon />
-                            <div>
-                                <p className="text-sm text-gray-500 mb-1">
-                                    Название компании
-                                </p>
-                                <p className="font-medium text-gray-900">
-                                    {currentContract.business_name}
-                                </p>
+                        {currentContract.business_name && (
+                            <div className="flex items-center gap-3">
+                                <BuildingIcon />
+                                <div>
+                                    <p className="text-sm text-gray-500 mb-1">
+                                        Название компании
+                                    </p>
+                                    <p className="font-medium text-gray-900">
+                                        {currentContract.business_name}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <LocationIcon />
-                            <div>
-                                <p className="text-sm text-gray-500 mb-1">
-                                    Адрес компании
-                                </p>
-                                <p className="font-medium text-gray-900">
-                                    {currentContract.business_address}
-                                </p>
+                        )}
+                        {currentContract.business_address && (
+                            <div className="flex items-center gap-3">
+                                <LocationIcon />
+                                <div>
+                                    <p className="text-sm text-gray-500 mb-1">
+                                        Адрес компании
+                                    </p>
+                                    <p className="font-medium text-gray-900">
+                                        {currentContract.business_address}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <p className="text-xs text-gray-500 mb-1">
-                                    ИНН
-                                </p>
-                                <p className="font-medium text-gray-900">
-                                    {currentContract.inn}
-                                </p>
+                        )}
+                        {(currentContract.inn ||
+                            currentContract.mfo ||
+                            currentContract.oked) && (
+                            <div className="grid grid-cols-3 gap-4">
+                                {currentContract.inn && (
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">
+                                            ИНН
+                                        </p>
+                                        <p className="font-medium text-gray-900">
+                                            {currentContract.inn}
+                                        </p>
+                                    </div>
+                                )}
+                                {currentContract.mfo && (
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">
+                                            МФО
+                                        </p>
+                                        <p className="font-medium text-gray-900">
+                                            {currentContract.mfo}
+                                        </p>
+                                    </div>
+                                )}
+                                {currentContract.oked && (
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">
+                                            ОКЭД
+                                        </p>
+                                        <p className="font-medium text-gray-900">
+                                            {currentContract.oked}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                            <div>
-                                <p className="text-xs text-gray-500 mb-1">
-                                    МФО
-                                </p>
-                                <p className="font-medium text-gray-900">
-                                    {currentContract.mfo}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 mb-1">
-                                    ОКЭД
-                                </p>
-                                <p className="font-medium text-gray-900">
-                                    {currentContract.oked}
-                                </p>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </ComponentCard>
 
                 {/* Bank Information */}
-                <ComponentCard title="Банковская информация">
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                            <BankIcon />
-                            <div>
-                                <p className="text-sm text-gray-500 mb-1">
-                                    Номер счета
-                                </p>
-                                <p className="font-mono font-medium text-gray-900">
-                                    {currentContract.bank_account}
-                                </p>
-                            </div>
+                {(currentContract.bank_account ||
+                    currentContract.bank_address) && (
+                    <ComponentCard title="Банковская информация">
+                        <div className="space-y-4">
+                            {currentContract.bank_account && (
+                                <div className="flex items-center gap-3">
+                                    <BankIcon />
+                                    <div>
+                                        <p className="text-sm text-gray-500 mb-1">
+                                            Номер счета
+                                        </p>
+                                        <p className="font-mono font-medium text-gray-900">
+                                            {currentContract.bank_account}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                            {currentContract.bank_address && (
+                                <div className="flex items-center gap-3">
+                                    <LocationIcon />
+                                    <div>
+                                        <p className="text-sm text-gray-500 mb-1">
+                                            Адрес банка
+                                        </p>
+                                        <p className="font-medium text-gray-900">
+                                            {currentContract.bank_address}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-3">
-                            <LocationIcon />
-                            <div>
-                                <p className="text-sm text-gray-500 mb-1">
-                                    Адрес банка
-                                </p>
-                                <p className="font-medium text-gray-900">
-                                    {currentContract.bank_address}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </ComponentCard>
+                    </ComponentCard>
+                )}
             </div>
 
-            {/* Laboratory Tests - Only show if contract_type is not 3 */}
-            {currentContract && currentContract.contract_type !== "3" && (
-                <ComponentCard title="Лабораторные тесты">
-                    <div className="flex items-center gap-2 mb-4">
-                        <LabIcon />
-                        <span className="text-gray-600 font-medium">
-                            {currentContract.laboratory?.length || 0} тестов
-                        </span>
-                    </div>
-                    {currentContract.laboratory &&
-                    currentContract.laboratory.length > 0 ? (
+            {/* Laboratory Tests - Only show if contract_type is not 3 and has tests */}
+            {currentContract &&
+                currentContract.contract_type !== "3" &&
+                currentContract.laboratory &&
+                currentContract.laboratory.length > 0 && (
+                    <ComponentCard title="Лабораторные тесты">
+                        <div className="flex items-center gap-2 mb-4">
+                            <LabIcon />
+                            <span className="text-gray-600 font-medium">
+                                {currentContract.laboratory.length} тестов
+                            </span>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {currentContract.laboratory.map((test, index) => (
                                 <div
@@ -672,16 +703,8 @@ const ContractDetails = () => {
                                 </div>
                             ))}
                         </div>
-                    ) : (
-                        <div className="text-center py-8 text-gray-500">
-                            <LabIcon />
-                            <p className="mt-2">
-                                Лабораторные тесты не назначены
-                            </p>
-                        </div>
-                    )}
-                </ComponentCard>
-            )}
+                    </ComponentCard>
+                )}
 
             {/* Monthly Payments */}
             <ComponentCard title="Ежемесячные платежи">

@@ -224,60 +224,82 @@ const CompletedContractDetail = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Название компании
-                                </p>
-                                <p className="font-medium">
-                                    {contract.business_name}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Адрес компании
-                                </p>
-                                <p className="font-medium">
-                                    {contract.business_address}
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">ИНН</p>
-                                    <p className="font-medium">
-                                        {contract.inn}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">МФО</p>
-                                    <p className="font-medium">
-                                        {contract.mfo}
-                                    </p>
-                                </div>
+                            {contract.business_name && (
                                 <div>
                                     <p className="text-sm text-gray-500">
-                                        ОКЕД
+                                        Название компании
                                     </p>
                                     <p className="font-medium">
-                                        {contract.oked}
+                                        {contract.business_name}
                                     </p>
                                 </div>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Банковский счет
-                                </p>
-                                <p className="font-medium">
-                                    {contract.bank_account}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Адрес банка
-                                </p>
-                                <p className="font-medium">
-                                    {contract.bank_address}
-                                </p>
-                            </div>
+                            )}
+                            {contract.business_address && (
+                                <div>
+                                    <p className="text-sm text-gray-500">
+                                        Адрес компании
+                                    </p>
+                                    <p className="font-medium">
+                                        {contract.business_address}
+                                    </p>
+                                </div>
+                            )}
+                            {(contract.inn ||
+                                contract.mfo ||
+                                contract.oked) && (
+                                <div className="grid grid-cols-3 gap-4">
+                                    {contract.inn && (
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                ИНН
+                                            </p>
+                                            <p className="font-medium">
+                                                {contract.inn}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {contract.mfo && (
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                МФО
+                                            </p>
+                                            <p className="font-medium">
+                                                {contract.mfo}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {contract.oked && (
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                ОКЕД
+                                            </p>
+                                            <p className="font-medium">
+                                                {contract.oked}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {contract.bank_account && (
+                                <div>
+                                    <p className="text-sm text-gray-500">
+                                        Банковский счет
+                                    </p>
+                                    <p className="font-medium">
+                                        {contract.bank_account}
+                                    </p>
+                                </div>
+                            )}
+                            {contract.bank_address && (
+                                <div>
+                                    <p className="text-sm text-gray-500">
+                                        Адрес банка
+                                    </p>
+                                    <p className="font-medium">
+                                        {contract.bank_address}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </ComponentCard>
 
@@ -361,11 +383,10 @@ const CompletedContractDetail = () => {
                 </div>
 
                 {/* Laboratory Tests */}
-                <ComponentCard title="Лабораторные тесты">
-                    <div className="space-y-3">
-                        {contract.laboratory &&
-                        contract.laboratory.length > 0 ? (
-                            contract.laboratory.map((test, index) => (
+                {contract.laboratory && contract.laboratory.length > 0 && (
+                    <ComponentCard title="Лабораторные тесты">
+                        <div className="space-y-3">
+                            {contract.laboratory.map((test, index) => (
                                 <div
                                     key={test.lab_test_id}
                                     className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
@@ -382,101 +403,98 @@ const CompletedContractDetail = () => {
                                         {getTestTypeText(test.test_type)}
                                     </Badge>
                                 </div>
-                            ))
-                        ) : (
-                            <p className="text-gray-500 text-center py-4">
-                                Лабораторные тесты не найдены
-                            </p>
-                        )}
-                    </div>
-                </ComponentCard>
-
-                {/* Results for Director */}
-                {contract.result_for_director && (
-                    <ComponentCard title="Результаты для директора">
-                        <div className="space-y-4">
-                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="text-sm text-gray-500">
-                                            Статус задачи
-                                        </p>
-                                        <Badge
-                                            color={getTaskStatusColor(
-                                                contract.result_for_director
-                                                    .task_status
-                                            )}
-                                        >
-                                            {getTaskStatusText(
-                                                contract.result_for_director
-                                                    .task_status
-                                            )}
-                                        </Badge>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500">
-                                            ID документа
-                                        </p>
-                                        <p className="font-medium">
-                                            {
-                                                contract.result_for_director
-                                                    .document_id
-                                            }
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 mt-4">
-                                    <div>
-                                        <p className="text-sm text-gray-500">
-                                            От кого
-                                        </p>
-                                        <p className="font-medium">
-                                            {
-                                                contract.result_for_director
-                                                    .from_user_name
-                                            }
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500">
-                                            Кому
-                                        </p>
-                                        <p className="font-medium">
-                                            {
-                                                contract.result_for_director
-                                                    .to_user_name
-                                            }
-                                        </p>
-                                    </div>
-                                </div>
-                                {contract.result_for_director.comments && (
-                                    <div className="mt-4">
-                                        <p className="text-sm text-gray-500">
-                                            Комментарии
-                                        </p>
-                                        <p className="font-medium">
-                                            {
-                                                contract.result_for_director
-                                                    .comments
-                                            }
-                                        </p>
-                                    </div>
-                                )}
-                                <div className="mt-4">
-                                    <p className="text-sm text-gray-500">
-                                        Дата создания
-                                    </p>
-                                    <p className="font-medium">
-                                        {formatDate(
-                                            contract.result_for_director
-                                                .created_at
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </ComponentCard>
                 )}
+
+                {/* Results for Director */}
+                {contract.result_for_director &&
+                    contract.result_for_director.task_status && (
+                        <ComponentCard title="Результаты для директора">
+                            <div className="space-y-4">
+                                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                Статус задачи
+                                            </p>
+                                            <Badge
+                                                color={getTaskStatusColor(
+                                                    contract.result_for_director
+                                                        .task_status
+                                                )}
+                                            >
+                                                {getTaskStatusText(
+                                                    contract.result_for_director
+                                                        .task_status
+                                                )}
+                                            </Badge>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                ID документа
+                                            </p>
+                                            <p className="font-medium">
+                                                {
+                                                    contract.result_for_director
+                                                        .document_id
+                                                }
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                От кого
+                                            </p>
+                                            <p className="font-medium">
+                                                {
+                                                    contract.result_for_director
+                                                        .from_user_name
+                                                }
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                Кому
+                                            </p>
+                                            <p className="font-medium">
+                                                {
+                                                    contract.result_for_director
+                                                        .to_user_name
+                                                }
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {contract.result_for_director.comments && (
+                                        <div className="mt-4">
+                                            <p className="text-sm text-gray-500">
+                                                Комментарии
+                                            </p>
+                                            <p className="font-medium">
+                                                {
+                                                    contract.result_for_director
+                                                        .comments
+                                                }
+                                            </p>
+                                        </div>
+                                    )}
+                                    <div className="mt-4">
+                                        <p className="text-sm text-gray-500">
+                                            Дата создания
+                                        </p>
+                                        <p className="font-medium">
+                                            {formatDate(
+                                                contract.result_for_director
+                                                    .created_at
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </ComponentCard>
+                    )}
 
                 {/* Final Document Status */}
                 {contract.final_document && (

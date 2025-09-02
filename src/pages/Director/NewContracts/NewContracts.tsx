@@ -161,7 +161,7 @@ const NewContracts = () => {
                                         >
                                             Срок выполнения
                                         </TableCell>
-                                        <TableCell
+                                        {/* <TableCell
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
@@ -178,7 +178,7 @@ const NewContracts = () => {
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
                                             Комментарии
-                                        </TableCell>
+                                        </TableCell> */}
                                         <TableCell
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -242,7 +242,7 @@ const NewContracts = () => {
                                                     contract.deadline_date
                                                 ).toLocaleDateString("ru-RU")}
                                             </TableCell>
-                                            <TableCell
+                                            {/* <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
@@ -251,8 +251,8 @@ const NewContracts = () => {
                                                 <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                                     {contract.days_diff_text}
                                                 </span>
-                                            </TableCell>
-                                            <TableCell
+                                            </TableCell> */}
+                                            {/* <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
@@ -267,8 +267,8 @@ const NewContracts = () => {
                                                         Не назначен
                                                     </span>
                                                 )}
-                                            </TableCell>
-                                            <TableCell
+                                            </TableCell> */}
+                                            {/* <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
@@ -276,7 +276,7 @@ const NewContracts = () => {
                                             >
                                                 {contract.comments ||
                                                     "Нет комментариев"}
-                                            </TableCell>
+                                            </TableCell> */}
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                 <div className="flex items-center gap-2">
                                                     <Linkto
