@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import {  useParams } from "react-router";
 import ComponentCard from "../../../components/common/ComponentCard";
 import Badge from "../../../components/ui/badge/Badge";
 import { formatCurrency } from "../../../utils/numberFormat";
-import { GetDataSimple, PostDataTokenJson } from "../../../service/data";
+import {
+    GetDataSimple,
+    PostDataTokenJson,
+    GetDataSimpleBlob,
+} from "../../../service/data";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
 import { Modal } from "../../../components/ui/modal";
 import Button from "../../../components/ui/button/Button";
 import TextArea from "../../../components/form/input/TextArea";
 import Label from "../../../components/form/Label";
+
 import { toast } from "react-hot-toast";
 
 interface PendingContract {
@@ -62,12 +67,13 @@ const PendingContractDetail = () => {
     const { id } = useParams();
     const [contract, setContract] = useState<PendingContract | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
-    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-    const [acceptComments, setAcceptComments] = useState("");
-    const [cancelComments, setCancelComments] = useState("");
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const [appointmentInfo, setAppointmentInfo] = useState<any>(null);
+    const [loadingInfo, setLoadingInfo] = useState(false);
+    const [comment, setComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const navigate = useNavigate();
+    const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
+    // const navigate = useNavigate();
     useEffect(() => {
         if (id) {
             fetchContractDetails();
@@ -99,8 +105,31 @@ const PendingContractDetail = () => {
         }
     };
 
+    const handleGetAppointmentInfo = async () => {
+        if (!contract) return;
+
+        setLoadingInfo(true);
+        try {
+            const response = await GetDataSimple(
+                `api/appointment/info?contract_id=${contract.contract_id}`
+            );
+
+            if (response) {
+                setAppointmentInfo(response);
+                setIsInfoModalOpen(true);
+            } else {
+                toast.error("Информация не найдена");
+            }
+        } catch (error) {
+            console.error("Error fetching appointment info:", error);
+            toast.error("Ошибка при получении информации");
+        } finally {
+            setLoadingInfo(false);
+        }
+    };
+
     const handleAcceptContract = async () => {
-        if (!acceptComments.trim()) {
+        if (!comment.trim()) {
             toast.error("Пожалуйста, введите комментарии");
             return;
         }
@@ -111,17 +140,16 @@ const PendingContractDetail = () => {
                 "api/appointment/accept/result",
                 {
                     contract_id: parseInt(contract!.contract_id),
-                    comments: acceptComments.trim(),
+                    comments: comment.trim(),
                 }
             );
 
             if (response?.status === 200 || response?.data?.success) {
                 toast.success("Контракт успешно одобрен!");
-                setIsAcceptModalOpen(false);
-                setAcceptComments("");
+                setIsInfoModalOpen(false);
+                setComment("");
                 // Refresh contract data
                 fetchContractDetails();
-                navigate("/pending-contracts");
             } else {
                 toast.error("Ошибка при одобрении контракта");
             }
@@ -134,7 +162,7 @@ const PendingContractDetail = () => {
     };
 
     const handleCancelContract = async () => {
-        if (!cancelComments.trim()) {
+        if (!comment.trim()) {
             toast.error("Пожалуйста, введите комментарии");
             return;
         }
@@ -145,16 +173,15 @@ const PendingContractDetail = () => {
                 "api/appointment/cancel/result",
                 {
                     contract_id: parseInt(contract!.contract_id),
-                    comments: cancelComments.trim(),
+                    comments: comment.trim(),
                 }
             );
 
             if (response?.status === 200 || response?.data?.success) {
                 toast.success("Контракт успешно отклонен!");
-                setIsCancelModalOpen(false);
-                setCancelComments("");
+                setIsInfoModalOpen(false);
+                setComment("");
                 // Refresh contract data
-                navigate("/pending-contracts");
                 fetchContractDetails();
             } else {
                 toast.error("Ошибка при отклонении контракта");
@@ -164,6 +191,32 @@ const PendingContractDetail = () => {
             toast.error("Произошла ошибка при отклонении контракта");
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleDownloadDocument = async (documentId: string) => {
+        setDownloadingDoc(documentId);
+        try {
+            const response = await GetDataSimpleBlob(
+                `api/appointment/result/pdf/${documentId}`
+            );
+            const blob = new Blob([response.data], {
+                type: "application/pdf",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `document_${documentId}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            toast.success("Документ успешно скачан!");
+        } catch (error) {
+            console.error("Error downloading document:", error);
+            toast.error("Ошибка при скачивании документа");
+        } finally {
+            setDownloadingDoc(null);
         }
     };
 
@@ -289,17 +342,10 @@ const PendingContractDetail = () => {
                     <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <Button
                             variant="primary"
-                            onClick={() => setIsAcceptModalOpen(true)}
-                            disabled={isSubmitting}
+                            onClick={handleGetAppointmentInfo}
+                            disabled={loadingInfo}
                         >
-                            Одобрить
-                        </Button>
-                        <Button
-                            variant="danger"
-                            onClick={() => setIsCancelModalOpen(true)}
-                            disabled={isSubmitting}
-                        >
-                            Отказать
+                            {loadingInfo ? "Загрузка..." : "Информация"}
                         </Button>
                     </div>
                 </ComponentCard>
@@ -609,84 +655,321 @@ const PendingContractDetail = () => {
                 )}
             </div>
 
-            {/* Accept Contract Modal */}
+            {/* Appointment Info Modal */}
             <Modal
-                isOpen={isAcceptModalOpen}
-                onClose={() => setIsAcceptModalOpen(false)}
+                isOpen={isInfoModalOpen}
+                onClose={() => setIsInfoModalOpen(false)}
             >
-                <div className="p-6">
+                <div className="p-6 max-h-[80vh] overflow-y-auto">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Одобрить контракт
+                        Информация о назначении
                     </h3>
                     <div className="space-y-4">
-                        <div>
-                            <Label>Комментарии *</Label>
-                            <TextArea
-                                placeholder="Введите комментарии для одобрения..."
-                                value={acceptComments}
-                                onChange={(e) =>
-                                    setAcceptComments(e.target.value)
-                                }
-                                rows={4}
-                            />
-                        </div>
-                        <div className="flex justify-end gap-3 pt-4">
-                            <Button
-                                variant="outline"
-                                onClick={() => setIsAcceptModalOpen(false)}
-                                disabled={isSubmitting}
-                            >
-                                Отмена
-                            </Button>
-                            <Button
-                                variant="primary"
-                                onClick={handleAcceptContract}
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? "Обработка..." : "Одобрить"}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </Modal>
+                        {loadingInfo ? (
+                            <div className="text-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500 mx-auto"></div>
+                                <p className="mt-2 text-gray-500">
+                                    Загрузка информации...
+                                </p>
+                            </div>
+                        ) : appointmentInfo ? (
+                            <div className="space-y-4">
+                                {/* Display appointment info here */}
+                                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                    <h4 className="font-medium text-gray-900 dark:text-white mb-3">
+                                        Детали назначения
+                                    </h4>
+                                    <div className="space-y-4">
+                                        {/* Main Info */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Комментарии
+                                                </div>
+                                                <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                    {appointmentInfo.comments ||
+                                                        "Не указано"}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Адрес объекта
+                                                </div>
+                                                <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                    {appointmentInfo.object_address ||
+                                                        "Не указано"}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Стоимость контракта
+                                                </div>
+                                                <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                    {appointmentInfo.contract_price
+                                                        ? formatCurrency(
+                                                              Number(
+                                                                  appointmentInfo.contract_price
+                                                              )
+                                                          )
+                                                        : "Не указано"}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Стоимость работ
+                                                </div>
+                                                <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                    {appointmentInfo.worker_price
+                                                        ? formatCurrency(
+                                                              Number(
+                                                                  appointmentInfo.worker_price
+                                                              )
+                                                          )
+                                                        : "Не указано"}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Срок выполнения
+                                                </div>
+                                                <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                    {appointmentInfo.deadline_date
+                                                        ? new Date(
+                                                              appointmentInfo.deadline_date
+                                                          ).toLocaleDateString(
+                                                              "ru-RU"
+                                                          )
+                                                        : "Не указано"}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Статус
+                                                </div>
+                                                <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                    {appointmentInfo.days_diff_text ||
+                                                        "Не указано"}
+                                                </div>
+                                            </div>
+                                        </div>
 
-            {/* Cancel Contract Modal */}
-            <Modal
-                isOpen={isCancelModalOpen}
-                onClose={() => setIsCancelModalOpen(false)}
-            >
-                <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Отказать в контракте
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <Label>Комментарии *</Label>
-                            <TextArea
-                                placeholder="Введите причину отказа..."
-                                value={cancelComments}
-                                onChange={(e) =>
-                                    setCancelComments(e.target.value)
-                                }
-                                rows={4}
-                            />
-                        </div>
-                        <div className="flex justify-end gap-3 pt-4">
-                            <Button
-                                variant="outline"
-                                onClick={() => setIsCancelModalOpen(false)}
-                                disabled={isSubmitting}
-                            >
-                                Отмена
-                            </Button>
-                            <Button
-                                variant="danger"
-                                onClick={handleCancelContract}
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? "Обработка..." : "Отказать"}
-                            </Button>
-                        </div>
+                                        {/* Users Info */}
+                                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                            <h5 className="font-medium text-gray-900 dark:text-white mb-3">
+                                                Участники
+                                            </h5>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        Отправитель
+                                                    </div>
+                                                    <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                        {appointmentInfo.from_user_name ||
+                                                            "Не указано"}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        Получатель
+                                                    </div>
+                                                    <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                        {appointmentInfo.to_user_name ||
+                                                            "Не указано"}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Tasks Info */}
+                                        {appointmentInfo.tasks &&
+                                            appointmentInfo.tasks.length >
+                                                0 && (
+                                                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                                    <h5 className="font-medium text-gray-900 dark:text-white mb-3">
+                                                        Задачи
+                                                    </h5>
+                                                    <div className="space-y-3">
+                                                        {appointmentInfo.tasks.map(
+                                                            (
+                                                                task: any,
+                                                                index: number
+                                                            ) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="bg-white dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
+                                                                >
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                        <div>
+                                                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                                Комментарии
+                                                                                задачи
+                                                                            </div>
+                                                                            <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                                                {task.comments ||
+                                                                                    "Не указано"}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                                Дата
+                                                                                создания
+                                                                            </div>
+                                                                            <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                                                {task.created_at
+                                                                                    ? new Date(
+                                                                                          task.created_at
+                                                                                      ).toLocaleDateString(
+                                                                                          "ru-RU"
+                                                                                      )
+                                                                                    : "Не указано"}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                                От
+                                                                                кого
+                                                                            </div>
+                                                                            <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                                                {task.from_user_name ||
+                                                                                    "Не указано"}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                                Кому
+                                                                            </div>
+                                                                            <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                                                {task.to_user_name ||
+                                                                                    "Не указано"}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Download Button for Document */}
+                                                                    {task.document_id && (
+                                                                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                size="sm"
+                                                                                onClick={() =>
+                                                                                    handleDownloadDocument(
+                                                                                        task.document_id
+                                                                                    )
+                                                                                }
+                                                                                disabled={
+                                                                                    downloadingDoc ===
+                                                                                    task.document_id
+                                                                                }
+                                                                                className="flex items-center gap-2"
+                                                                            >
+                                                                                {downloadingDoc ===
+                                                                                task.document_id ? (
+                                                                                    <>
+                                                                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                                                                                        Скачивание...
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <svg
+                                                                                            className="w-4 h-4"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24"
+                                                                                        >
+                                                                                            <path
+                                                                                                strokeLinecap="round"
+                                                                                                strokeLinejoin="round"
+                                                                                                strokeWidth={
+                                                                                                    2
+                                                                                                }
+                                                                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                                            />
+                                                                                        </svg>
+                                                                                        Скачать
+                                                                                        документ
+                                                                                    </>
+                                                                                )}
+                                                                            </Button>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                        {/* Created Date */}
+                                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                Дата создания
+                                            </div>
+                                            <div className="text-sm text-gray-900 dark:text-white mt-1">
+                                                {appointmentInfo.created_at
+                                                    ? new Date(
+                                                          appointmentInfo.created_at
+                                                      ).toLocaleDateString(
+                                                          "ru-RU"
+                                                      )
+                                                    : "Не указано"}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">
+                                Информация не найдена
+                            </div>
+                        )}
+
+                        {/* Comment Input and Action Buttons */}
+                        {appointmentInfo && (
+                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label>Комментарии *</Label>
+                                        <TextArea
+                                            placeholder="Введите комментарии..."
+                                            value={comment}
+                                            onChange={(e) =>
+                                                setComment(e.target.value)
+                                            }
+                                            rows={3}
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-3">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() =>
+                                                setIsInfoModalOpen(false)
+                                            }
+                                            disabled={isSubmitting}
+                                        >
+                                            Закрыть
+                                        </Button>
+                                        <Button
+                                            variant="primary"
+                                            onClick={handleAcceptContract}
+                                            disabled={isSubmitting}
+                                        >
+                                            {isSubmitting
+                                                ? "Обработка..."
+                                                : "Одобрить"}
+                                        </Button>
+                                        <Button
+                                            variant="danger"
+                                            onClick={handleCancelContract}
+                                            disabled={isSubmitting}
+                                        >
+                                            {isSubmitting
+                                                ? "Обработка..."
+                                                : "Отказать"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </Modal>

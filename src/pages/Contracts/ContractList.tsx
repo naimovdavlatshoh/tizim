@@ -3,13 +3,21 @@ import { useNavigate } from "react-router";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
-import { GetDataSimple, PostSimple } from "../../service/data.ts";
+import {
+    GetDataSimple,
+    PostSimple,
+    GetDataSimpleBlob,
+} from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import TableContract from "./TableContract.tsx";
 import { useSearch } from "../../context/SearchContext";
 import { toast } from "react-hot-toast";
 import Loader from "../../components/ui/loader/Loader.tsx";
+import { Modal } from "../../components/ui/modal";
+import Button from "../../components/ui/button/Button";
+import { FaDownload } from "react-icons/fa";
+import DatePicker from "../../components/form/date-picker";
 
 export default function ContractList() {
     const navigate = useNavigate();
@@ -23,6 +31,10 @@ export default function ContractList() {
     console.log(contracts);
 
     const [loading, setLoading] = useState(false);
+    const [excelModalOpen, setExcelModalOpen] = useState(false);
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
         if (currentPage === "contracts") {
@@ -105,6 +117,55 @@ export default function ContractList() {
         navigate("/contracts/add");
     };
 
+    const handleDownloadExcel = async (): Promise<void> => {
+        if (!startDate || !endDate) {
+            toast.error("Пожалуйста, выберите даты");
+            return;
+        }
+
+        setDownloading(true);
+        try {
+            // Convert Y-m-d format to d-m-Y format
+            const formatDateForAPI = (dateString: string) => {
+                const date = new Date(dateString);
+                const day = date.getDate().toString().padStart(2, "0");
+                const month = (date.getMonth() + 1).toString().padStart(2, "0");
+                const year = date.getFullYear();
+                return `${day}-${month}-${year}`;
+            };
+
+            const formattedStartDate = formatDateForAPI(startDate);
+            const formattedEndDate = formatDateForAPI(endDate);
+
+            const response = await GetDataSimpleBlob(
+                `api/excel/contracts?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
+            );
+
+            // Create blob and download
+            const blob = new Blob([response], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `contracts-${startDate}-${endDate}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("Excel файл загружен");
+            setExcelModalOpen(false);
+            setStartDate("");
+            setEndDate("");
+        } catch (error) {
+            console.error("Error downloading excel:", error);
+            toast.error("Ошибка при загрузке Excel файла");
+        } finally {
+            setDownloading(false);
+        }
+    };
+
     if (loading) {
         return <Loader />;
     }
@@ -120,12 +181,21 @@ export default function ContractList() {
                 <ComponentCard
                     title="Контракты"
                     desc={
-                        <button
-                            onClick={handleAddContract}
-                            className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition-colors"
-                        >
-                            + Добавить контракт
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleAddContract}
+                                className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                            >
+                                + Добавить контракт
+                            </button>
+                            <button
+                                onClick={() => setExcelModalOpen(true)}
+                                className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
+                            >
+                                <FaDownload />
+                                Excel
+                            </button>
+                        </div>
                     }
                 >
                     {/* Search Results Info */}
@@ -188,6 +258,76 @@ export default function ContractList() {
                     )}
                 </ComponentCard>
             </div>
+
+            {/* Excel Download Modal */}
+            <Modal
+                isOpen={excelModalOpen}
+                onClose={() => {
+                    setExcelModalOpen(false);
+                    setStartDate("");
+                    setEndDate("");
+                }}
+                className="max-w-md"
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Скачать Excel отчет
+                    </h3>
+
+                    <div className="space-y-4">
+                        <DatePicker
+                            id="start-date"
+                            label="Начальная дата *"
+                            placeholder="Выберите начальную дату"
+                            onChange={(selectedDates) => {
+                                if (selectedDates[0]) {
+                                    const date = new Date(selectedDates[0]);
+                                    const formattedDate = date
+                                        .toISOString()
+                                        .split("T")[0];
+                                    setStartDate(formattedDate);
+                                }
+                            }}
+                        />
+
+                        <DatePicker
+                            id="end-date"
+                            label="Конечная дата *"
+                            placeholder="Выберите конечную дату"
+                            onChange={(selectedDates) => {
+                                if (selectedDates[0]) {
+                                    const date = new Date(selectedDates[0]);
+                                    const formattedDate = date
+                                        .toISOString()
+                                        .split("T")[0];
+                                    setEndDate(formattedDate);
+                                }
+                            }}
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setExcelModalOpen(false);
+                                setStartDate("");
+                                setEndDate("");
+                            }}
+                            disabled={downloading}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            onClick={handleDownloadExcel}
+                            disabled={downloading}
+                            startIcon={<FaDownload />}
+                        >
+                            {downloading ? "Загрузка..." : "Скачать Excel"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
 
             <Toaster position="top-right" reverseOrder={false} />
         </>

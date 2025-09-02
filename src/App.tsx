@@ -37,6 +37,7 @@ import CompletedContracts from "./pages/Director/CompletedContracts/CompletedCon
 import CompletedContractDetail from "./pages/Director/CompletedContracts/Detail";
 import MyContracts from "./pages/Labarant/MyContracts";
 import MyContractDetail from "./pages/Labarant/Detail";
+import Reports from "./pages/Labarant/Reports";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -139,6 +140,7 @@ export default function App() {
                                 path="/my-contracts/:id"
                                 element={<MyContractDetail />}
                             />
+                            <Route path="/reports" element={<Reports />} />
                             <Route path="/payments" element={<PaymentList />} />
                             <Route
                                 path="/expense-categories"

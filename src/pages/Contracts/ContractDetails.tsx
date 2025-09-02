@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import ComponentCard from "../../components/common/ComponentCard";
 import Badge from "../../components/ui/badge/Badge";
-import { GetDataSimple, PostDataToken } from "../../service/data";
+import { GetDataSimple, PostDataToken, PostSimple } from "../../service/data";
 import generateChequeFromData from "../../utils/contractGeneratorFile";
 import Loader from "../../components/ui/loader/Loader";
 import toast from "react-hot-toast";
@@ -163,7 +163,7 @@ interface Contract {
     contract_id: number;
     contract_number: string;
     client_id: number;
-    contract_type: number;
+    contract_type: string;
     contract_price: number;
     percent: number;
     contract_date: string;
@@ -482,12 +482,43 @@ const ContractDetails = () => {
 
                     {/* Download Document Button */}
                     <button
-                        onClick={() =>
-                            generateChequeFromData({
-                                ...currentContract,
-                                qrCode: qrCode,
-                            })
-                        }
+                        onClick={async () => {
+                            if (
+                                currentContract.contract_type === "1" ||
+                                currentContract.contract_type === "2"
+                            ) {
+                                // For contract_type 3, use template
+                                generateChequeFromData({
+                                    ...currentContract,
+                                    qrCode: qrCode,
+                                });
+                            } else {
+                                // For other contract types, download from API
+                                try {
+                                    const response = await PostSimple(
+                                        `api/contracts/wordcreate/${currentContract.contract_id}`
+                                    );
+                                    const blob = new Blob([response.data], {
+                                        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                    });
+                                    const url =
+                                        window.URL.createObjectURL(blob);
+                                    const link = document.createElement("a");
+                                    link.href = url;
+                                    link.download = `contract_${currentContract.contract_number}.docx`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    window.URL.revokeObjectURL(url);
+                                } catch (error) {
+                                    console.error(
+                                        "Error downloading DOCX:",
+                                        error
+                                    );
+                                    toast.error("Ошибка при скачивании DOCX");
+                                }
+                            }
+                        }}
                         className="bg-blue-600 text-white hover:bg-blue-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2"
                     >
                         <DownloadIcon />
@@ -602,51 +633,55 @@ const ContractDetails = () => {
                 </ComponentCard>
             </div>
 
-            {/* Laboratory Tests */}
-            <ComponentCard title="Лабораторные тесты">
-                <div className="flex items-center gap-2 mb-4">
-                    <LabIcon />
-                    <span className="text-gray-600 font-medium">
-                        {currentContract.laboratory?.length || 0} тестов
-                    </span>
-                </div>
-                {currentContract.laboratory &&
-                currentContract.laboratory.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {currentContract.laboratory.map((test, index) => (
-                            <div
-                                key={test.lab_test_id}
-                                className="border border-gray-200 rounded-lg p-4"
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
-                                        #{index + 1}
-                                    </span>
-                                    <span
-                                        className={`text-xs px-2 py-1 rounded-full ${
-                                            test.test_type === 1
-                                                ? "bg-green-100 text-green-800"
-                                                : "bg-blue-100 text-blue-800"
-                                        }`}
-                                    >
-                                        {test.test_type === 1
-                                            ? "Основной"
-                                            : "Дополнительный"}
-                                    </span>
-                                </div>
-                                <h4 className="font-medium text-gray-900">
-                                    {test.tests_name}
-                                </h4>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-8 text-gray-500">
+            {/* Laboratory Tests - Only show if contract_type is not 3 */}
+            {currentContract && currentContract.contract_type !== "3" && (
+                <ComponentCard title="Лабораторные тесты">
+                    <div className="flex items-center gap-2 mb-4">
                         <LabIcon />
-                        <p className="mt-2">Лабораторные тесты не назначены</p>
+                        <span className="text-gray-600 font-medium">
+                            {currentContract.laboratory?.length || 0} тестов
+                        </span>
                     </div>
-                )}
-            </ComponentCard>
+                    {currentContract.laboratory &&
+                    currentContract.laboratory.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {currentContract.laboratory.map((test, index) => (
+                                <div
+                                    key={test.lab_test_id}
+                                    className="border border-gray-200 rounded-lg p-4"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
+                                            #{index + 1}
+                                        </span>
+                                        <span
+                                            className={`text-xs px-2 py-1 rounded-full ${
+                                                test.test_type === 1
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-blue-100 text-blue-800"
+                                            }`}
+                                        >
+                                            {test.test_type === 1
+                                                ? "Основной"
+                                                : "Дополнительный"}
+                                        </span>
+                                    </div>
+                                    <h4 className="font-medium text-gray-900">
+                                        {test.tests_name}
+                                    </h4>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            <LabIcon />
+                            <p className="mt-2">
+                                Лабораторные тесты не назначены
+                            </p>
+                        </div>
+                    )}
+                </ComponentCard>
+            )}
 
             {/* Monthly Payments */}
             <ComponentCard title="Ежемесячные платежи">
@@ -741,12 +776,6 @@ const ContractDetails = () => {
 
             {/* Payment History */}
             <ComponentCard title="История платежей">
-                <div className="flex items-center gap-2 mb-4">
-                    <PaymentIcon />
-                    <span className="text-gray-600 font-medium">
-                        {currentContract.payments?.length || 0} платежей
-                    </span>
-                </div>
                 {currentContract.payments &&
                 currentContract.payments.length > 0 ? (
                     <div className="space-y-4">
@@ -800,7 +829,6 @@ const ContractDetails = () => {
                     </div>
                 ) : (
                     <div className="text-center py-8 text-gray-500">
-                        <PaymentIcon />
                         <p className="mt-2">История платежей пуста</p>
                     </div>
                 )}

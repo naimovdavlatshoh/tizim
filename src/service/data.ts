@@ -1,17 +1,15 @@
 import axios from "axios";
-import { handleAuthError } from "../utils/authUtils";
+// import { handleAuthError } from "../utils/authUtils";
 
-axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-
-        if (handleAuthError(error)) {
-
-            return Promise.resolve({ data: { handled: true } });
-        }
-        return Promise.reject(error);
-    }
-);
+// axios.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//         if (handleAuthError(error)) {
+//             return Promise.resolve({ data: { handled: true } });
+//         }
+//         return Promise.reject(error);
+//     }
+// );
 
 export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
     const token = localStorage.getItem("token"); // yoki sessionStorage
@@ -76,6 +74,15 @@ export const PostDataTokenJson = async (url: string, data: any) => {
 };
 
 export const PostSimple = async (url: string, data: any = {}) => {
+    const response = await axios.post(BASE_URL + url, data, {
+        headers: {
+            Authorization: `Bearer ${Token}`,
+        },
+    });
+    return response;
+};
+
+export const PostSimpleFormData = async (url: string, data: FormData) => {
     const response = await axios.post(BASE_URL + url, data, {
         headers: {
             Authorization: `Bearer ${Token}`,

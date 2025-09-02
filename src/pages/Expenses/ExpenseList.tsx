@@ -2,7 +2,11 @@ import { useEffect, useState, useCallback } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
-import { GetDataSimple, PostSimple } from "../../service/data.ts";
+import {
+    GetDataSimple,
+    PostSimple,
+    GetDataSimpleBlob,
+} from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import TableExpense from "./TableExpense.tsx";
@@ -11,6 +15,11 @@ import { toast } from "react-hot-toast";
 import { useModal } from "../../hooks/useModal.ts";
 import AddExpenseModal from "./AddExpenseModal.tsx";
 import Loader from "../../components/ui/loader/Loader.tsx";
+import { Modal } from "../../components/ui/modal";
+import Button from "../../components/ui/button/Button";
+import { FaDownload } from "react-icons/fa";
+import DatePicker from "../../components/form/date-picker";
+import Select from "../../components/form/Select";
 
 interface Expense {
     expenses_id: number;
@@ -36,6 +45,12 @@ export default function ExpenseList() {
     const [status, setStatus] = useState(false);
     const { isOpen, openModal, closeModal } = useModal();
     const [loading, setLoading] = useState(false);
+    const [excelModalOpen, setExcelModalOpen] = useState(false);
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [downloading, setDownloading] = useState(false);
+    const [countValue, setCountValue] = useState("");
+    const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
     const fetchExpenses = useCallback(async () => {
         setLoading(true);
@@ -60,7 +75,7 @@ export default function ExpenseList() {
     const fetchCategories = useCallback(async () => {
         try {
             const response: any = await GetDataSimple(
-                `api/expensescategories/list?page=1&limit=100`
+                `api/expensescategories/list?page=1&limit=10`
             );
             const categoriesData =
                 response?.result || response?.data?.result || [];
@@ -108,6 +123,66 @@ export default function ExpenseList() {
         fetchExpenses();
     }, [status, fetchExpenses]);
 
+    const handleDownloadExcel = async (): Promise<void> => {
+        if (!startDate || !endDate) {
+            toast.error("Пожалуйста, выберите даты");
+            return;
+        }
+
+        setDownloading(true);
+        try {
+            // Convert Y-m-d format to d-m-Y format
+            const formatDateForAPI = (dateString: string) => {
+                const date = new Date(dateString);
+                const day = date.getDate().toString().padStart(2, "0");
+                const month = (date.getMonth() + 1).toString().padStart(2, "0");
+                const year = date.getFullYear();
+                return `${day}-${month}-${year}`;
+            };
+
+            const formattedStartDate = formatDateForAPI(startDate);
+            const formattedEndDate = formatDateForAPI(endDate);
+
+            // Build URL with parameters
+            let url = `api/excel/expenses?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+
+            if (countValue) {
+                url += `&count=${countValue}`;
+            }
+
+            if (selectedCategoryId) {
+                url += `&expenses_category_id=${selectedCategoryId}`;
+            }
+
+            const response = await GetDataSimpleBlob(url);
+
+            // Create blob and download
+            const blob = new Blob([response], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            const url_download = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url_download;
+            link.download = `expenses-${startDate}-${endDate}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url_download);
+
+            toast.success("Excel файл загружен");
+            setExcelModalOpen(false);
+            setStartDate("");
+            setEndDate("");
+            setCountValue("");
+            setSelectedCategoryId("");
+        } catch (error) {
+            console.error("Error downloading excel:", error);
+            toast.error("Ошибка при загрузке Excel файла");
+        } finally {
+            setDownloading(false);
+        }
+    };
+
     // Initial fetch when component mounts
     useEffect(() => {
         fetchExpenses();
@@ -115,9 +190,7 @@ export default function ExpenseList() {
 
     // Fetch categories only when modal opens
     useEffect(() => {
-        if (isOpen) {
-            fetchCategories();
-        }
+        fetchCategories();
     }, [isOpen, fetchCategories]);
 
     // Handle search and page changes
@@ -143,21 +216,6 @@ export default function ExpenseList() {
                 title="Список расходов"
                 desc={
                     <div className="flex gap-3 items-center">
-                        {/* <input
-                            type="text"
-                            placeholder="Поиск расходов..."
-                            value={searchQuery}
-                            onChange={(e) => {
-                                const query = e.target.value;
-                                if (
-                                    query.trim().length >= 3 ||
-                                    query.trim() === ""
-                                ) {
-                                    performSearch(query);
-                                }
-                            }}
-                            className="w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        /> */}
                         <button
                             onClick={openModal}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
@@ -176,6 +234,13 @@ export default function ExpenseList() {
                                 />
                             </svg>
                             Добавить расход
+                        </button>
+                        <button
+                            onClick={() => setExcelModalOpen(true)}
+                            className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
+                        >
+                            <FaDownload />
+                            Excel
                         </button>
                     </div>
                 }
@@ -201,6 +266,115 @@ export default function ExpenseList() {
                 changeStatus={changeStatus}
                 categories={categories}
             />
+
+            {/* Excel Download Modal */}
+            <Modal
+                isOpen={excelModalOpen}
+                onClose={() => {
+                    setExcelModalOpen(false);
+                    setStartDate("");
+                    setEndDate("");
+                    setCountValue("");
+                    setSelectedCategoryId("");
+                }}
+                className="max-w-md"
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Скачать Excel отчет
+                    </h3>
+
+                    <div className="space-y-4">
+                        <DatePicker
+                            id="start-date"
+                            label="Начальная дата *"
+                            placeholder="Выберите начальную дату"
+                            onChange={(selectedDates) => {
+                                if (selectedDates[0]) {
+                                    const date = new Date(selectedDates[0]);
+                                    const formattedDate = date
+                                        .toISOString()
+                                        .split("T")[0];
+                                    setStartDate(formattedDate);
+                                }
+                            }}
+                        />
+
+                        <DatePicker
+                            id="end-date"
+                            label="Конечная дата *"
+                            placeholder="Выберите конечную дату"
+                            onChange={(selectedDates) => {
+                                if (selectedDates[0]) {
+                                    const date = new Date(selectedDates[0]);
+                                    const formattedDate = date
+                                        .toISOString()
+                                        .split("T")[0];
+                                    setEndDate(formattedDate);
+                                }
+                            }}
+                        />
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Количество данных
+                            </label>
+                            <input
+                                type="number"
+                                value={countValue}
+                                onChange={(e) => setCountValue(e.target.value)}
+                                placeholder="Введите количество"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Категория расходов (не обязательно)
+                            </label>
+                            <Select
+                                options={[
+                                    { value: 0, label: "Все категории" },
+                                    ...categories.map((category) => ({
+                                        value: category.expenses_category_id,
+                                        label: category.category_name,
+                                    })),
+                                ]}
+                                placeholder="Выберите категорию"
+                                onChange={(value) =>
+                                    setSelectedCategoryId(
+                                        value === "0" ? "" : value
+                                    )
+                                }
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setExcelModalOpen(false);
+                                setStartDate("");
+                                setEndDate("");
+                                setCountValue("");
+                                setSelectedCategoryId("");
+                            }}
+                            disabled={downloading}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            onClick={handleDownloadExcel}
+                            disabled={downloading}
+                            startIcon={<FaDownload />}
+                        >
+                            {downloading ? "Загрузка..." : "Скачать Excel"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
 
             <Toaster
                 position="bottom-right"

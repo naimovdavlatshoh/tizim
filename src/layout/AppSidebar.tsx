@@ -5,6 +5,7 @@ import { MdPendingActions } from "react-icons/md";
 import { GrMoney } from "react-icons/gr";
 import { TbCategory } from "react-icons/tb";
 import { TbFaceId } from "react-icons/tb";
+import { TbMessageReport } from "react-icons/tb";
 
 // Assume these icons are imported from an icon library
 import {
@@ -83,6 +84,12 @@ const navItems: NavItem[] = [
         icon: <DocsIcon />,
         path: "/my-contracts",
         roles: [4], // Faqat Labarant
+    },
+    {
+        name: "Отчеты",
+        icon: <TbMessageReport />,
+        path: "/reports",
+        roles: [1, 4], // Director va Labarant
     },
     {
         name: "Платежи",
