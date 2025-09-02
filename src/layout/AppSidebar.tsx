@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
         icon: <GridIcon />,
         name: "Dashboard",
         path: "/",
-        roles: [1, 2, 4], // Admin, Director, Labarant
+        roles: [1, 2, 3, 4], // Admin, Director, Labarant
     },
     {
         name: "Пользователи",
@@ -53,67 +53,67 @@ const navItems: NavItem[] = [
         name: "Клиенты",
         icon: <GroupIcon />,
         path: "/clients",
-        roles: [1, 2], // Admin va Director
+        roles: [1], // Admin va Director
     },
     {
         name: "Контракты",
         icon: <DocsIcon />,
         path: "/contracts",
-        roles: [1, 2], // Admin va Director
+        roles: [1], // Admin va Director
     },
     {
         name: "Новые контракты",
         icon: <IoDocumentLockOutline />,
         path: "/new-contracts",
-        roles: [1, 2], // Faqat Director
+        roles: [1], // Faqat Director
     },
     {
         name: "Контракты в процессе",
         icon: <MdPendingActions />,
         path: "/pending-contracts",
-        roles: [1, 2], // Faqat Director
+        roles: [1], // Faqat Director
     },
     {
         name: "Завершенные контракты",
         icon: <DocsIcon />,
         path: "/completed-contracts",
-        roles: [1, 2], // Faqat Director
+        roles: [1], // Faqat Director
     },
     {
         name: "Мои контракты",
         icon: <DocsIcon />,
         path: "/my-contracts",
-        roles: [4], // Faqat Labarant
+        roles: [2, 3, 4], // Faqat Labarant
     },
     {
         name: "Отчеты",
         icon: <TbMessageReport />,
         path: "/reports",
-        roles: [1, 4], // Director va Labarant
+        roles: [1, 2, 3, 4], // Director va Labarant
     },
     {
         name: "Платежи",
         icon: <GrMoney />,
         path: "/payments",
-        roles: [1, 2], // Admin va Director
+        roles: [1], // Admin va Director
     },
     {
         name: "Категории расходов",
         icon: <TbCategory />,
         path: "/expense-categories",
-        roles: [1, 2], // Admin va Director
+        roles: [1], // Admin va Director
     },
     {
         name: "Расходы",
         icon: <GrMoney />,
         path: "/expenses",
-        roles: [1, 2], // Admin va Director
+        roles: [1], // Admin va Director
     },
     {
         name: "Face ID",
         icon: <TbFaceId />,
         path: "/face-id",
-        roles: [1, 2], // Admin va Director
+        roles: [1], // Admin va Director
     },
     // {
     //     icon: <CalenderIcon />,
