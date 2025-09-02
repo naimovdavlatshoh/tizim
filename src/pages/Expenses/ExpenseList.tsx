@@ -49,8 +49,9 @@ export default function ExpenseList() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [downloading, setDownloading] = useState(false);
-    const [countValue, setCountValue] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState("");
+    const [availableCount, setAvailableCount] = useState<number | null>(null);
+    const [checkingCount, setCheckingCount] = useState(false);
 
     const fetchExpenses = useCallback(async () => {
         setLoading(true);
@@ -123,6 +124,52 @@ export default function ExpenseList() {
         fetchExpenses();
     }, [status, fetchExpenses]);
 
+    const checkAvailableCount = async (): Promise<void> => {
+        if (!startDate || !endDate) {
+            setAvailableCount(null);
+            return;
+        }
+
+        setCheckingCount(true);
+        try {
+            // Convert Y-m-d format to d-m-Y format
+            const formatDateForAPI = (dateString: string) => {
+                const date = new Date(dateString);
+                const day = date.getDate().toString().padStart(2, "0");
+                const month = (date.getMonth() + 1).toString().padStart(2, "0");
+                const year = date.getFullYear();
+                return `${day}-${month}-${year}`;
+            };
+
+            const formattedStartDate = formatDateForAPI(startDate);
+            const formattedEndDate = formatDateForAPI(endDate);
+
+            // Build URL with parameters
+            let url = `api/excel/expenses?start_date=${formattedStartDate}&end_date=${formattedEndDate}&count=1`;
+
+            if (selectedCategoryId) {
+                url += `&expenses_category_id=${selectedCategoryId}`;
+            }
+
+            const response = await GetDataSimple(url);
+            const count =
+                response?.total_count || response?.data?.total_count || 0;
+            setAvailableCount(count);
+
+            if (count > 0) {
+                toast.success(`По вашему запросу найдено ${count} записей`);
+            } else {
+                toast.error("Данные не найдены");
+            }
+        } catch (error) {
+            console.error("Error checking count:", error);
+            toast.error("Данные не найдены");
+            setAvailableCount(null);
+        } finally {
+            setCheckingCount(false);
+        }
+    };
+
     const handleDownloadExcel = async (): Promise<void> => {
         if (!startDate || !endDate) {
             toast.error("Пожалуйста, выберите даты");
@@ -143,12 +190,8 @@ export default function ExpenseList() {
             const formattedStartDate = formatDateForAPI(startDate);
             const formattedEndDate = formatDateForAPI(endDate);
 
-            // Build URL with parameters
+            // Build URL with parameters (without count for download)
             let url = `api/excel/expenses?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
-
-            if (countValue) {
-                url += `&count=${countValue}`;
-            }
 
             if (selectedCategoryId) {
                 url += `&expenses_category_id=${selectedCategoryId}`;
@@ -173,8 +216,8 @@ export default function ExpenseList() {
             setExcelModalOpen(false);
             setStartDate("");
             setEndDate("");
-            setCountValue("");
             setSelectedCategoryId("");
+            setAvailableCount(null);
         } catch (error) {
             console.error("Error downloading excel:", error);
             toast.error("Ошибка при загрузке Excel файла");
@@ -203,6 +246,19 @@ export default function ExpenseList() {
             }
         }
     }, [searchQuery, currentPage, status, performSearch, fetchExpenses]);
+
+    // Auto-check count when dates or category change
+    useEffect(() => {
+        if (startDate && endDate) {
+            const timeoutId = setTimeout(() => {
+                checkAvailableCount();
+            }, 500); // Debounce for 500ms
+
+            return () => clearTimeout(timeoutId);
+        } else {
+            setAvailableCount(null);
+        }
+    }, [startDate, endDate, selectedCategoryId]);
 
     if (loading) {
         return <Loader />;
@@ -274,8 +330,8 @@ export default function ExpenseList() {
                     setExcelModalOpen(false);
                     setStartDate("");
                     setEndDate("");
-                    setCountValue("");
                     setSelectedCategoryId("");
+                    setAvailableCount(null);
                 }}
                 className="max-w-md"
             >
@@ -315,18 +371,24 @@ export default function ExpenseList() {
                             }}
                         />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Количество данных
-                            </label>
-                            <input
-                                type="number"
-                                value={countValue}
-                                onChange={(e) => setCountValue(e.target.value)}
-                                placeholder="Введите количество"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            />
-                        </div>
+                        {checkingCount && (
+                            <div className="p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg">
+                                <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                                    Проверка количества записей...
+                                </p>
+                            </div>
+                        )}
+                        {availableCount !== null && !checkingCount && (
+                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                <p className="text-sm text-blue-800 dark:text-blue-200">
+                                    Найдено записей:{" "}
+                                    <span className="font-semibold">
+                                        {availableCount}
+                                    </span>
+                                </p>
+                            </div>
+                        )}
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -358,8 +420,8 @@ export default function ExpenseList() {
                                 setExcelModalOpen(false);
                                 setStartDate("");
                                 setEndDate("");
-                                setCountValue("");
                                 setSelectedCategoryId("");
+                                setAvailableCount(null);
                             }}
                             disabled={downloading}
                         >

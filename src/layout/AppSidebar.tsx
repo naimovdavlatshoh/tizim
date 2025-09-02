@@ -56,31 +56,31 @@ const navItems: NavItem[] = [
         roles: [1], // Admin va Director
     },
     {
-        name: "Контракты",
+        name: "Договоры",
         icon: <DocsIcon />,
         path: "/contracts",
         roles: [1], // Admin va Director
     },
     {
-        name: "Новые контракты",
+        name: "Новые договоры",
         icon: <IoDocumentLockOutline />,
         path: "/new-contracts",
         roles: [1], // Faqat Director
     },
     {
-        name: "Контракты в процессе",
+        name: "Договоры в процессе",
         icon: <MdPendingActions />,
         path: "/pending-contracts",
         roles: [1], // Faqat Director
     },
     {
-        name: "Завершенные контракты",
+        name: "Завершенные договоры",
         icon: <DocsIcon />,
         path: "/completed-contracts",
         roles: [1], // Faqat Director
     },
     {
-        name: "Мои контракты",
+        name: "Мои договоры",
         icon: <DocsIcon />,
         path: "/my-contracts",
         roles: [2, 3, 4], // Faqat Labarant

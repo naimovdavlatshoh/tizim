@@ -34,6 +34,7 @@ interface Report {
     client_name?: string;
     created_at: string;
     files?: string[];
+    user_name?: string;
 }
 
 interface Contract {
@@ -273,7 +274,6 @@ const Reports = () => {
                 {/* Filters for Director */}
                 {isDirector && (
                     <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -337,6 +337,12 @@ const Reports = () => {
                                         isHeader
                                         className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                     >
+                                        Отправитель
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
                                         Текст отчета
                                     </TableCell>
                                     <TableCell
@@ -376,6 +382,9 @@ const Reports = () => {
                                         >
                                             <TableCell className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                 {index + 1}
+                                            </TableCell>
+                                            <TableCell className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                {report.user_name}
                                             </TableCell>
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 max-w-xs">
                                                 <div className="relative group">
