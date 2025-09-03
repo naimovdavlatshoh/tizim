@@ -121,7 +121,7 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
                 {/* Contract Info */}
                 <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Контракт ID:{" "}
+                        Договор ID:{" "}
                         <span className="font-medium">{contractId}</span>
                     </p>
                 </div>

@@ -5,7 +5,7 @@ import PageMeta from "../../components/common/PageMeta.tsx";
 import {
     GetDataSimple,
     PostSimple,
-    GetDataSimpleBlob,
+    GetDataSimpleBlobExel,
 } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
@@ -197,7 +197,7 @@ export default function ExpenseList() {
                 url += `&expenses_category_id=${selectedCategoryId}`;
             }
 
-            const response = await GetDataSimpleBlob(url);
+            const response = await GetDataSimpleBlobExel(url);
 
             // Create blob and download
             const blob = new Blob([response], {

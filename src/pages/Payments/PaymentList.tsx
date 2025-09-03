@@ -5,7 +5,7 @@ import PageMeta from "../../components/common/PageMeta";
 import {
     GetDataSimple,
     PostSimple,
-    GetDataSimpleBlob,
+    GetDataSimpleBlobExel,
 } from "../../service/data";
 import Pagination from "../../components/common/Pagination";
 import { Toaster } from "react-hot-toast";
@@ -147,9 +147,10 @@ export default function PaymentList() {
             const formattedStartDate = formatDateForAPI(startDate);
             const formattedEndDate = formatDateForAPI(endDate);
 
-            const response = await GetDataSimpleBlob(
+            const response = await GetDataSimpleBlobExel(
                 `api/excel/payments?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
             );
+            console.log(response);
 
             // Create blob and download
             const blob = new Blob([response], {

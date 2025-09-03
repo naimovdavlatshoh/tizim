@@ -90,7 +90,7 @@ const CompletedContracts = () => {
             setLoading(false);
         } catch (error) {
             console.error("Error fetching completed contracts:", error);
-            toast.error("Ошибка при загрузке завершенных контрактов");
+            toast.error("Ошибка при загрузке завершенных договоров");
             setLoading(false);
         } finally {
             setLoading(false);
@@ -169,10 +169,10 @@ const CompletedContracts = () => {
 
     return (
         <>
-            <PageMeta title="BNM Tizim" description="Завершенные контракты" />
-            <PageBreadcrumb pageTitle="Завершенные контракты" />
+            <PageMeta title="BNM Tizim" description="Завершенные договоры" />
+            <PageBreadcrumb pageTitle="Завершенные договоры" />
             <div className="space-y-6">
-                <ComponentCard title="Завершенные контракты">
+                <ComponentCard title="Завершенные договоры">
                     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                         <div className="max-w-full overflow-x-auto">
                             <Table>
@@ -186,7 +186,7 @@ const CompletedContracts = () => {
                                         </TableCell>
                                         <TableCell className="pl-5 py-3 text-left">
                                             <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                                Номер контракта
+                                                Номер договора
                                             </span>
                                         </TableCell>
                                         <TableCell className="py-3 text-left">

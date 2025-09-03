@@ -25,6 +25,20 @@ export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
 
     return response.data;
 };
+export const GetDataSimpleBlobExel = async (url: string, config: any = {}) => {
+    const token = localStorage.getItem("token"); // yoki sessionStorage
+
+    const response = await axios.get(BASE_URL + url, {
+        responseType: "arraybuffer", // blob yoki json
+        headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...config.headers,
+        },
+        ...config,
+    });
+
+    return response.data;
+};
 
 export const BASE_URL = "https://apitizim.argon.uz/";
 

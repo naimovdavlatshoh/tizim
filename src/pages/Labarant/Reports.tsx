@@ -58,6 +58,10 @@ const Reports = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
 
+    // Contract search states
+    const [filteredContracts, setFilteredContracts] = useState<Contract[]>([]);
+    const [contractSearching, setContractSearching] = useState(false);
+
     // Filter states
     const [filterContractId, setFilterContractId] = useState<string>("");
     const [filterUserId, setFilterUserId] = useState<string>("");
@@ -80,6 +84,11 @@ const Reports = () => {
             fetchUsers();
         }
     }, []);
+
+    // Initialize filtered contracts when contracts are loaded
+    useEffect(() => {
+        setFilteredContracts(contracts);
+    }, [contracts]);
 
     const fetchReports = async () => {
         setLoading(true);
@@ -145,8 +154,8 @@ const Reports = () => {
     };
 
     const handleCreateReport = async () => {
-        if (!selectedContract || !reportText.trim()) {
-            toast.error("Пожалуйста, заполните все обязательные поля");
+        if (!reportText.trim()) {
+            toast.error("Пожалуйста, введите текст отчета");
             return;
         }
 
@@ -154,7 +163,7 @@ const Reports = () => {
         try {
             const reportData = {
                 report_text: reportText,
-                contract_id: selectedContract,
+                ...(selectedContract && { contract_id: selectedContract }),
             };
 
             const formData = new FormData();
@@ -230,7 +239,38 @@ const Reports = () => {
         setSelectedFiles(files);
     };
 
-    const contractOptions = contracts.map((contract) => ({
+    const handleContractSearch = async (searchTerm: string) => {
+        setContractSearching(true);
+
+        try {
+            if (searchTerm.trim() === "") {
+                // If search is empty, show all contracts
+                setFilteredContracts(contracts);
+            } else if (searchTerm.trim().length >= 3) {
+                // Only search if at least 3 characters
+                const filtered = contracts.filter(
+                    (contract) =>
+                        contract.contract_number
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
+                        contract.client_name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase())
+                );
+                setFilteredContracts(filtered);
+            } else {
+                // If less than 3 characters, show all contracts
+                setFilteredContracts(contracts);
+            }
+        } catch (error) {
+            console.error("Error searching contracts:", error);
+            setFilteredContracts(contracts);
+        } finally {
+            setContractSearching(false);
+        }
+    };
+
+    const contractOptions = filteredContracts.map((contract) => ({
         value: parseInt(contract.contract_id),
         label: `${contract.contract_number} - ${contract.client_name}`,
     }));
@@ -241,7 +281,7 @@ const Reports = () => {
     }));
 
     const filterContractOptions = [
-        { value: 0, label: "Все контракты" },
+        { value: 0, label: "Все договоры" },
         ...contractOptions,
     ];
 
@@ -277,11 +317,11 @@ const Reports = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Контракт
+                                    Договор
                                 </label>
                                 <Select
                                     options={filterContractOptions}
-                                    placeholder="Выберите контракт"
+                                    placeholder="Выберите договор"
                                     onChange={(value) =>
                                         setFilterContractId(
                                             value === "0" ? "" : value
@@ -349,7 +389,7 @@ const Reports = () => {
                                         isHeader
                                         className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-theme-xs dark:text-gray-400"
                                     >
-                                        Номер контракта
+                                        Номер договора
                                     </TableCell>
                                     <TableCell
                                         isHeader
@@ -491,13 +531,16 @@ const Reports = () => {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Контракт *
+                                Договор (необязательно)
                             </label>
                             <Select
                                 options={contractOptions}
-                                placeholder="Выберите контракт"
+                                placeholder="Выберите договор"
                                 onChange={(value) => setSelectedContract(value)}
                                 className="w-full"
+                                searchable={true}
+                                onSearch={handleContractSearch}
+                                searching={contractSearching}
                             />
                         </div>
 

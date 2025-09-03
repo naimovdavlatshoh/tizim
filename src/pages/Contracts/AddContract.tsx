@@ -209,7 +209,7 @@ const AddContract = () => {
     const updatePlanWithCalculatedFee = () => {
         if (!formData.contract_price || !formData.contract_plan_months) {
             toast.error(
-                "Пожалуйста, введите стоимость контракта и количество месяцев рассрочки"
+                "Пожалуйста, введите стоимость договора и количество месяцев рассрочки"
             );
             return;
         }
@@ -263,7 +263,7 @@ const AddContract = () => {
             }
 
             if (formData.contract_price <= 0) {
-                toast.error("Стоимость контракта должна быть больше 0");
+                toast.error("Стоимость договора должна быть больше 0");
                 setLoading(false);
                 return;
             }
@@ -291,7 +291,7 @@ const AddContract = () => {
             );
 
             if (response?.status === 200 || response?.data?.success) {
-                toast.success("Контракт успешно создан!");
+                toast.success("Договор успешно создан!");
                 navigate("/contracts"); // Kontraktlar ro'yxatiga qaytish
             } else {
                 toast.error(
@@ -309,10 +309,10 @@ const AddContract = () => {
     return (
         <>
             <PageMeta
-                title="Новый Контракт"
-                description="Создание нового контракта"
+                title="Новый Договор"
+                description="Создание нового договора"
             />
-            <PageBreadcrumb pageTitle="Новый Контракт" />
+            <PageBreadcrumb pageTitle="Новый Договор" />
 
             <div className="space-y-6">
                 <div className="flex items-center justify-end">
@@ -330,7 +330,7 @@ const AddContract = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                    Номер контракта *
+                                    Номер договора *
                                 </label>
                                 <Input
                                     value={formData.contract_number}
@@ -340,7 +340,7 @@ const AddContract = () => {
                                             e.target.value
                                         )
                                     }
-                                    placeholder="Введите номер контракта"
+                                    placeholder="Введите номер договора"
                                 />
                             </div>
                             <div>
@@ -386,12 +386,12 @@ const AddContract = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                    Дата контракта *
+                                    Дата договора *
                                 </label>
                                 <DatePicker
                                     id="contract-date"
                                     label=""
-                                    placeholder="Выберите дату контракта"
+                                    placeholder="Выберите дату договора"
                                     onChange={(selectedDates) => {
                                         if (
                                             selectedDates &&
@@ -412,11 +412,11 @@ const AddContract = () => {
                     </ComponentCard>
 
                     {/* Contract Type and Settings */}
-                    <ComponentCard title="Тип контракта и настройки">
+                    <ComponentCard title="Тип договора и настройки">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                    Тип контракта
+                                    Тип договора
                                 </label>
                                 <Select
                                     options={[
@@ -428,9 +428,9 @@ const AddContract = () => {
                                             value: 2,
                                             label: "Физическое лицо - Рассрочка + Лаборатория",
                                         },
-                                        { value: 3, label: "Обычный контракт" },
+                                        { value: 3, label: "Обычный договор" },
                                     ]}
-                                    placeholder="Выберите тип контракта"
+                                    placeholder="Выберите тип договора"
                                     onChange={(value) =>
                                         handleInputChange(
                                             "contract_type",
@@ -494,11 +494,11 @@ const AddContract = () => {
                     </ComponentCard>
 
                     {/* Contract Price */}
-                    <ComponentCard title="Стоимость контракта">
+                    <ComponentCard title="Стоимость договора">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                    Стоимость контракта (сум) *
+                                    Стоимость договора (сум) *
                                 </label>
                                 <Input
                                     type="number"
@@ -510,9 +510,8 @@ const AddContract = () => {
                                         )
                                     }
                                     min="0"
-                                    placeholder="Введите стоимость контракта"
+                                    placeholder="Введите стоимость договора"
                                 />
-
                             </div>
                             <div className="flex items-end">
                                 <button
@@ -592,7 +591,6 @@ const AddContract = () => {
                                                     }
                                                     min="0"
                                                 />
-
                                             </div>
                                         </div>
                                         {formData.plan.length > 1 && (

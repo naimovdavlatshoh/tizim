@@ -104,7 +104,7 @@ TableContractProps) {
                                 isHeader
                                 className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
-                                Номер контракта
+                                Номер договора
                             </TableCell>
                             <TableCell
                                 isHeader
@@ -116,19 +116,19 @@ TableContractProps) {
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
-                                Сумма контракта
+                                Сумма договора
                             </TableCell>
                             <TableCell
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
-                                Дата контракта
+                                Дата договора
                             </TableCell>
                             <TableCell
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
-                                Статус контракта
+                                Статус договора
                             </TableCell>
                             <TableCell
                                 isHeader

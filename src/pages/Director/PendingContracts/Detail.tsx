@@ -147,17 +147,17 @@ const PendingContractDetail = () => {
             );
 
             if (response?.status === 200 || response?.data?.success) {
-                toast.success("Контракт успешно одобрен!");
+                toast.success("Договор успешно одобрен!");
                 setIsInfoModalOpen(false);
                 setComments({});
                 // Refresh contract data
                 fetchContractDetails();
             } else {
-                toast.error("Ошибка при одобрении контракта");
+                toast.error("Ошибка при одобрении договора");
             }
         } catch (error) {
             console.error("Error accepting contract:", error);
-            toast.error("Произошла ошибка при одобрении контракта");
+            toast.error("Произошла ошибка при одобрении договора");
         } finally {
             setIsSubmitting(false);
         }
@@ -182,17 +182,17 @@ const PendingContractDetail = () => {
             );
 
             if (response?.status === 200 || response?.data?.success) {
-                toast.success("Контракт успешно отклонен!");
+                toast.success("Договор успешно отклонен!");
                 setIsInfoModalOpen(false);
                 setComments({});
                 // Refresh contract data
                 fetchContractDetails();
             } else {
-                toast.error("Ошибка при отклонении контракта");
+                toast.error("Ошибка при отклонении договора");
             }
         } catch (error) {
             console.error("Error canceling contract:", error);
-            toast.error("Произошла ошибка при отклонении контракта");
+            toast.error("Произошла ошибка при отклонении договора");
         } finally {
             setIsSubmitting(false);
         }
@@ -303,7 +303,7 @@ const PendingContractDetail = () => {
     if (!contract) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="text-lg text-red-500">Контракт не найден</div>
+                <div className="text-lg text-red-500">Договор не найден</div>
             </div>
         );
     }
@@ -311,17 +311,17 @@ const PendingContractDetail = () => {
     return (
         <>
             <PageMeta
-                title={`Контракт №${contract.contract_number}`}
-                description="Детали контракта в процессе"
+                title={`Договор №${contract.contract_number}`}
+                description="Детали договора в процессе"
             />
             <PageBreadcrumb
-                pageTitle={`Контракт №${contract.contract_number}`}
+                pageTitle={`Договор №${contract.contract_number}`}
             />
 
             <div className="space-y-6">
                 {/* Contract Header */}
                 <ComponentCard
-                    title={`Контракт №${contract.contract_number}`}
+                    title={`Договор №${contract.contract_number}`}
                     desc={
                         <Button
                             variant="primary"
@@ -459,12 +459,12 @@ const PendingContractDetail = () => {
                     </ComponentCard>
 
                     {/* Contract Information */}
-                    <ComponentCard title="Информация о контракте">
+                    <ComponentCard title="Информация о договоре">
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-gray-500">
-                                        Номер контракта
+                                        Номер договора
                                     </p>
                                     <p className="font-medium">
                                         {contract.contract_number}
@@ -726,7 +726,7 @@ const PendingContractDetail = () => {
                                             </div>
                                             <div>
                                                 <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    Стоимость контракта
+                                                    Стоимость договора
                                                 </div>
                                                 <div className="text-sm text-gray-900 dark:text-white mt-1">
                                                     {appointmentInfo.contract_price

@@ -88,7 +88,7 @@ export default function AddPaymentModal({
             setFilteredContracts(contractsData);
         } catch (error) {
             console.error("Error fetching contracts:", error);
-            toast.error("Ошибка при загрузке контрактов");
+            toast.error("Ошибка при загрузке договоров");
         }
     };
 
@@ -108,7 +108,7 @@ export default function AddPaymentModal({
             setFilteredContracts(searchResults);
         } catch (error) {
             console.error("Error searching contracts:", error);
-            toast.error("Ошибка при поиске контрактов");
+            toast.error("Ошибка при поиске договоров");
             setFilteredContracts([]);
         } finally {
             setSearchLoading(false);
@@ -204,7 +204,7 @@ export default function AddPaymentModal({
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
-                    <Label htmlFor="contract_id">Контракт *</Label>
+                    <Label htmlFor="contract_id">Договор *</Label>
                     <div className="relative">
                         <div
                             onClick={() => {
@@ -216,7 +216,7 @@ export default function AddPaymentModal({
                         >
                             <Input
                                 type="text"
-                                placeholder="Поиск контракта (минимум 3 символа)..."
+                                placeholder="Поиск договора (минимум 3 символа)..."
                                 value={contractSearch}
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>
@@ -255,7 +255,7 @@ export default function AddPaymentModal({
                                     ))
                                 ) : contractSearch.trim().length >= 3 ? (
                                     <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-center">
-                                        Контракты не найдены
+                                        Договоры не найдены
                                     </div>
                                 ) : contractSearch.trim().length > 0 ? (
                                     <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-center">
@@ -263,7 +263,7 @@ export default function AddPaymentModal({
                                     </div>
                                 ) : (
                                     <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-center">
-                                        Начните вводить для поиска контрактов
+                                        Начните вводить для поиска договоров
                                     </div>
                                 )}
                             </div>

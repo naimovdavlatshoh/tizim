@@ -162,7 +162,7 @@ const CompletedContractDetail = () => {
     if (!contract) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="text-lg text-red-500">Контракт не найден</div>
+                <div className="text-lg text-red-500">Договор не найден</div>
             </div>
         );
     }
@@ -170,16 +170,16 @@ const CompletedContractDetail = () => {
     return (
         <>
             <PageMeta
-                title={`Контракт №${contract.contract_number}`}
-                description="Детали завершенного контракта"
+                title={`Договор №${contract.contract_number}`}
+                description="Детали завершенного договора"
             />
             <PageBreadcrumb
-                pageTitle={`Контракт №${contract.contract_number}`}
+                pageTitle={`Договор №${contract.contract_number}`}
             />
 
             <div className="space-y-6">
                 {/* Contract Header */}
-                <ComponentCard title={`Контракт №${contract.contract_number}`}>
+                <ComponentCard title={`Договор №${contract.contract_number}`}>
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">
                             <Badge
@@ -304,12 +304,12 @@ const CompletedContractDetail = () => {
                     </ComponentCard>
 
                     {/* Contract Information */}
-                    <ComponentCard title="Информация о контракте">
+                    <ComponentCard title="Информация о договоре">
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-gray-500">
-                                        Номер контракта
+                                        Номер договора
                                     </p>
                                     <p className="font-medium">
                                         {contract.contract_number}

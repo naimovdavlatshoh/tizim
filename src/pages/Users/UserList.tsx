@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
-import { GetDataSimple, GetDataSimpleBlob } from "../../service/data";
+import { GetDataSimple, GetDataSimpleBlobExel } from "../../service/data";
 import { useModal } from "../../hooks/useModal";
 import AddUserModal from "./AddUser";
 import TableUser from "./TableUser";
@@ -62,7 +62,7 @@ export default function ClientList() {
             const formattedStartDate = formatDateForAPI(startDate);
             const formattedEndDate = formatDateForAPI(endDate);
 
-            const response = await GetDataSimpleBlob(
+            const response = await GetDataSimpleBlobExel(
                 `api/excel/staffbonus?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
             );
 

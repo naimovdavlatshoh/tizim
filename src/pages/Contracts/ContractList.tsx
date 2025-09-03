@@ -6,7 +6,7 @@ import PageMeta from "../../components/common/PageMeta.tsx";
 import {
     GetDataSimple,
     PostSimple,
-    GetDataSimpleBlob,
+    GetDataSimpleBlobExel,
 } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
@@ -65,7 +65,7 @@ export default function ContractList() {
             setLoading(false);
         } catch (error) {
             console.error("Error fetching contracts:", error);
-            toast.error("Ошибка при загрузке контрактов");
+            toast.error("Ошибка при загрузке договоров");
             setLoading(false);
         }
     };
@@ -95,13 +95,13 @@ export default function ContractList() {
                 //     toast.success(`Поиск не дал результатов для: "${query}"`);
                 // }
             } else {
-                toast.error("Ошибка при поиске контрактов");
+                toast.error("Ошибка при поиске договоров");
                 // Search xatoligida oddiy list ni yuklash
                 fetchContracts();
             }
         } catch (error) {
             console.error("Error searching contracts:", error);
-            toast.error("Ошибка при поиске контрактов");
+            toast.error("Ошибка при поиске договоров");
             // Search xatoligida oddiy list ni yuklash
             fetchContracts();
         } finally {
@@ -137,7 +137,7 @@ export default function ContractList() {
             const formattedStartDate = formatDateForAPI(startDate);
             const formattedEndDate = formatDateForAPI(endDate);
 
-            const response = await GetDataSimpleBlob(
+            const response = await GetDataSimpleBlobExel(
                 `api/excel/contracts?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
             );
 
@@ -174,19 +174,19 @@ export default function ContractList() {
         <>
             <PageMeta
                 title="BNM Tizim"
-                description="Список контрактов с поиском"
+                description="Список договоров с поиском"
             />
-            <PageBreadcrumb pageTitle="Контракты" />
+            <PageBreadcrumb pageTitle="Договоры" />
             <div className="space-y-6">
                 <ComponentCard
-                    title="Контракты"
+                    title="Договоры"
                     desc={
                         <div className="flex gap-2">
                             <button
                                 onClick={handleAddContract}
                                 className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition-colors"
                             >
-                                + Добавить контракт
+                                + Добавить договор
                             </button>
                             <button
                                 onClick={() => setExcelModalOpen(true)}
@@ -214,7 +214,7 @@ export default function ContractList() {
                                     </p>
                                     <p className="text-blue-600 dark:text-blue-400 text-sm">
                                         Найдено: {filteredContracts.length}{" "}
-                                        контрактов
+                                        договоров
                                     </p>
                                 </div>
                                 <button

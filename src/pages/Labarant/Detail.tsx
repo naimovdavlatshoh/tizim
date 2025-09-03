@@ -121,16 +121,16 @@ const MyContractDetail = () => {
         }
     };
 
-    const getTestTypeText = (type: string) => {
-        switch (type) {
-            case "1":
-                return "Основной";
-            case "2":
-                return "Дополнительный";
-            default:
-                return "Неизвестно";
-        }
-    };
+    // const getTestTypeText = (type: string) => {
+    //     switch (type) {
+    //         case "1":
+    //             return "Основной";
+    //         case "2":
+    //             return "Дополнительный";
+    //         default:
+    //             return "Неизвестно";
+    //     }
+    // };
 
     // formatCurrency function is now imported from utils
 
@@ -168,7 +168,7 @@ const MyContractDetail = () => {
     if (!contract) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="text-lg text-red-500">Контракт не найден</div>
+                <div className="text-lg text-red-500">Договор не найден</div>
             </div>
         );
     }
@@ -176,24 +176,23 @@ const MyContractDetail = () => {
     return (
         <>
             <PageMeta
-                title={`Мой контракт №${contract.contract_number}`}
-                description="Детали моего назначенного контракта"
+                title={`Мой договор №${contract.contract_number}`}
+                description="Детали моего назначенного договора"
             />
             <PageBreadcrumb
-                pageTitle={`Мой контракт №${contract.contract_number}`}
+                pageTitle={`Мой договор №${contract.contract_number}`}
             />
 
             <div className="space-y-6">
                 {/* Contract Header */}
                 <ComponentCard
-                    title={`Мой контракт №${contract.contract_number}`}
+                    title={`Мой договор №${contract.contract_number}`}
                     desc={
                         <div className="flex gap-3">
                             <Button
                                 onClick={handleGetAppointmentInfo}
                                 disabled={loadingInfo}
                                 className="px-6 py-3"
-                                
                             >
                                 {loadingInfo ? "Загрузка..." : "Информация"}
                             </Button>
@@ -328,12 +327,12 @@ const MyContractDetail = () => {
                     </ComponentCard>
 
                     {/* Contract Information */}
-                    <ComponentCard title="Информация о контракте">
+                    <ComponentCard title="Информация о договоре">
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-gray-500">
-                                        Номер контракта
+                                        Номер договора
                                     </p>
                                     <p className="font-medium">
                                         {contract.contract_number}
@@ -423,9 +422,9 @@ const MyContractDetail = () => {
                                             {test.tests_name}
                                         </span>
                                     </div>
-                                    <Badge color="light">
+                                    {/* <Badge color="light">
                                         {getTestTypeText(test.test_type)}
-                                    </Badge>
+                                    </Badge> */}
                                 </div>
                             ))}
                         </div>
@@ -585,7 +584,7 @@ const MyContractDetail = () => {
                                             {appointmentInfo.contract_price && (
                                                 <div>
                                                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Стоимость контракта
+                                                        Стоимость договора
                                                     </div>
                                                     <div className="text-sm text-gray-900 dark:text-white mt-1">
                                                         {formatCurrency(
@@ -909,7 +908,7 @@ const MyContractDetail = () => {
                             }}
                             className="px-6 py-3"
                         >
-                            Назначить
+                            Отправить результаты
                         </Button>
                     </div>
                 </div>

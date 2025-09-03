@@ -73,7 +73,7 @@ const PendingContracts = () => {
             setLoading(false);
         } catch (error) {
             console.error("Error fetching pending contracts:", error);
-            toast.error("Ошибка при загрузке контрактов в процессе");
+            toast.error("Ошибка при загрузке договоров в процессе");
             setLoading(false);
         } finally {
             setLoading(false);
@@ -104,13 +104,13 @@ const PendingContracts = () => {
         <>
             <PageMeta
                 title="BNM Tizim"
-                description="Список контрактов в процессе выполнения"
+                description="Список договоров в процессе выполнения"
             />
-            <PageBreadcrumb pageTitle="Контракты в процессе" />
+            <PageBreadcrumb pageTitle="Договоры в процессе" />
             <div className="space-y-6">
                 <ComponentCard
-                    title="Контракты в процессе"
-                    desc="Контракты со статусом 'В процессе'"
+                    title="Договоры в процессе"
+                    desc="Договоры со статусом 'В процессе'"
                 >
                     {/* Loading indicator */}
                     {loading && (
@@ -135,7 +135,7 @@ const PendingContracts = () => {
                                             isHeader
                                             className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
-                                            Номер контракта
+                                            Номер договора
                                         </TableCell>
                                         <TableCell
                                             isHeader

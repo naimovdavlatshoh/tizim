@@ -75,7 +75,7 @@ const NewContracts = () => {
             setLoading(false);
         } catch (error) {
             console.error("Error fetching new contracts:", error);
-            toast.error("Ошибка при загрузке новых контрактов");
+            toast.error("Ошибка при загрузке новых договоров");
             setLoading(false);
         } finally {
             setLoading(false);
@@ -102,15 +102,12 @@ const NewContracts = () => {
 
     return (
         <>
-            <PageMeta
-                title="BNM Tizim"
-                description="Список новых контрактов"
-            />
-            <PageBreadcrumb pageTitle="Новые контракты" />
+            <PageMeta title="BNM Tizim" description="Список новых договоров" />
+            <PageBreadcrumb pageTitle="Новые договоры" />
             <div className="space-y-6">
                 <ComponentCard
-                    title="Новые контракты"
-                    desc="Контракты со статусом 'Новый'"
+                    title="Новые договоры"
+                    desc="Договоры со статусом 'Новый'"
                 >
                     {/* Loading indicator */}
                     {loading && (
@@ -135,7 +132,7 @@ const NewContracts = () => {
                                             isHeader
                                             className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
-                                            Номер контракта
+                                            Номер договора
                                         </TableCell>
                                         <TableCell
                                             isHeader

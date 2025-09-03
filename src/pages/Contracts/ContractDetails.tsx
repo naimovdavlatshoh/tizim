@@ -390,7 +390,7 @@ const ContractDetails = () => {
                         </svg>
                     </div>
                     <div className="text-lg text-red-500 font-medium">
-                        Контракт не найден
+                        Договор не найден
                     </div>
                 </div>
             </div>
@@ -401,7 +401,7 @@ const ContractDetails = () => {
         <div className="space-y-6">
             {/* Contract Header */}
             <ComponentCard
-                title={`Контракт №${currentContract.contract_number}`}
+                title={`Договор №${currentContract.contract_number}`}
             >
                 <div className="flex items-center gap-3 mb-4">
                     <ContractIcon />
@@ -425,7 +425,7 @@ const ContractDetails = () => {
 
                         <div className="text-right">
                             <p className="text-gray-600 text-sm">
-                                Сумма контракта
+                                Сумма договора
                             </p>
                             <p className="text-2xl font-bold text-gray-900">
                                 {formatCurrency(currentContract.contract_price)}

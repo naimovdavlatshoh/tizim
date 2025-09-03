@@ -82,7 +82,7 @@ const MyContracts = () => {
             setLoading(false);
         } catch (error) {
             console.error("Error fetching my contracts:", error);
-            toast.error("Ошибка при загрузке моих контрактов");
+            toast.error("Ошибка при загрузке моих договоров");
             setLoading(false);
         } finally {
             setLoading(false);
@@ -148,13 +148,13 @@ const MyContracts = () => {
         <>
             <PageMeta
                 title="BNM Tizim"
-                description="Список моих назначенных контрактов"
+                description="Список моих назначенных договоров"
             />
-            <PageBreadcrumb pageTitle="Мои контракты" />
+            <PageBreadcrumb pageTitle="Мои договоры" />
             <div className="space-y-6">
                 <ComponentCard
-                    title="Мои контракты"
-                    desc="Контракты, назначенные на меня"
+                    title="Мои договоры"
+                    desc="Договоры, назначенные на меня"
                 >
                     {/* Loading indicator */}
                     {loading && (

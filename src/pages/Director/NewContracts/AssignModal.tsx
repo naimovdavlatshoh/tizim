@@ -82,7 +82,7 @@ const AssignModal: React.FC<AssignModalProps> = ({
             });
 
             if (response?.status === 200 || response?.data?.success) {
-                toast.success("Сотрудник успешно назначен на контракт");
+                toast.success("Сотрудник успешно назначен на договор");
                 onSuccess?.();
                 onClose();
                 // Reset form
@@ -118,7 +118,7 @@ const AssignModal: React.FC<AssignModalProps> = ({
                 {/* Contract Info */}
                 <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Контракт:{" "}
+                        Договор:{" "}
                         <span className="font-medium">{contractNumber}</span>
                     </p>
                 </div>
