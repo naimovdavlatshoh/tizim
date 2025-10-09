@@ -23,6 +23,7 @@ interface Contract {
     contract_id: number;
     contract_number: string;
     client_name: string;
+    contract_price: number;
 }
 
 interface FormData {
@@ -43,6 +44,9 @@ export default function AddPaymentModal({
     const [contracts, setContracts] = useState<Contract[]>([]);
     const [filteredContracts, setFilteredContracts] = useState<Contract[]>([]);
     const [contractSearching, setContractSearching] = useState(false);
+    const [selectedContractPrice, setSelectedContractPrice] = useState<
+        number | null
+    >(null);
     const [formData, setFormData] = useState<FormData>({
         contract_id: "",
         is_advance: "0",
@@ -117,6 +121,15 @@ export default function AddPaymentModal({
             ...prev,
             [field]: String(value),
         }));
+
+        // If contract is selected, update the selected contract price
+        if (field === "contract_id") {
+            const contractId = parseInt(String(value));
+            const selectedContract = contracts.find(
+                (contract) => contract.contract_id === contractId
+            );
+            setSelectedContractPrice(selectedContract?.contract_price || null);
+        }
     };
 
     const contractOptions = filteredContracts.map((contract) => ({
@@ -127,11 +140,13 @@ export default function AddPaymentModal({
     const handleSubmit = async (): Promise<void> => {
         // Form validatsiyasi
         if (!formData.contract_id || !formData.amount) {
+            onClose();
             toast.error("Пожалуйста, заполните все обязательные поля");
             return;
         }
 
         if (parseFloat(formData.amount) <= 0) {
+            onClose();
             toast.error("Сумма должна быть больше 0");
             return;
         }
@@ -146,8 +161,6 @@ export default function AddPaymentModal({
                 payment_type: parseInt(formData.payment_type),
                 comments: formData.comments,
             };
-
-            console.log(submitData);
 
             const response: any = await PostDataTokenJson(
                 "api/payments/create",
@@ -167,14 +180,15 @@ export default function AddPaymentModal({
                     payment_type: "1",
                     comments: "",
                 });
-            } else {
-                toast.error(
-                    `Ошибка: ${response?.data?.message || "Неизвестная ошибка"}`
-                );
+                setSelectedContractPrice(null);
             }
-        } catch (error) {
-            console.error("Error creating payment:", error);
-            toast.error("Произошла ошибка. Пожалуйста, попробуйте еще раз.");
+        } catch (error: any) {
+            onClose();
+            toast.error(
+                error?.response?.data?.error
+                    ? error?.response?.data?.error
+                    : "Что-то пошло не так"
+            );
         } finally {
             setLoading(false);
         }
@@ -184,13 +198,13 @@ export default function AddPaymentModal({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            className="max-w-[800px] p-6 lg:p-10"
+            className="max-w-[800px] p-6 lg:p-10 overflow-visible"
         >
             <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
                 Добавить платеж
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-visible">
+                <div className="overflow-visible">
                     <Label htmlFor="contract_id">Договор *</Label>
                     <Select
                         options={contractOptions}
@@ -203,6 +217,14 @@ export default function AddPaymentModal({
                         onSearch={handleContractSearch}
                         searching={contractSearching}
                     />
+                    {selectedContractPrice !== null && (
+                        <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                                Стоимость договора:{" "}
+                                {formatCurrency(selectedContractPrice)}
+                            </p>
+                        </div>
+                    )}
                 </div>
                 <div>
                     <Label htmlFor="is_advance">Аванс</Label>
