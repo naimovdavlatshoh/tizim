@@ -70,6 +70,9 @@ const NewContracts = () => {
             const totalPagesData =
                 response?.pages || response?.data?.pages || 1;
 
+              
+
+
             setContracts(contractsData);
             setTotalPages(totalPagesData);
             setLoading(false);

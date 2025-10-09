@@ -74,7 +74,7 @@ const CompletedContractDetail = () => {
 
             // Find the specific contract by ID
             const foundContract = contractsData.find(
-                (contract: CompletedContract) => contract.contract_id === id
+                (contract: CompletedContract) => contract.contract_id == id
             );
 
             if (foundContract) {

@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import ComponentCard from "../../components/common/ComponentCard";
 import Badge from "../../components/ui/badge/Badge";
 import { BASE_URL, GetDataSimple, PostDataToken } from "../../service/data";
-import generateChequeFromData from "../../utils/contractGeneratorFile";
+// import generateChequeFromData from "../../utils/contractGeneratorFile";
 import Loader from "../../components/ui/loader/Loader";
 import toast from "react-hot-toast";
 import { formatCurrency } from "../../utils/numberFormat";
@@ -164,7 +164,7 @@ interface Contract {
     contract_id: number;
     contract_number: string;
     client_id: number;
-    contract_type: string;
+    contract_type: number;
     contract_price: number;
     percent: number;
     contract_date: string;
@@ -177,7 +177,7 @@ interface Contract {
     mfo: number;
     oked: number;
     business_address: string;
-    contract_status: string;
+    contract_status: number;
     contract_status_text: string;
     contract_payment_status: number;
     contract_payment_status_text: string;
@@ -208,6 +208,7 @@ interface Contract {
 const ContractDetails = () => {
     const { id } = useParams();
     const [contracts, setContracts] = useState<Contract[]>([]);
+    // @ts-ignore
     const [qrCode, setQrCode] = useState<string>("");
     const [currentContract, setCurrentContract] = useState<Contract | null>(
         null
@@ -409,7 +410,7 @@ const ContractDetails = () => {
                         <div className="flex items-center gap-4">
                             <Badge
                                 color={getStatusColor(
-                                    currentContract.contract_status
+                                    currentContract.contract_status.toString()
                                 )}
                             >
                                 {currentContract.contract_status_text}
@@ -436,7 +437,7 @@ const ContractDetails = () => {
 
                 <div className="mt-4 flex items-center gap-3">
                     {/* File Upload Button */}
-                    {currentContract?.contract_status === "1" && (
+                    {currentContract?.contract_status === 1 && (
                         <div className="relative">
                             <input
                                 type="file"
@@ -484,49 +485,48 @@ const ContractDetails = () => {
                     {/* Download Document Button */}
                     <button
                         onClick={async () => {
-                            if (
-                                currentContract.contract_type === "1" ||
-                                currentContract.contract_type === "2"
-                            ) {
-                                // For contract_type 3, use template
-                                generateChequeFromData({
-                                    ...currentContract,
-                                    qrCode: qrCode,
+                            // if (
+                            //     currentContract.contract_type === "1" ||
+                            //     currentContract.contract_type === "2"
+                            // ) {
+                            //     // For contract_type 3, use template
+                            //     generateChequeFromData({
+                            //         ...currentContract,
+                            //         qrCode: qrCode,
+                            //     });
+                            // } else {
+                            // For other contract types, download from API
+                            try {
+                                const response = await axios.post(
+                                    `${BASE_URL}api/contracts/wordcreate/${currentContract.contract_id}`,
+                                    {},
+                                    {
+                                        responseType: "blob",
+
+                                        headers: {
+                                            Authorization: `Bearer ${localStorage.getItem(
+                                                "token"
+                                            )}`, // 🔑 token qo‘shildi
+                                        },
+                                    } // DOCX ni to‘g‘ri olish uchun
+                                );
+
+                                const blob = new Blob([response.data], {
+                                    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                 });
-                            } else {
-                                // For other contract types, download from API
-                                try {
-                                    const response = await axios.post(
-                                        `${BASE_URL}api/contracts/wordcreate/${currentContract.contract_id}`,
-                                        {},
-                                        {
-                                            responseType: "blob",
 
-                                            headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                    "token"
-                                                )}`, // 🔑 token qo‘shildi
-                                            },
-                                        } // DOCX ni to‘g‘ri olish uchun
-                                    );
-
-                                    const blob = new Blob([response.data], {
-                                        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                    });
-
-                                    const url =
-                                        window.URL.createObjectURL(blob);
-                                    const link = document.createElement("a");
-                                    link.href = url;
-                                    link.download = `contract_${currentContract.contract_number}.docx`;
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                    window.URL.revokeObjectURL(url);
-                                } catch (err) {
-                                    console.error("Download error:", err);
-                                }
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement("a");
+                                link.href = url;
+                                link.download = `contract_${currentContract.contract_number}.docx`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(url);
+                            } catch (err) {
+                                console.error("Download error:", err);
                             }
+                            // }
                         }}
                         className="bg-blue-600 text-white hover:bg-blue-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2"
                     >
@@ -665,7 +665,8 @@ const ContractDetails = () => {
 
             {/* Laboratory Tests - Only show if contract_type is not 3 and has tests */}
             {currentContract &&
-                currentContract.contract_type !== "3" &&
+                currentContract.contract_type !== 3 &&
+                currentContract.contract_type !== 4 &&
                 currentContract.laboratory &&
                 currentContract.laboratory.length > 0 && (
                     <ComponentCard title="Лабораторные тесты">
@@ -707,155 +708,163 @@ const ContractDetails = () => {
                 )}
 
             {/* Monthly Payments */}
-            <ComponentCard title="Ежемесячные платежи">
-                <div className="flex items-center gap-2 mb-4">
-                    <PaymentIcon />
-                    <span className="text-gray-600 font-medium">
-                        {currentContract.monthlypayments?.length || 0} платежей
-                    </span>
-                </div>
-                {currentContract.monthlypayments &&
-                currentContract.monthlypayments.length > 0 ? (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full">
-                            <thead>
-                                <tr className="bg-gray-50">
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Месяц
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Сумма
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Внесено
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Статус
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Дата
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {currentContract.monthlypayments.map(
-                                    (payment, index) => (
-                                        <tr
-                                            key={payment.monthly_id}
-                                            className={
-                                                index % 2 === 0
-                                                    ? "bg-white"
-                                                    : "bg-gray-50"
-                                            }
-                                        >
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {getMonthName(
-                                                    payment.month_of_payment
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {formatCurrency(
-                                                    payment.monthly_fee
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {formatCurrency(
-                                                    payment.given_amount
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-4 whitespace-nowrap">
-                                                <span
-                                                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                        payment.payment_status ===
-                                                        1
-                                                            ? "bg-green-100 text-green-800"
-                                                            : "bg-yellow-100 text-yellow-800"
-                                                    }`}
-                                                >
-                                                    {payment.payment_status ===
-                                                    1
-                                                        ? "Оплачено"
-                                                        : "Не оплачено"}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {formatDate(
-                                                    payment.date_of_payment
-                                                )}
-                                            </td>
-                                        </tr>
-                                    )
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                ) : (
-                    <div className="text-center py-8 text-gray-500">
+            {currentContract.contract_type === 5 && (
+                <ComponentCard title="Ежемесячные платежи">
+                    <div className="flex items-center gap-2 mb-4">
                         <PaymentIcon />
-                        <p className="mt-2">Ежемесячные платежи не настроены</p>
+                        <span className="text-gray-600 font-medium">
+                            {currentContract.monthlypayments?.length || 0}{" "}
+                            платежей
+                        </span>
                     </div>
-                )}
-            </ComponentCard>
+                    {currentContract.monthlypayments &&
+                    currentContract.monthlypayments.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full">
+                                <thead>
+                                    <tr className="bg-gray-50">
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Месяц
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Сумма
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Внесено
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Статус
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Дата
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {currentContract.monthlypayments.map(
+                                        (payment, index) => (
+                                            <tr
+                                                key={payment.monthly_id}
+                                                className={
+                                                    index % 2 === 0
+                                                        ? "bg-white"
+                                                        : "bg-gray-50"
+                                                }
+                                            >
+                                                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {getMonthName(
+                                                        payment.month_of_payment
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {formatCurrency(
+                                                        payment.monthly_fee
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {formatCurrency(
+                                                        payment.given_amount
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-4 whitespace-nowrap">
+                                                    <span
+                                                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                                            payment.payment_status ===
+                                                            1
+                                                                ? "bg-green-100 text-green-800"
+                                                                : "bg-yellow-100 text-yellow-800"
+                                                        }`}
+                                                    >
+                                                        {payment.payment_status ===
+                                                        1
+                                                            ? "Оплачено"
+                                                            : "Не оплачено"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {formatDate(
+                                                        payment.date_of_payment
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            <PaymentIcon />
+                            <p className="mt-2">
+                                Ежемесячные платежи не настроены
+                            </p>
+                        </div>
+                    )}
+                </ComponentCard>
+            )}
 
             {/* Payment History */}
-            <ComponentCard title="История платежей">
-                {currentContract.payments &&
-                currentContract.payments.length > 0 ? (
-                    <div className="space-y-4">
-                        {currentContract.payments.map((payment, index) => (
-                            <div
-                                key={index}
-                                className="border border-gray-200 rounded-lg p-4"
-                            >
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center gap-3">
-                                        <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
-                                            #{index + 1}
+
+            {currentContract.contract_type === 5 && (
+                <ComponentCard title="История платежей">
+                    {currentContract.payments &&
+                    currentContract.payments.length > 0 ? (
+                        <div className="space-y-4">
+                            {currentContract.payments.map((payment, index) => (
+                                <div
+                                    key={index}
+                                    className="border border-gray-200 rounded-lg p-4"
+                                >
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
+                                                #{index + 1}
+                                            </span>
+                                            <span className="text-sm text-gray-500">
+                                                {formatDate(payment.created_at)}
+                                            </span>
+                                        </div>
+                                        <span className="text-lg font-bold text-blue-600">
+                                            {formatCurrency(payment.amount)}
                                         </span>
-                                        <span className="text-sm text-gray-500">
-                                            {formatDate(payment.created_at)}
-                                        </span>
                                     </div>
-                                    <span className="text-lg font-bold text-blue-600">
-                                        {formatCurrency(payment.amount)}
-                                    </span>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <p className="text-xs text-gray-500 font-medium">
-                                            Тип платежа
-                                        </p>
-                                        <p className="font-medium text-gray-900">
-                                            {payment.payment_type_text}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500 font-medium">
-                                            Оператор
-                                        </p>
-                                        <p className="font-medium text-gray-900">
-                                            {payment.operator_name}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500 font-medium">
-                                            Комментарий
-                                        </p>
-                                        <p className="font-medium text-gray-900">
-                                            {payment.comments ||
-                                                "Нет комментария"}
-                                        </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-medium">
+                                                Тип платежа
+                                            </p>
+                                            <p className="font-medium text-gray-900">
+                                                {payment.payment_type_text}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-medium">
+                                                Оператор
+                                            </p>
+                                            <p className="font-medium text-gray-900">
+                                                {payment.operator_name}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-medium">
+                                                Комментарий
+                                            </p>
+                                            <p className="font-medium text-gray-900">
+                                                {payment.comments ||
+                                                    "Нет комментария"}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-8 text-gray-500">
-                        <p className="mt-2">История платежей пуста</p>
-                    </div>
-                )}
-            </ComponentCard>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            <p className="mt-2">История платежей пуста</p>
+                        </div>
+                    )}
+                </ComponentCard>
+            )}
         </div>
     );
 };

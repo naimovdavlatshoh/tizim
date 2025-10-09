@@ -5,6 +5,7 @@ import PageMeta from "../../components/common/PageMeta.tsx";
 import {
     GetDataSimple,
     PostSimpleFormData,
+    PostSimple,
     GetDataSimpleBlob,
     DeleteData,
 } from "../../service/data.ts";
@@ -62,6 +63,10 @@ const Reports = () => {
     const [filteredContracts, setFilteredContracts] = useState<Contract[]>([]);
     const [contractSearching, setContractSearching] = useState(false);
 
+    // User search states
+    const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+    const [userSearching, setUserSearching] = useState(false);
+
     // Filter states
     const [filterContractId, setFilterContractId] = useState<string>("");
     const [filterUserId, setFilterUserId] = useState<string>("");
@@ -89,6 +94,11 @@ const Reports = () => {
     useEffect(() => {
         setFilteredContracts(contracts);
     }, [contracts]);
+
+    // Initialize filtered users when users are loaded
+    useEffect(() => {
+        setFilteredUsers(users);
+    }, [users]);
 
     const fetchReports = async () => {
         setLoading(true);
@@ -247,17 +257,15 @@ const Reports = () => {
                 // If search is empty, show all contracts
                 setFilteredContracts(contracts);
             } else if (searchTerm.trim().length >= 3) {
-                // Only search if at least 3 characters
-                const filtered = contracts.filter(
-                    (contract) =>
-                        contract.contract_number
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                        contract.client_name
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase())
+                // Search via API with minimum 3 characters
+                const response: any = await PostSimple(
+                    `api/contracts/search?keyword=${encodeURIComponent(
+                        searchTerm
+                    )}`
                 );
-                setFilteredContracts(filtered);
+                const searchResults =
+                    response?.result || response?.data?.result || [];
+                setFilteredContracts(searchResults);
             } else {
                 // If less than 3 characters, show all contracts
                 setFilteredContracts(contracts);
@@ -270,12 +278,39 @@ const Reports = () => {
         }
     };
 
+    const handleUserSearch = async (searchTerm: string) => {
+        setUserSearching(true);
+
+        try {
+            if (searchTerm.trim() === "") {
+                // If search is empty, show all users
+                setFilteredUsers(users);
+            } else if (searchTerm.trim().length >= 3) {
+                // Search via API with minimum 3 characters
+                const response: any = await PostSimple(
+                    `api/user/search?keyword=${encodeURIComponent(searchTerm)}`
+                );
+                const searchResults =
+                    response?.result || response?.data?.result || [];
+                setFilteredUsers(searchResults);
+            } else {
+                // If less than 3 characters, show all users
+                setFilteredUsers(users);
+            }
+        } catch (error) {
+            console.error("Error searching users:", error);
+            setFilteredUsers(users);
+        } finally {
+            setUserSearching(false);
+        }
+    };
+
     const contractOptions = filteredContracts.map((contract) => ({
         value: parseInt(contract.contract_id),
         label: `${contract.contract_number} - ${contract.client_name}`,
     }));
 
-    const userOptions = users.map((user) => ({
+    const userOptions = filteredUsers.map((user) => ({
         value: parseInt(user.user_id || user.id),
         label: `${user.login || user.firstname || user.lastname}`,
     }));
@@ -328,6 +363,9 @@ const Reports = () => {
                                         )
                                     }
                                     className="w-full"
+                                    searchable={true}
+                                    onSearch={handleContractSearch}
+                                    searching={contractSearching}
                                 />
                             </div>
                             <div>
@@ -343,6 +381,9 @@ const Reports = () => {
                                         )
                                     }
                                     className="w-full"
+                                    searchable={true}
+                                    onSearch={handleUserSearch}
+                                    searching={userSearching}
                                 />
                             </div>
                         </div>

@@ -23,7 +23,7 @@ import Loader from "../../components/ui/loader/Loader.tsx";
 interface MyContract {
     contract_id: string;
     contract_number: string;
-    contract_status: string;
+    contract_status: number;
     object_address: string;
     worker_price: string;
     deadline_date: string;
@@ -103,26 +103,26 @@ const MyContracts = () => {
         fetchMyContracts();
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: number) => {
         switch (status) {
-            case "5":
+            case 5:
                 return "success";
-            case "4":
+            case 4:
                 return "info";
-            case "3":
+            case 3:
                 return "warning";
             default:
                 return "error";
         }
     };
 
-    const getStatusText = (status: string) => {
+    const getStatusText = (status: number) => {
         switch (status) {
-            case "5":
+            case 5:
                 return "Завершено";
-            case "4":
+            case 4:
                 return "На проверке";
-            case "3":
+            case 3:
                 return "В процессе";
             default:
                 return "Неизвестно";

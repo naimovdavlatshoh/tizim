@@ -17,7 +17,7 @@ import { DeleteData } from "../../service/data";
 
 interface IndividualClient {
     client_id: number;
-    client_type: string;
+    client_type: number;
     client_name: string;
     client_address: string;
     passport_series: string;

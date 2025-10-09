@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 interface Users {
     client_id: number;
     client_name: string;
-    client_type: string;
+    client_type: number;
     phone_number: string;
     business_name?: string;
     business_address?: string;
@@ -120,7 +120,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
 
         PostDataTokenJson(
             `api/clients/update/${client?.client_id}`,
-            client?.client_type === "1" ? payload2 : payload
+            client?.client_type === 1 ? payload2 : payload
         )
             .then((res: any) => {
                 if (res?.status === 200 || res?.success) {
@@ -162,7 +162,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                 <div className="mb-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
                     <p className="text-sm text-blue-700 dark:text-blue-300">
                         <span className="font-medium">Тип клиента:</span>{" "}
-                        {client.client_type === "1"
+                        {client.client_type === 1
                             ? "Юридическое лицо"
                             : "Физическое лицо"}
                     </p>
@@ -190,7 +190,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                     />
                 </div>
                 {/* Business fields - Юридическое лицо (client_type: 1) */}
-                {client?.client_type === "1" && (
+                {client?.client_type === 1 && (
                     <>
                         <div>
                             <Label htmlFor="businessName">
@@ -289,7 +289,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                 )}
 
                 {/* Passport fields - Физическое лицо (client_type: 2) */}
-                {client?.client_type === "2" && (
+                {client?.client_type === 2 && (
                     <>
                         <div>
                             <Label htmlFor="clientAddress">Адрес клиента</Label>

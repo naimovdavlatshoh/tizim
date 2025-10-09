@@ -86,7 +86,7 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
                 formDataToSend
             );
 
-            if (response?.status === 200 || response?.data?.success) {
+            if (response) {
                 toast.success("Результаты успешно отправлены директору");
                 onSuccess?.();
                 onClose();
@@ -96,12 +96,10 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
                     comments: "",
                 });
                 setSelectedFile(null);
-            } else {
-                toast.error("Ошибка при отправке результатов");
             }
-        } catch (error) {
-            console.error("Error sending results:", error);
-            toast.error("Ошибка при отправке результатов");
+        } catch (error: any) {
+            onClose();
+            toast.error(error.response?.data?.error);
         } finally {
             setLoading(false);
         }

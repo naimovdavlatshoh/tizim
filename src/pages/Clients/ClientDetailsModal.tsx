@@ -106,7 +106,7 @@ const CalendarIcon = () => (
 interface Users {
     client_id: number;
     client_name: string;
-    client_type: string;
+    client_type: number;
     phone_number: string;
     business_name?: string;
     business_address?: string;
@@ -189,8 +189,8 @@ export default function ClientDetailsModal({
         );
     };
 
-    const isIndividual = client.client_type === "2";
-    const isLegalEntity = client.client_type === "1";
+    const isIndividual = client.client_type === 2;
+    const isLegalEntity = client.client_type === 1;
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-5xl mx-4">

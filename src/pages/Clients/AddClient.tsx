@@ -53,6 +53,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
         "individual"
     );
     const [isLoading, setIsLoading] = useState(false);
+    const [formError, setFormError] = useState<string>("");
 
     // Individual client form data
     const [individualData, setIndividualData] = useState({
@@ -117,13 +118,13 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
 
         for (const field of requiredFields) {
             if (!individualData[field as keyof typeof individualData]) {
-                toast.error(`Пожалуйста, заполните поле: ${field}`);
+                setFormError(`Пожалуйста, заполните поле: ${field}`);
                 return false;
             }
         }
 
         if (!selectedFile) {
-            toast.error("Пожалуйста, загрузите файл");
+            setFormError("Пожалуйста, загрузите файл");
             return false;
         }
 
@@ -141,21 +142,17 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             "mfo",
             "oked",
             "business_address",
-            "client_address",
-            "passport_series",
-            "passport_given_by",
-            "passport_given_date",
         ];
 
         for (const field of requiredFields) {
             if (!legalData[field as keyof typeof legalData]) {
-                toast.error(`Пожалуйста, заполните поле: ${field}`);
+                setFormError(`Пожалуйста, заполните поле: ${field}`);
                 return false;
             }
         }
 
         if (!selectedFile) {
-            toast.error("Пожалуйста, загрузите файл");
+            setFormError("Пожалуйста, загрузите файл");
             return false;
         }
 
@@ -164,11 +161,13 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
 
     const handleClose = () => {
         // Reset forms when closing without saving
+        setFormError("");
         resetForms();
         onClose();
     };
 
     const handleSubmit = async () => {
+        setFormError("");
         if (activeTab === "individual") {
             if (!validateIndividualForm()) return;
 
@@ -274,7 +273,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 toast.success("Клиент успешно добавлен!");
             } else {
                 // Toast faqat backend dan response kelganda
-                toast.error("Что-то пошло не так при добавлении клиента");
+                setFormError("Что-то пошло не так при добавлении клиента");
             }
         } catch (error: any) {
             console.error("Ошибка:", error);
@@ -282,7 +281,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 error?.response?.data?.error || "Что-то пошло не так";
             setResponse(errorMessage);
             // Toast faqat backend dan response kelganda
-            toast.error(errorMessage);
+            setFormError(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -326,6 +325,12 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
                 Добавить клиента
             </h2>
+
+            {formError && (
+                <div className="mb-4 p-3 rounded-md border border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
+                    {formError}
+                </div>
+            )}
 
             {/* Tab Navigation */}
             <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
@@ -604,7 +609,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                             }
                         />
                     </div>
-                    <div >
+                    <div>
                         <Label htmlFor="fileUpload">Файл *</Label>
                         <input
                             type="file"

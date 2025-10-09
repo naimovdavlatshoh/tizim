@@ -18,7 +18,7 @@ import { DeleteData, GetDataSimpleBlob } from "../../service/data";
 interface Users {
     client_id: number;
     client_name: string;
-    client_type: string;
+    client_type: number;
     phone_number: string;
     business_name?: string;
     business_address?: string;

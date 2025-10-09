@@ -28,7 +28,7 @@ interface PendingContract {
     days_diff_text: string;
     client_id: string;
     client_name: string;
-    client_type: string;
+    client_type: number;
     business_name: string;
     phone_number: string;
     bank_account: string;
@@ -90,7 +90,7 @@ const PendingContractDetail = () => {
 
             // Find the specific contract by ID
             const foundContract = contractsData.find(
-                (contract: PendingContract) => contract.contract_id === id
+                (contract: PendingContract) => contract.contract_id == id
             );
 
             if (foundContract) {
@@ -237,11 +237,11 @@ const PendingContractDetail = () => {
         }
     };
 
-    const getClientTypeText = (type: string) => {
+    const getClientTypeText = (type: number) => {
         switch (type) {
-            case "1":
+            case 1:
                 return "Физическое лицо";
-            case "2":
+            case 2:
                 return "Юридическое лицо";
             default:
                 return "Неизвестно";

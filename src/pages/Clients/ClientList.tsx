@@ -26,20 +26,15 @@ export default function ClientList() {
     const [loading, setLoading] = useState(false);
     console.log(response);
 
-
-
     // Tab state
     const [activeTab, setActiveTab] = useState("all"); // "all", "individual", "legal"
 
     useEffect(() => {
-
         if (currentPage === "clients") {
             if (searchQuery.trim()) {
                 performSearch(searchQuery);
-
             } else {
                 fetchClients();
-
             }
         }
     }, [searchQuery, currentPage, status, page]);
@@ -103,11 +98,11 @@ export default function ClientList() {
             return filteredClients;
         } else if (activeTab === "individual") {
             return filteredClients.filter(
-                (client: any) => client.client_type === "2"
+                (client: any) => client.client_type === 2
             );
         } else if (activeTab === "legal") {
             return filteredClients.filter(
-                (client: any) => client.client_type === "1"
+                (client: any) => client.client_type === 1
             );
         }
         return filteredClients;
@@ -221,7 +216,7 @@ export default function ClientList() {
                                 {
                                     filteredClients.filter(
                                         (client: any) =>
-                                            client.client_type === "2"
+                                            client.client_type === 2
                                     ).length
                                 }
                             </span>
@@ -258,7 +253,7 @@ export default function ClientList() {
                                 {
                                     filteredClients.filter(
                                         (client: any) =>
-                                            client.client_type === "1"
+                                            client.client_type === 1
                                     ).length
                                 }
                             </span>

@@ -24,6 +24,7 @@ interface LabTest {
 
 interface ContractFormData {
     contract_number: string;
+    business_name: string;
     object_address: string;
     client_id: number;
     contract_type: number;
@@ -31,6 +32,7 @@ interface ContractFormData {
     contract_plan_months: number;
     contract_price: number;
     contract_date: string;
+    expire_date: string;
     plan: Array<{
         date_of_payment: string;
         monthly_fee: number;
@@ -49,13 +51,15 @@ const AddContract = () => {
     const [searchingClients, setSearchingClients] = useState(false);
     const [formData, setFormData] = useState<ContractFormData>({
         contract_number: "",
+        business_name: "",
         object_address: "",
         client_id: 0,
-        contract_type: 1,
-        contract_tarif: 1,
-        contract_plan_months: 2,
+        contract_type: 0,
+        contract_tarif: null,
+        contract_plan_months: 0,
         contract_price: 0,
         contract_date: "",
+        expire_date: "",
         plan: [
             {
                 date_of_payment: "",
@@ -83,7 +87,9 @@ const AddContract = () => {
     useEffect(() => {
         if (
             formData.contract_tarif &&
-            (formData.contract_type === 1 || formData.contract_type === 2)
+            (formData.contract_type === 1 ||
+                formData.contract_type === 2 ||
+                formData.contract_type === 5)
         ) {
             fetchLabTests(formData.contract_tarif);
         }
@@ -214,6 +220,11 @@ const AddContract = () => {
             return;
         }
 
+        if (formData.contract_type !== 5) {
+            toast.error("План рассрочки доступен только для типа договора 5");
+            return;
+        }
+
         const monthlyFee = calculateMonthlyFee();
         if (monthlyFee > 0) {
             const today = new Date();
@@ -253,11 +264,23 @@ const AddContract = () => {
             // Form validatsiyasi
             if (
                 !formData.contract_number ||
+                !formData.business_name ||
                 !formData.object_address ||
                 !formData.client_id ||
                 !formData.contract_date
             ) {
                 toast.error("Пожалуйста, заполните все обязательные поля");
+                setLoading(false);
+                return;
+            }
+
+            // Validate expire_date for contract types 1 and 2
+            if (
+                (formData.contract_type === 1 ||
+                    formData.contract_type === 2) &&
+                !formData.expire_date
+            ) {
+                toast.error("Пожалуйста, выберите дату окончания договора");
                 setLoading(false);
                 return;
             }
@@ -270,19 +293,34 @@ const AddContract = () => {
 
             // Prepare data based on contract type
             const submitData = {
-                ...formData,
+                contract_number: formData.contract_number,
+                business_name: formData.business_name,
+                object_address: formData.object_address,
+                client_id: formData.client_id,
+                contract_type: formData.contract_type,
                 contract_tarif:
-                    formData.contract_type === 1 || formData.contract_type === 2
+                    formData.contract_type === 1 ||
+                    formData.contract_type === 2 ||
+                    formData.contract_type === 5
                         ? formData.contract_tarif
                         : null,
                 contract_plan_months:
-                    formData.contract_type === 1 || formData.contract_type === 2
+                    formData.contract_type === 5
                         ? formData.contract_plan_months
                         : 0,
-                laboratory:
-                    formData.contract_type === 1 || formData.contract_type === 2
-                        ? formData.laboratory
-                        : [],
+                contract_price: formData.contract_price,
+                contract_date: formData.contract_date,
+                ...(formData.contract_type === 1 || formData.contract_type === 2
+                    ? { expire_date: formData.expire_date }
+                    : {}),
+                ...(formData.contract_type === 5
+                    ? { plan: formData.plan }
+                    : {}),
+                ...(formData.contract_type === 1 ||
+                formData.contract_type === 2 ||
+                formData.contract_type === 5
+                    ? { laboratory: formData.laboratory }
+                    : {}),
             };
 
             const response = await PostDataTokenJson(
@@ -341,6 +379,21 @@ const AddContract = () => {
                                         )
                                     }
                                     placeholder="Введите номер договора"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                                    Название компании *
+                                </label>
+                                <Input
+                                    value={formData.business_name}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            "business_name",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Введите название компании"
                                 />
                             </div>
                             <div>
@@ -408,6 +461,35 @@ const AddContract = () => {
                                     }}
                                 />
                             </div>
+                            {(formData.contract_type === 1 ||
+                                formData.contract_type === 2) && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                                        Дата окончания договора *
+                                    </label>
+                                    <DatePicker
+                                        id="expire-date"
+                                        label=""
+                                        placeholder="Выберите дату окончания"
+                                        onChange={(selectedDates) => {
+                                            if (
+                                                selectedDates &&
+                                                selectedDates.length > 0
+                                            ) {
+                                                const date = new Date(
+                                                    selectedDates[0]
+                                                );
+                                                handleInputChange(
+                                                    "expire_date",
+                                                    date
+                                                        .toISOString()
+                                                        .split("T")[0]
+                                                );
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </ComponentCard>
 
@@ -422,13 +504,24 @@ const AddContract = () => {
                                     options={[
                                         {
                                             value: 1,
-                                            label: "Юридическое лицо - Рассрочка + Лаборатория",
+                                            label: "Laboratoriya - Yuridik",
                                         },
                                         {
                                             value: 2,
-                                            label: "Физическое лицо - Рассрочка + Лаборатория",
+                                            label: "Laboratoriya - Jismoniy",
                                         },
-                                        { value: 3, label: "Обычный договор" },
+                                        {
+                                            value: 3,
+                                            label: "Texnik tekshiruv - Yuridik",
+                                        },
+                                        {
+                                            value: 4,
+                                            label: "Texnik tekshiruv - jismoniy",
+                                        },
+                                        {
+                                            value: 5,
+                                            label: "Beton zavod Laboratoriya oylik to'lov",
+                                        },
                                     ]}
                                     placeholder="Выберите тип договора"
                                     onChange={(value) =>
@@ -437,58 +530,58 @@ const AddContract = () => {
                                             parseInt(value)
                                         )
                                     }
-                                    defaultValue="1"
                                 />
                             </div>
 
                             {(formData.contract_type === 1 ||
-                                formData.contract_type === 2) && (
-                                <>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                            Тариф
-                                        </label>
-                                        <Select
-                                            options={[
-                                                { value: 1, label: "Старт" },
-                                                { value: 2, label: "Серебро" },
-                                                { value: 3, label: "Золото" },
-                                                {
-                                                    value: 4,
-                                                    label: "Премиум (VIP)",
-                                                },
-                                            ]}
-                                            placeholder="Выберите тариф"
-                                            onChange={(value) =>
-                                                handleInputChange(
-                                                    "contract_tarif",
-                                                    parseInt(value)
-                                                )
-                                            }
-                                            defaultValue="1"
-                                        />
-                                    </div>
+                                formData.contract_type === 2 ||
+                                formData.contract_type === 5) && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                                        Тариф
+                                    </label>
+                                    <Select
+                                        options={[
+                                            { value: 1, label: "Старт" },
+                                            { value: 2, label: "Серебро" },
+                                            { value: 3, label: "Золото" },
+                                            {
+                                                value: 4,
+                                                label: "Премиум (VIP)",
+                                            },
+                                        ]}
+                                        placeholder="Выберите тариф"
+                                        onChange={(value) =>
+                                            handleInputChange(
+                                                "contract_tarif",
+                                                parseInt(value)
+                                            )
+                                        }
+                                    />
+                                </div>
+                            )}
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                            Количество месяцев рассрочки
-                                        </label>
-                                        <Input
-                                            type="number"
-                                            value={
-                                                formData.contract_plan_months
-                                            }
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    "contract_plan_months",
-                                                    parseInt(e.target.value)
-                                                )
-                                            }
-                                            min="1"
-                                            max="60"
-                                        />
-                                    </div>
-                                </>
+                            {formData.contract_type === 5 && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                                        Количество месяцев рассрочки
+                                    </label>
+                                    <Input
+                                        type="number"
+                                        value={
+                                            formData.contract_plan_months || ""
+                                        }
+                                        onChange={(e) =>
+                                            handleInputChange(
+                                                "contract_plan_months",
+                                                parseInt(e.target.value) || 0
+                                            )
+                                        }
+                                        min="1"
+                                        max="60"
+                                        placeholder="0"
+                                    />
+                                </div>
                             )}
                         </div>
                     </ComponentCard>
@@ -502,36 +595,37 @@ const AddContract = () => {
                                 </label>
                                 <Input
                                     type="number"
-                                    value={formData.contract_price}
+                                    value={formData.contract_price || ""}
                                     onChange={(e) =>
                                         handleInputChange(
                                             "contract_price",
-                                            parseInt(e.target.value)
+                                            parseInt(e.target.value) || 0
                                         )
                                     }
                                     min="0"
-                                    placeholder="Введите стоимость договора"
+                                    placeholder="0"
                                 />
                             </div>
-                            <div className="flex items-end">
-                                <button
-                                    type="button"
-                                    onClick={updatePlanWithCalculatedFee}
-                                    disabled={
-                                        !formData.contract_price ||
-                                        !formData.contract_plan_months
-                                    }
-                                    className="w-full h-11 px-5 py-3.5 text-sm bg-brand-500 text-white rounded-lg shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
-                                >
-                                    Рассчитать план рассрочки
-                                </button>
-                            </div>
+                            {formData.contract_type === 5 && (
+                                <div className="flex items-end">
+                                    <button
+                                        type="button"
+                                        onClick={updatePlanWithCalculatedFee}
+                                        disabled={
+                                            !formData.contract_price ||
+                                            !formData.contract_plan_months
+                                        }
+                                        className="w-full h-11 px-5 py-3.5 text-sm bg-brand-500 text-white rounded-lg shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                                    >
+                                        Рассчитать план рассрочки
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </ComponentCard>
 
                     {/* Payment Plan */}
-                    {(formData.contract_type === 1 ||
-                        formData.contract_type === 2) && (
+                    {formData.contract_type === 5 && (
                         <ComponentCard title="План рассрочки">
                             <div className="space-y-4">
                                 {formData.plan.map((planItem, index) => (
@@ -579,17 +673,21 @@ const AddContract = () => {
                                                 </label>
                                                 <Input
                                                     type="number"
-                                                    value={planItem.monthly_fee}
+                                                    value={
+                                                        planItem.monthly_fee ||
+                                                        ""
+                                                    }
                                                     onChange={(e) =>
                                                         handlePlanChange(
                                                             index,
                                                             "monthly_fee",
                                                             parseInt(
                                                                 e.target.value
-                                                            )
+                                                            ) || 0
                                                         )
                                                     }
                                                     min="0"
+                                                    placeholder="0"
                                                 />
                                             </div>
                                         </div>
@@ -619,7 +717,8 @@ const AddContract = () => {
 
                     {/* Laboratory Tests */}
                     {(formData.contract_type === 1 ||
-                        formData.contract_type === 2) &&
+                        formData.contract_type === 2 ||
+                        formData.contract_type === 5) &&
                         formData.contract_tarif && (
                             <ComponentCard title="Лабораторные исследования">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

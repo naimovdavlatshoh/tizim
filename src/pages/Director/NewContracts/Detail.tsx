@@ -61,9 +61,11 @@ const NewContractDetail = () => {
             const contractsData =
                 response?.result || response?.data?.result || [];
 
+            console.log(contractsData);
+
             // Find the specific contract by ID
             const foundContract = contractsData.find(
-                (contract: NewContract) => contract.contract_id === id
+                (contract: NewContract) => contract.contract_id == id
             );
 
             if (foundContract) {

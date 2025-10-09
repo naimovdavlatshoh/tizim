@@ -17,7 +17,7 @@ import { DeleteData } from "../../service/data";
 
 interface LegalEntityClient {
     client_id: number;
-    client_type: string;
+    client_type: number;
     client_name: string;
     business_name: string;
     phone_number: string;
