@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import {
     Table,
     TableBody,
@@ -10,6 +11,7 @@ import { toast } from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
 import { DeleteData } from "../../service/data";
 import { formatAmount } from "../../utils/numberFormat";
+import { FaRegEye } from "react-icons/fa";
 
 interface Payment {
     payment_id: number;
@@ -33,6 +35,7 @@ export default function TablePayment({
     payments,
     changeStatus,
 }: TablePaymentProps) {
+    const navigate = useNavigate();
     const [selectedPayment] = useState<Payment | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
 
@@ -46,6 +49,10 @@ export default function TablePayment({
             });
         }
         setDeleteModalOpen(false);
+    };
+
+    const handleViewContractDetail = (contractId: number) => {
+        navigate(`/contracts/detail/${contractId}`);
     };
 
     const getAdvanceText = (isAdvance: number): string => {
@@ -70,7 +77,7 @@ export default function TablePayment({
                                 isHeader
                                 className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
-                                ID договора
+                                #
                             </TableCell>
                             <TableCell
                                 isHeader
@@ -114,12 +121,12 @@ export default function TablePayment({
                             >
                                 Дата
                             </TableCell>
-                            {/* <TableCell
+                            <TableCell
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
                                 Действия
-                            </TableCell> */}
+                            </TableCell>
                         </TableRow>
                     </TableHeader>
 
@@ -132,13 +139,13 @@ export default function TablePayment({
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            payments.map((payment) => (
+                            payments.map((payment, index) => (
                                 <TableRow
                                     key={payment.payment_id}
                                     className="border-b border-gray-100 dark:border-white/[0.05]"
                                 >
                                     <TableCell className="pl-5 py-3 text-sm text-gray-800 dark:text-gray-200">
-                                        {payment.contract_id}
+                                        {index + 1}
                                     </TableCell>
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         {payment.contract_number || "-"}
@@ -180,28 +187,22 @@ export default function TablePayment({
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         {payment.created_at || ""}
                                     </TableCell>
-                                    {/* <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
+                                    <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         <div className="flex items-center gap-2">
                                             <Button
                                                 size="sm"
                                                 variant="outline"
                                                 className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                                onClick={() =>
+                                                    handleViewContractDetail(
+                                                        payment.contract_id
+                                                    )
+                                                }
                                             >
-                                                Редактировать
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                                onClick={() => {
-                                                    setSelectedPayment(payment);
-                                                    setDeleteModalOpen(true);
-                                                }}
-                                            >
-                                                Удалить
+                                                <FaRegEye className="size-4" />
                                             </Button>
                                         </div>
-                                    </TableCell> */}
+                                    </TableCell>
                                 </TableRow>
                             ))
                         )}

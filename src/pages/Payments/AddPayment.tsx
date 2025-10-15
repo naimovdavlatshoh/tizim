@@ -47,6 +47,8 @@ export default function AddPaymentModal({
     const [selectedContractPrice, setSelectedContractPrice] = useState<
         number | null
     >(null);
+    const [selectedContractPaidTotal, setSelectedContractPaidTotal] =
+        useState<number>(0);
     const [formData, setFormData] = useState<FormData>({
         contract_id: "",
         is_advance: "0",
@@ -129,6 +131,12 @@ export default function AddPaymentModal({
                 (contract) => contract.contract_id === contractId
             );
             setSelectedContractPrice(selectedContract?.contract_price || null);
+            // Fetch contract payments to calculate totals
+            if (contractId) {
+                fetchContractTotals(contractId);
+            } else {
+                setSelectedContractPaidTotal(0);
+            }
         }
     };
 
@@ -136,6 +144,23 @@ export default function AddPaymentModal({
         value: contract.contract_id,
         label: `${contract.contract_number} - ${contract.client_name}`,
     }));
+
+    const fetchContractTotals = async (contractId: number) => {
+        try {
+            const resp: any = await GetDataSimple(
+                `api/contracts/read/${contractId}`
+            );
+            const data = resp?.data || resp; // backend may return directly or under data
+            const payments: any[] = data?.payments || [];
+            const paidTotal = payments.reduce(
+                (sum: number, p: any) => sum + (Number(p?.amount) || 0),
+                0
+            );
+            setSelectedContractPaidTotal(paidTotal);
+        } catch (e) {
+            setSelectedContractPaidTotal(0);
+        }
+    };
 
     const handleSubmit = async (): Promise<void> => {
         // Form validatsiyasi
@@ -212,17 +237,33 @@ export default function AddPaymentModal({
                         onChange={(value) =>
                             handleInputChange("contract_id", value)
                         }
-                        className="w-full"
+                        className="w-full [&_.select-dropdown]:scrollbar-hide [&_.select-dropdown::-webkit-scrollbar]:hidden [&_.select-dropdown]:-ms-overflow-style:none [&_.select-dropdown]:scrollbar-width:none"
                         searchable={true}
                         onSearch={handleContractSearch}
                         searching={contractSearching}
                     />
                     {selectedContractPrice !== null && (
                         <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
-                            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
-                                Стоимость договора:{" "}
-                                {formatCurrency(selectedContractPrice)}
-                            </p>
+                            <div className="flex flex-col gap-1 text-sm">
+                                <p className="text-blue-700 dark:text-blue-300 font-medium">
+                                    Стоимость договора:{" "}
+                                    {formatCurrency(selectedContractPrice)}
+                                </p>
+                                <p className="text-blue-700 dark:text-blue-300">
+                                    Оплачено ранее:{" "}
+                                    {formatCurrency(selectedContractPaidTotal)}
+                                </p>
+                                <p className="text-blue-700 dark:text-blue-300">
+                                    Остаток:{" "}
+                                    {formatCurrency(
+                                        Math.max(
+                                            selectedContractPrice -
+                                                selectedContractPaidTotal,
+                                            0
+                                        )
+                                    )}
+                                </p>
+                            </div>
                         </div>
                     )}
                 </div>

@@ -135,8 +135,9 @@ const PendingContracts = () => {
                                             isHeader
                                             className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
-                                            Номер договора
+                                            #
                                         </TableCell>
+
                                         <TableCell
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -191,7 +192,10 @@ const PendingContracts = () => {
                                 {/* Table Body */}
                                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                     {contracts?.map(
-                                        (contract: PendingContract) => (
+                                        (
+                                            contract: PendingContract,
+                                            index: number
+                                        ) => (
                                             <TableRow
                                                 key={contract.contract_id}
                                                 className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -202,7 +206,7 @@ const PendingContracts = () => {
                                                         handleRowClick(contract)
                                                     }
                                                 >
-                                                    {contract.contract_number}
+                                                    {index + 1}
                                                 </TableCell>
 
                                                 <TableCell

@@ -23,6 +23,7 @@ import { Toaster } from "react-hot-toast";
 import ClientList from "./pages/Clients/ClientList";
 import ContractList from "./pages/Contracts/ContractList";
 import ContractDetails from "./pages/Contracts/ContractDetails";
+import ContractDetailPage from "./pages/Contracts/ContractDetailPage";
 import AddContract from "./pages/Contracts/AddContract";
 import PaymentList from "./pages/Payments/PaymentList";
 import ExpenseCategoryList from "./pages/ExpenseCategories/ExpenseCategoryList";
@@ -107,6 +108,10 @@ export default function App() {
                             <Route
                                 path="/contract-details/:id"
                                 element={<ContractDetails />}
+                            />
+                            <Route
+                                path="/contracts/detail/:id"
+                                element={<ContractDetailPage />}
                             />
                             <Route
                                 path="/new-contracts"

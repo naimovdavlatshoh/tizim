@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal } from "../../components/ui/modal";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
-import { PostDataTokenJson } from "../../service/data";
+import { PostDataTokenJson, PostDataToken } from "../../service/data";
 import { toast } from "react-hot-toast";
 
 interface Users {
@@ -21,6 +21,7 @@ interface Users {
     passport_series?: string;
     passport_given_by?: string;
     passport_given_date?: string;
+    pinfl?: string;
     firstname?: string;
     lastname?: string;
     fathername?: string;
@@ -58,6 +59,8 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
     const [passportSeries, setPassportSeries] = useState("");
     const [passportGivenBy, setPassportGivenBy] = useState("");
     const [passportGivenDate, setPassportGivenDate] = useState("");
+    const [pinfl, setPinfl] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     // Client ma'lumotlarini yuklash
@@ -76,8 +79,16 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
             setPassportSeries(client?.passport_series || "");
             setPassportGivenBy(client?.passport_given_by || "");
             setPassportGivenDate(client?.passport_given_date || "");
+            setPinfl(client?.pinfl || "");
         }
     }, [client]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
 
     const handleSubmit = () => {
         if (!clientName || !phoneNumber) {
@@ -101,6 +112,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
             passport_series: passportSeries || undefined,
             passport_given_by: passportGivenBy || undefined,
             passport_given_date: passportGivenDate || undefined,
+            pinfl: pinfl || undefined,
         };
         const payload2 = {
             client_name: clientName,
@@ -118,35 +130,72 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
             // passport_given_date: passportGivenDate || undefined,
         };
 
-        PostDataTokenJson(
-            `api/clients/update/${client?.client_id}`,
-            client?.client_type === 1 ? payload2 : payload
-        )
-            .then((res: any) => {
-                if (res?.status === 200 || res?.success) {
-                    changeStatus();
-                    onClose();
-                    console.log("Обновлено успешно");
-                    // Toast faqat backend dan response kelganda
-                    toast.success("Клиент успешно обновлен!");
-                } else {
-                    // Toast faqat backend dan response kelganda
-                    toast.error("Что-то пошло не так при обновлении клиента");
-                }
-            })
-            .catch((error: any) => {
-                onClose();
-                const errorMessage =
-                    error?.response?.data?.error || "Что-то пошло не так";
-                setResponse(errorMessage);
-                // console.log(error);
+        // For individual clients with file upload, use FormData
+        if (client?.client_type === 2 && selectedFile) {
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            formData.append("data", JSON.stringify(payload));
 
-                // Toast faqat backend dan response kelganda
-                toast.error(errorMessage);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
+            PostDataToken(
+                `api/clients/fizupdate/${client?.client_id}`,
+                formData
+            )
+                .then((res: any) => {
+                    if (res?.status === 200 || res?.success) {
+                        changeStatus();
+                        onClose();
+                        console.log("Обновлено успешно");
+                        toast.success("Клиент успешно обновлен!");
+                    } else {
+                        toast.error(
+                            "Что-то пошло не так при обновлении клиента"
+                        );
+                    }
+                })
+                .catch((error: any) => {
+                    onClose();
+                    const errorMessage =
+                        error?.response?.data?.error || "Что-то пошло не так";
+                    setResponse(errorMessage);
+                    toast.error(errorMessage);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        } else {
+            // For legal entities or individual clients without file, use JSON
+            PostDataTokenJson(
+                `api/clients/update/${client?.client_id}`,
+                client?.client_type === 1 ? payload2 : payload
+            )
+                .then((res: any) => {
+                    if (res?.status === 200 || res?.success) {
+                        changeStatus();
+                        onClose();
+                        console.log("Обновлено успешно");
+                        // Toast faqat backend dan response kelganda
+                        toast.success("Клиент успешно обновлен!");
+                    } else {
+                        // Toast faqat backend dan response kelganda
+                        toast.error(
+                            "Что-то пошло не так при обновлении клиента"
+                        );
+                    }
+                })
+                .catch((error: any) => {
+                    onClose();
+                    const errorMessage =
+                        error?.response?.data?.error || "Что-то пошло не так";
+                    setResponse(errorMessage);
+                    // console.log(error);
+
+                    // Toast faqat backend dan response kelganda
+                    toast.error(errorMessage);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        }
     };
 
     return (
@@ -170,11 +219,11 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-2">
                 <div>
-                    <Label htmlFor="clientName">Имя клиента</Label>
+                    <Label htmlFor="clientName">Ф.И.О клиента</Label>
                     <Input
                         type="text"
                         id="clientName"
-                        placeholder="Имя клиента"
+                        placeholder="Ф.И.О клиента"
                         value={clientName}
                         onChange={(e) => setClientName(e.target.value)}
                     />
@@ -343,6 +392,31 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                                     setPassportGivenDate(e.target.value)
                                 }
                             />
+                        </div>
+                        <div>
+                            <Label htmlFor="pinfl">ПИНФЛ</Label>
+                            <Input
+                                type="text"
+                                id="pinfl"
+                                placeholder="12345678901234"
+                                value={pinfl}
+                                onChange={(e) => setPinfl(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="fileUpload">Файл</Label>
+                            <input
+                                type="file"
+                                id="fileUpload"
+                                onChange={handleFileChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            />
+                            {selectedFile && (
+                                <p className="text-sm text-green-600 mt-1">
+                                    Файл выбран: {selectedFile.name}
+                                </p>
+                            )}
                         </div>
                     </>
                 )}

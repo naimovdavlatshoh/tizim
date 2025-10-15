@@ -63,7 +63,7 @@ export default function PaymentList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/payments/list?page=${page}&limit=10`
+                `api/payments/list?page=${page}&limit=30`
             );
             const paymentsData: Payment[] =
                 response?.result || response?.data?.result || [];
@@ -89,7 +89,7 @@ export default function PaymentList() {
             const response: any = await PostSimple(
                 `api/payments/search?keyword=${encodeURIComponent(
                     query
-                )}&page=${page}&limit=10`
+                )}&page=${page}&limit=30`
             );
 
             if (response?.status === 200 || response?.data?.success) {

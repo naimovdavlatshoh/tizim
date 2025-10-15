@@ -805,7 +805,7 @@ const ContractDetails = () => {
 
             {/* Payment History */}
 
-            {currentContract.contract_type === 5 && (
+            {currentContract && (
                 <ComponentCard title="История платежей">
                     {currentContract.payments &&
                     currentContract.payments.length > 0 ? (

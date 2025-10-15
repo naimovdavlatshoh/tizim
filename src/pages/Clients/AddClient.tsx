@@ -22,6 +22,7 @@ interface IndividualClientData {
     passport_given_by: string;
     passport_given_date: string;
     phone_number: string;
+    pinfl: string;
 }
 
 interface LegalEntityClientData {
@@ -63,6 +64,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
         passport_given_by: "",
         passport_given_date: "",
         phone_number: "",
+        pinfl: "",
     });
 
     // Legal entity client form data
@@ -114,6 +116,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             "passport_given_by",
             "passport_given_date",
             "phone_number",
+            "pinfl",
         ];
 
         for (const field of requiredFields) {
@@ -179,6 +182,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 passport_given_by: individualData.passport_given_by,
                 passport_given_date: individualData.passport_given_date,
                 phone_number: individualData.phone_number,
+                pinfl: individualData.pinfl,
             };
 
             await submitClientData(payload);
@@ -227,6 +231,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                     passport_given_by: individualPayload.passport_given_by,
                     passport_given_date: individualPayload.passport_given_date,
                     phone_number: individualPayload.phone_number,
+                    pinfl: individualPayload.pinfl,
                 };
                 formData.append("data", JSON.stringify(data));
 
@@ -295,6 +300,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             passport_given_by: "",
             passport_given_date: "",
             phone_number: "",
+            pinfl: "",
         });
 
         setLegalData({
@@ -362,11 +368,11 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             {activeTab === "individual" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-2">
                     <div>
-                        <Label htmlFor="clientName">Имя клиента *</Label>
+                        <Label htmlFor="clientName">Ф.И.О клиента *</Label>
                         <Input
                             type="text"
                             id="clientName"
-                            placeholder="Имя клиента"
+                            placeholder="Ф.И.О клиента"
                             value={individualData.client_name}
                             onChange={(e) =>
                                 handleIndividualInputChange(
@@ -454,7 +460,22 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                             }
                         />
                     </div>
-                    <div className="md:col-span-2">
+                    <div>
+                        <Label htmlFor="pinfl">ПИНФЛ *</Label>
+                        <Input
+                            type="text"
+                            id="pinfl"
+                            placeholder="12345678901234"
+                            value={individualData.pinfl}
+                            onChange={(e) =>
+                                handleIndividualInputChange(
+                                    "pinfl",
+                                    e.target.value
+                                )
+                            }
+                        />
+                    </div>
+                    <div>
                         <Label htmlFor="fileUpload">Файл *</Label>
                         <input
                             type="file"
@@ -476,11 +497,11 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             {activeTab === "legal" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-2">
                     <div>
-                        <Label htmlFor="legalClientName">Имя клиента *</Label>
+                        <Label htmlFor="legalClientName">Ф.И.О клиента *</Label>
                         <Input
                             type="text"
                             id="legalClientName"
-                            placeholder="Имя клиента"
+                            placeholder="Ф.И.О клиента"
                             value={legalData.client_name}
                             onChange={(e) =>
                                 handleLegalInputChange(

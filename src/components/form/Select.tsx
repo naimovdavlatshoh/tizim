@@ -131,10 +131,10 @@ const Select: React.FC<SelectProps> = ({
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute z-[100000] w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-[100000] w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 flex flex-col">
                     {/* Search Input (if searchable) */}
                     {searchable && (
-                        <div className="p-3 border-b border-gray-200 dark:border-gray-600">
+                        <div className="p-3 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
                             <input
                                 type="text"
                                 placeholder="Поиск..."
@@ -153,7 +153,7 @@ const Select: React.FC<SelectProps> = ({
                     )}
 
                     {/* Options List */}
-                    <div className="max-h-48 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto no-scrollbar">
                         {filteredOptions.length > 0 ? (
                             filteredOptions.map((option) => (
                                 <button
