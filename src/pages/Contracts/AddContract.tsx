@@ -49,6 +49,7 @@ const AddContract = () => {
     const [loading, setLoading] = useState(false);
     const [filteredClients, setFilteredClients] = useState<Client[]>([]);
     const [searchingClients, setSearchingClients] = useState(false);
+    const [lastnumber, setLastNumber] = useState(0);
     const [formData, setFormData] = useState<ContractFormData>({
         contract_number: "",
         business_name: "",
@@ -171,6 +172,14 @@ const AddContract = () => {
             ],
         }));
     };
+
+    useEffect(() => {
+        GetDataSimple("api/contracts/lastcontractnumber").then((response) => {
+            if (response) {
+                setLastNumber(response.last_contract_number);
+            }
+        });
+    }, []);
 
     const removePlanItem = (index: number) => {
         setFormData((prev) => ({
@@ -363,9 +372,8 @@ const AddContract = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-
-                      {/* Contract Type and Settings */}
-                      <ComponentCard title="Тип договора и настройки">
+                    {/* Contract Type and Settings */}
+                    <ComponentCard title="Тип договора и настройки">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
@@ -457,7 +465,6 @@ const AddContract = () => {
                         </div>
                     </ComponentCard>
 
-
                     {/* Basic Contract Information */}
                     <ComponentCard title="Основная информация">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -473,7 +480,7 @@ const AddContract = () => {
                                             e.target.value
                                         )
                                     }
-                                    placeholder="Введите номер договора"
+                                    placeholder={`Последний номер договора: ${lastnumber}`}
                                 />
                             </div>
                             <div>
@@ -587,7 +594,6 @@ const AddContract = () => {
                             )}
                         </div>
                     </ComponentCard>
-
 
                     {/* Contract Price */}
                     <ComponentCard title="Стоимость договора">

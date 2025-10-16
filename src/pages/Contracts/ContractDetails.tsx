@@ -437,7 +437,7 @@ const ContractDetails = () => {
 
                 <div className="mt-4 flex items-center gap-3">
                     {/* File Upload Button */}
-                    {currentContract?.contract_status === 1 && (
+                    {currentContract?.contract_status == 1 && (
                         <div className="relative">
                             <input
                                 type="file"

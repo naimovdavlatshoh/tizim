@@ -1,5 +1,6 @@
 // import { EyeIcon } from "../../icons";
 import { FaRegEye } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 
 import {
     Table,
@@ -10,15 +11,14 @@ import {
 } from "../../components/ui/table";
 // import { useModal } from "../../hooks/useModal";
 // import EditClientModal from "./EditClient";
-// import { useState } from "react";
-// import toast from "react-hot-toast";
-// import Button from "../../components/ui/button/Button";
+import { useState } from "react";
+import Button from "../../components/ui/button/Button";
 // import DeleteUserModal from "./DeleteClient";
 // import ClientDetailsModal from "./ClientDetailsModal";
-// import { DeleteData } from "../../service/data";
 // import { Link } from "react-router";
 import Linkto from "../../components/ui/link/LinkTo";
 import { formatCurrency } from "../../utils/numberFormat";
+import DeleteContractModal from "./DeleteContract";
 
 interface Contract {
     contract_id: number;
@@ -79,18 +79,26 @@ interface TableContractProps {
 
 export default function TableContract({
     contracts,
-}: // changeStatus,
-TableContractProps) {
+    changeStatus,
+}: TableContractProps) {
     // const { isOpen, openModal, closeModal } = useModal();
 
     // const [response, setResponse] = useState("");
     // const [selectedContract, setSelectedContract] = useState<Contract | null>(
     //     null
     // );
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedContract, setSelectedContract] = useState<Contract | null>(
+        null
+    );
 
     const handleRowClick = (contract: Contract) => {
         // Handle row click if needed
         console.log("Contract clicked:", contract);
+    };
+
+    const handleDeleteSuccess = () => {
+        changeStatus(); // Refresh the contracts list
     };
 
     return (
@@ -168,7 +176,7 @@ TableContractProps) {
                                     className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                     onClick={() => handleRowClick(contract)}
                                 >
-                                    {index+1}
+                                    {index + 1}
                                 </TableCell>
 
                                 <TableCell
@@ -233,72 +241,59 @@ TableContractProps) {
                                     {contract.business_name}
                                 </TableCell>
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                    {/* <Button
-                                        className="mr-2"
-                                        onClick={() => {
-                                            openModal();
-                                            setSelectedContract(contract);
-                                        }}
-                                        size="xs"
-                                        variant="outline"
-                                        startIcon={
-                                            <PencilIcon className="size-4" />
-                                        }
-                                    >
-                                        {""}
-                                    </Button> */}
-                                    <Linkto
-                                        to={`/contract-details/${contract.contract_id}`}
-                                        className="mr-2"
-                                        size="xs"
-                                        variant="outline"
-                                        startIcon={
-                                            <FaRegEye className="size-4" />
-                                        }
-                                    >
-                                        {""}
-                                    </Linkto>
-                                    {/* <Button
-                                        onClick={() => {
-                                            setDeleteModalOpen(true);
-                                            setSelectedContract(contract);
-                                        }}
-                                        size="xs"
-                                        variant="danger"
-                                        startIcon={
-                                            <TrashBinIcon className="size-4" />
-                                        }
-                                    >
-                                        {""}
-                                    </Button> */}
+                                    <div className="flex items-center gap-2">
+                                        <Linkto
+                                            to={`/contract-details/${contract.contract_id}`}
+                                            size="xs"
+                                            variant="outline"
+                                            startIcon={
+                                                <FaRegEye className="size-4" />
+                                            }
+                                        >
+                                            {""}
+                                        </Linkto>
+                                        <Button
+                                            onClick={() => {
+                                                if (
+                                                    contract.contract_status ===
+                                                    1
+                                                ) {
+                                                    setDeleteModalOpen(true);
+                                                    setSelectedContract(
+                                                        contract
+                                                    );
+                                                }
+                                            }}
+                                            size="xs"
+                                            variant="danger"
+                                            disabled={
+                                                contract.contract_status !== 1
+                                            }
+                                            startIcon={
+                                                <FaTrash className="size-4" />
+                                            }
+                                        >
+                                            {""}
+                                        </Button>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </div>
-            {/* <EditClientModal
-                isOpen={isOpen}
-                onClose={closeModal}
-                changeStatus={changeStatus}
-                setResponse={setResponse}
-                client={selectedUser}
-            />
-            <DeleteUserModal
+
+            {/* Delete Contract Modal */}
+            <DeleteContractModal
                 isOpen={deleteModalOpen}
-                onClose={() => setDeleteModalOpen(false)}
-                onDelete={onDeleteUser}
-                userName={
-                    selectedUser
-                        ? `${selectedUser.firstname} ${selectedUser.lastname}`
-                        : ""
-                }
+                onClose={() => {
+                    setDeleteModalOpen(false);
+                    setSelectedContract(null);
+                }}
+                contractNumber={selectedContract?.contract_number}
+                contractId={selectedContract?.contract_id}
+                onSuccess={handleDeleteSuccess}
             />
-            <ClientDetailsModal
-                isOpen={clientDetailsModalOpen}
-                onClose={() => setClientDetailsModalOpen(false)}
-                client={selectedClient}
-            /> */}
         </div>
     );
 }
