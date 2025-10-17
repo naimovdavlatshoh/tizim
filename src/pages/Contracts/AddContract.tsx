@@ -403,17 +403,16 @@ const AddContract = () => {
                 submitData
             );
 
-            if (response?.status === 200 || response?.data?.success) {
+            if (response) {
                 toast.success("Договор успешно создан!");
-                navigate("/contracts"); // Kontraktlar ro'yxatiga qaytish
-            } else {
-                toast.error(
-                    `Ошибка: ${response?.data?.message || "Неизвестная ошибка"}`
-                );
+                navigate("/contracts");
             }
-        } catch (error) {
-            console.error("Error creating contract:", error);
-            toast.error("Произошла ошибка. Пожалуйста, попробуйте еще раз.");
+        } catch (error: any) {
+            console.error(
+                "Error creating contract:",
+                error?.response?.data?.error
+            );
+            toast.error(error?.response?.data?.error);
         } finally {
             setLoading(false);
         }
