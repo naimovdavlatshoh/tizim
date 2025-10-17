@@ -26,6 +26,7 @@ import { Modal } from "../../components/ui/modal";
 import Select from "../../components/form/Select";
 import FileInput from "../../components/form/input/FileInput";
 import { DownloadIcon } from "../../icons/index.ts";
+import { formatDate } from "../../utils/numberFormat";
 
 interface Report {
     report_id: string;
@@ -496,9 +497,7 @@ const Reports = () => {
                                                     "Не указан"}
                                             </TableCell>
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                {new Date(
-                                                    report.created_at
-                                                ).toLocaleDateString()}
+                                                {formatDate(report.created_at)}
                                             </TableCell>
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                 <div className="flex gap-2">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { GetDataSimple } from "../../service/data";
-import { formatAmount } from "../../utils/numberFormat";
+import { formatAmount, formatDate } from "../../utils/numberFormat";
 import Button from "../../components/ui/button/Button";
 import { toast } from "react-hot-toast";
 
@@ -169,10 +169,7 @@ const ContractDetailPage: React.FC = () => {
                                 Договор #{contract.contract_number}
                             </h1>
                             <p className="text-gray-600 dark:text-gray-400 mt-1">
-                                Создан:{" "}
-                                {new Date(
-                                    contract.created_at
-                                ).toLocaleDateString("ru-RU")}
+                                Создан: {formatDate(contract.created_at)}
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
@@ -247,9 +244,7 @@ const ContractDetailPage: React.FC = () => {
                                         Дата договора
                                     </label>
                                     <p className="text-gray-900 dark:text-white">
-                                        {new Date(
-                                            contract.contract_date
-                                        ).toLocaleDateString("ru-RU")}
+                                        {formatDate(contract.contract_date)}
                                     </p>
                                 </div>
                                 <div>
@@ -257,9 +252,9 @@ const ContractDetailPage: React.FC = () => {
                                         Действует с
                                     </label>
                                     <p className="text-gray-900 dark:text-white">
-                                        {new Date(
+                                        {formatDate(
                                             contract.contract_effective_from
-                                        ).toLocaleDateString("ru-RU")}
+                                        )}
                                     </p>
                                 </div>
                                 <div className="md:col-span-2">
@@ -407,27 +402,24 @@ const ContractDetailPage: React.FC = () => {
                                         Лабораторные тесты
                                     </h2>
                                     <div className="space-y-3">
-                                        {contract.laboratory.map(
-                                            (test) => (
-                                                <div
-                                                    key={test.lab_test_id}
-                                                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                                                >
-                                                    <div>
-                                                        <p className="text-gray-900 dark:text-white font-medium">
-                                                            {test.tests_name}
-                                                        </p>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                            ID:{" "}
-                                                            {test.lab_test_id}
-                                                        </p>
-                                                    </div>
-                                                    <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 rounded-full text-xs">
-                                                        Тип {test.test_type}
-                                                    </span>
+                                        {contract.laboratory.map((test) => (
+                                            <div
+                                                key={test.lab_test_id}
+                                                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                                            >
+                                                <div>
+                                                    <p className="text-gray-900 dark:text-white font-medium">
+                                                        {test.tests_name}
+                                                    </p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                        ID: {test.lab_test_id}
+                                                    </p>
                                                 </div>
-                                            )
-                                        )}
+                                                <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 rounded-full text-xs">
+                                                    Тип {test.test_type}
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             )}
@@ -486,9 +478,9 @@ const ContractDetailPage: React.FC = () => {
                                         </div>
                                         <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                             Дата платежа:{" "}
-                                            {new Date(
+                                            {formatDate(
                                                 payment.date_of_payment
-                                            ).toLocaleDateString("ru-RU")}
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -512,10 +504,8 @@ const ContractDetailPage: React.FC = () => {
                                                     Платеж #{payment.payment_id}
                                                 </span>
                                                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {new Date(
+                                                    {formatDate(
                                                         payment.created_at
-                                                    ).toLocaleDateString(
-                                                        "ru-RU"
                                                     )}
                                                 </span>
                                             </div>

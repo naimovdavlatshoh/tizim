@@ -77,7 +77,21 @@ export default function TableExpense({
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("ru-RU");
+        if (!dateString) return "";
+
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return "";
+
+            const day = date.getDate().toString().padStart(2, "0");
+            const month = (date.getMonth() + 1).toString().padStart(2, "0");
+            const year = date.getFullYear();
+
+            return `${day}-${month}-${year}`;
+        } catch (error) {
+            console.error("Error formatting date:", error);
+            return "";
+        }
     };
 
     if (expenses.length === 0) {

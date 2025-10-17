@@ -17,7 +17,7 @@ import Button from "../../components/ui/button/Button";
 // import ClientDetailsModal from "./ClientDetailsModal";
 // import { Link } from "react-router";
 import Linkto from "../../components/ui/link/LinkTo";
-import { formatCurrency } from "../../utils/numberFormat";
+import { formatCurrency, formatDate } from "../../utils/numberFormat";
 import DeleteContractModal from "./DeleteContract";
 
 interface Contract {
@@ -195,9 +195,7 @@ export default function TableContract({
                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                     onClick={() => handleRowClick(contract)}
                                 >
-                                    {new Date(
-                                        contract.contract_date
-                                    ).toLocaleDateString("ru-RU")}
+                                    {formatDate(contract.contract_date)}
                                 </TableCell>
                                 <TableCell
                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"

@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
         icon: <GridIcon />,
         name: "Dashboard",
         path: "/",
-        roles: [1, 2, 3, 4], // Admin, Director, Labarant
+        roles: [1],
     },
     {
         name: "Пользователи",

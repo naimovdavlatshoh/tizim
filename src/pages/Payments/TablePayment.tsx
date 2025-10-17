@@ -10,7 +10,7 @@ import {
 import { toast } from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
 import { DeleteData } from "../../service/data";
-import { formatAmount } from "../../utils/numberFormat";
+import { formatAmount, formatDate } from "../../utils/numberFormat";
 import { FaRegEye } from "react-icons/fa";
 
 interface Payment {
@@ -185,7 +185,9 @@ export default function TablePayment({
                                         {payment.comments || "-"}
                                     </TableCell>
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
-                                        {payment.created_at || ""}
+                                        {payment.created_at
+                                            ? formatDate(payment.created_at)
+                                            : "-"}
                                     </TableCell>
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         <div className="flex items-center gap-2">

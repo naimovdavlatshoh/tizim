@@ -3,6 +3,25 @@ import { GetDataSimpleBlob } from "../../service/data";
 import { toast } from "react-hot-toast";
 import { Modal } from "../../components/ui/modal";
 import { TbFaceId } from "react-icons/tb";
+import { formatDate } from "../../utils/numberFormat";
+
+const formatTime = (timeString: string): string => {
+    if (!timeString) return "-";
+
+    try {
+        // If timeString is in HH:MM:SS format, extract HH:MM
+        if (timeString.includes(":")) {
+            const timeParts = timeString.split(":");
+            if (timeParts.length >= 2) {
+                return `${timeParts[0]}:${timeParts[1]}`;
+            }
+        }
+        return timeString;
+    } catch (error) {
+        console.error("Error formatting time:", error);
+        return timeString;
+    }
+};
 
 interface FaceId {
     face_id: number;
@@ -111,14 +130,18 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
                                         {faceId?.name}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                                        {faceId?.work_date}
+                                        {faceId?.work_date
+                                            ? formatDate(faceId.work_date)
+                                            : "-"}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                                        {faceId?.arrival_time}
+                                        {faceId?.arrival_time
+                                            ? formatTime(faceId.arrival_time)
+                                            : "-"}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                                         {faceId?.leave_time
-                                            ? faceId.leave_time
+                                            ? formatTime(faceId.leave_time)
                                             : "Нет данных"}
                                     </td>
                                     <td className="px-4 py-3">

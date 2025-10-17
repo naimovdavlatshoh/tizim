@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import { Link } from "react-router";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
@@ -14,7 +13,6 @@ export default function SignInForm() {
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    // const navigate = useNavigate();
     // const [isChecked, setIsChecked] = useState(false);
     const handleSubmit = (e: any) => {
         e.preventDefault();
@@ -36,9 +34,16 @@ export default function SignInForm() {
                 toast.success(res.data.message);
                 console.log(res.data);
 
+                // Redirect based on user role after token is stored
+                const roleId = res.data.role_id;
                 setTimeout(() => {
-                    window.location.reload();
-                }, 300);
+                    if (roleId == "1" || roleId == "2") {
+                        window.location.href = "/";
+                    } else {
+                        // Labarant or other roles - go to my-contracts
+                        window.location.href = "/my-contracts";
+                    }
+                }, 500);
             })
 
             .catch(() => {

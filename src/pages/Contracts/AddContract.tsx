@@ -50,6 +50,7 @@ const AddContract = () => {
     const [filteredClients, setFilteredClients] = useState<Client[]>([]);
     const [searchingClients, setSearchingClients] = useState(false);
     const [lastnumber, setLastNumber] = useState(0);
+    const [displayPrice, setDisplayPrice] = useState("");
     const [formData, setFormData] = useState<ContractFormData>({
         contract_number: "",
         business_name: "",
@@ -73,6 +74,49 @@ const AddContract = () => {
     // formatCurrency function is now imported from utils
 
     // fetchClients is now handled by searchClients
+
+    const formatNumberWithSpaces = (value: string) => {
+        // Remove all spaces first
+        const cleanValue = value.replace(/\s/g, "");
+
+        // Split by decimal point
+        const parts = cleanValue.split(".");
+
+        // Format the integer part with spaces
+        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+        // Combine with decimal part if exists
+        return parts.length > 1 ? `${integerPart}.${parts[1]}` : integerPart;
+    };
+
+    const handlePriceChange = (value: string) => {
+        // Remove all non-numeric characters except decimal point and spaces
+        const cleanValue = value.replace(/[^0-9.\s]/g, "");
+
+        // Remove spaces for processing
+        const numericValue = cleanValue.replace(/\s/g, "");
+
+        // Ensure only one decimal point
+        const parts = numericValue.split(".");
+        if (parts.length > 2) {
+            return;
+        }
+
+        // Limit decimal places to 2
+        if (parts[1] && parts[1].length > 2) {
+            return;
+        }
+
+        // Format with spaces for display
+        const formattedValue = formatNumberWithSpaces(numericValue);
+
+        // Update both display and form data
+        setDisplayPrice(formattedValue);
+        setFormData((prev) => ({
+            ...prev,
+            contract_price: parseFloat(numericValue) || 0,
+        }));
+    };
 
     // Initialize filtered clients when clients change
     useEffect(() => {
@@ -158,6 +202,28 @@ const AddContract = () => {
                 i === index ? { ...item, [field]: value } : item
             ),
         }));
+    };
+
+    const handleMonthlyFeeChange = (index: number, value: string) => {
+        // Remove all non-numeric characters except decimal point and spaces
+        const cleanValue = value.replace(/[^0-9.\s]/g, "");
+
+        // Remove spaces for processing
+        const numericValue = cleanValue.replace(/\s/g, "");
+
+        // Ensure only one decimal point
+        const parts = numericValue.split(".");
+        if (parts.length > 2) {
+            return;
+        }
+
+        // Limit decimal places to 2
+        if (parts[1] && parts[1].length > 2) {
+            return;
+        }
+
+        // Update form data with numeric value
+        handlePlanChange(index, "monthly_fee", parseFloat(numericValue) || 0);
     };
 
     const addPlanItem = () => {
@@ -602,18 +668,20 @@ const AddContract = () => {
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                     Стоимость договора (сум) *
                                 </label>
-                                <Input
-                                    type="number"
-                                    value={formData.contract_price || ""}
-                                    onChange={(e) =>
-                                        handleInputChange(
-                                            "contract_price",
-                                            parseInt(e.target.value) || 0
-                                        )
-                                    }
-                                    min="0"
-                                    placeholder="0"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type="text"
+                                        value={displayPrice}
+                                        onChange={(e) =>
+                                            handlePriceChange(e.target.value)
+                                        }
+                                        placeholder="0.00"
+                                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors"
+                                    />
+                                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
+                                        сум
+                                    </span>
+                                </div>
                             </div>
                             {formData.contract_type === 5 && (
                                 <div className="flex items-end">
@@ -680,24 +748,29 @@ const AddContract = () => {
                                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                     Ежемесячный платеж (сум)
                                                 </label>
-                                                <Input
-                                                    type="number"
-                                                    value={
-                                                        planItem.monthly_fee ||
-                                                        ""
-                                                    }
-                                                    onChange={(e) =>
-                                                        handlePlanChange(
-                                                            index,
-                                                            "monthly_fee",
-                                                            parseInt(
+                                                <div className="relative">
+                                                    <Input
+                                                        type="text"
+                                                        value={
+                                                            planItem.monthly_fee
+                                                                ? formatNumberWithSpaces(
+                                                                      planItem.monthly_fee.toString()
+                                                                  )
+                                                                : ""
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleMonthlyFeeChange(
+                                                                index,
                                                                 e.target.value
-                                                            ) || 0
-                                                        )
-                                                    }
-                                                    min="0"
-                                                    placeholder="0"
-                                                />
+                                                            )
+                                                        }
+                                                        placeholder="0.00"
+                                                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors"
+                                                    />
+                                                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
+                                                        сум
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                         {formData.plan.length > 1 && (

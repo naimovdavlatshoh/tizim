@@ -16,7 +16,7 @@ import {
 } from "../../../components/ui/table";
 import Linkto from "../../../components/ui/link/LinkTo";
 import AssignModal from "../NewContracts/AssignModal";
-// import { formatCurrency } from "../../../utils/numberFormat";
+import { formatDate } from "../../../utils/numberFormat";
 import Loader from "../../../components/ui/loader/Loader.tsx";
 
 interface PendingContract {
@@ -243,10 +243,8 @@ const PendingContracts = () => {
                                                         handleRowClick(contract)
                                                     }
                                                 >
-                                                    {new Date(
+                                                    {formatDate(
                                                         contract.deadline_date
-                                                    ).toLocaleDateString(
-                                                        "ru-RU"
                                                     )}
                                                 </TableCell>
                                                 <TableCell

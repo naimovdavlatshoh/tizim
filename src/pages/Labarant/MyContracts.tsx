@@ -5,7 +5,7 @@ import PageMeta from "../../components/common/PageMeta.tsx";
 import { GetDataSimple } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
-import { toast } from "react-hot-toast";
+
 import { FaRegEye, FaPaperPlane } from "react-icons/fa";
 import {
     Table,
@@ -17,7 +17,7 @@ import {
 import Linkto from "../../components/ui/link/LinkTo";
 import Button from "../../components/ui/button/Button";
 import SendResultModal from "./SendResultModal";
-import { formatCurrency } from "../../utils/numberFormat";
+import { formatCurrency, formatDate } from "../../utils/numberFormat";
 import Loader from "../../components/ui/loader/Loader.tsx";
 
 interface MyContract {
@@ -82,7 +82,7 @@ const MyContracts = () => {
             setLoading(false);
         } catch (error) {
             console.error("Error fetching my contracts:", error);
-            toast.error("Ошибка при загрузке моих договоров");
+
             setLoading(false);
         } finally {
             setLoading(false);
@@ -99,46 +99,8 @@ const MyContracts = () => {
     };
 
     const handleResultSent = () => {
-        // Refresh the contracts list after successful submission
         fetchMyContracts();
     };
-
-    const getStatusColor = (status: number) => {
-        switch (status) {
-            case 5:
-                return "success";
-            case 4:
-                return "info";
-            case 3:
-                return "warning";
-            default:
-                return "error";
-        }
-    };
-
-    const getStatusText = (status: number) => {
-        switch (status) {
-            case 5:
-                return "Завершено";
-            case 4:
-                return "На проверке";
-            case 3:
-                return "В процессе";
-            default:
-                return "Неизвестно";
-        }
-    };
-
-    // const getTestTypeText = (type: string) => {
-    //     switch (type) {
-    //         case "1":
-    //             return "Основной";
-    //         case "2":
-    //             return "Дополнительный";
-    //         default:
-    //             return "Неизвестно";
-    //     }
-    // };
 
     if (loading) {
         return <Loader />;
@@ -185,19 +147,13 @@ const MyContracts = () => {
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
+                                            Номер договора
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
                                             Клиент
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Стоимость работ
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Адрес объекта
                                         </TableCell>
                                         <TableCell
                                             isHeader
@@ -209,19 +165,7 @@ const MyContracts = () => {
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
-                                            Осталось дней
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Статус
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Тесты
+                                            Стоимость работ
                                         </TableCell>
                                         <TableCell
                                             isHeader
@@ -245,9 +189,17 @@ const MyContracts = () => {
                                                     handleRowClick(contract)
                                                 }
                                             >
+                                                {contracts.indexOf(contract) +
+                                                    1}
+                                            </TableCell>
+                                            <TableCell
+                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
                                                 {contract.contract_number}
                                             </TableCell>
-
                                             <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
@@ -262,121 +214,23 @@ const MyContracts = () => {
                                                     handleRowClick(contract)
                                                 }
                                             >
+                                                {contract.deadline_date
+                                                    ? formatDate(
+                                                          contract.deadline_date
+                                                      )
+                                                    : "-"}
+                                            </TableCell>
+                                            <TableCell
+                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
                                                 {formatCurrency(
                                                     parseFloat(
                                                         contract.worker_price
                                                     )
                                                 )}
-                                            </TableCell>
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                {contract.object_address}
-                                            </TableCell>
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                {new Date(
-                                                    contract.deadline_date
-                                                ).toLocaleDateString("ru-RU")}
-                                            </TableCell>
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                    {contract.days_diff_text}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                <span
-                                                    className={`px-2 py-1 rounded-full text-xs ${
-                                                        getStatusColor(
-                                                            contract.contract_status
-                                                        ) === "success"
-                                                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                            : getStatusColor(
-                                                                  contract.contract_status
-                                                              ) === "warning"
-                                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                                            : getStatusColor(
-                                                                  contract.contract_status
-                                                              ) === "info"
-                                                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                                            : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                                                    }`}
-                                                >
-                                                    {getStatusText(
-                                                        contract.contract_status
-                                                    )}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                <div className="space-y-1">
-                                                    {contract.laboratory &&
-                                                    contract.laboratory.length >
-                                                        0 ? (
-                                                        contract.laboratory
-                                                            .slice(0, 2)
-                                                            .map(
-                                                                (
-                                                                    test,
-                                                                    index
-                                                                ) => (
-                                                                    <div
-                                                                        key={
-                                                                            test.lab_test_id
-                                                                        }
-                                                                        className="flex items-center gap-2"
-                                                                    >
-                                                                        <span className="w-4 h-4 bg-brand-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
-                                                                            {index +
-                                                                                1}
-                                                                        </span>
-                                                                        <span className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-32">
-                                                                            {
-                                                                                test.tests_name
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                )
-                                                            )
-                                                    ) : (
-                                                        <span className="text-xs text-gray-400">
-                                                            Нет тестов
-                                                        </span>
-                                                    )}
-                                                    {contract.laboratory &&
-                                                        contract.laboratory
-                                                            .length > 2 && (
-                                                            <span className="text-xs text-gray-500">
-                                                                +
-                                                                {contract
-                                                                    .laboratory
-                                                                    .length -
-                                                                    2}{" "}
-                                                                еще
-                                                            </span>
-                                                        )}
-                                                </div>
                                             </TableCell>
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                 <div className="flex items-center gap-2">

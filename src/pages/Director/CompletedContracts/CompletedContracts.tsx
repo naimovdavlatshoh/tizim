@@ -16,6 +16,7 @@ import {
 } from "../../../components/ui/table";
 import Linkto from "../../../components/ui/link/LinkTo";
 import Loader from "../../../components/ui/loader/Loader.tsx";
+import { formatAmount, formatDate } from "../../../utils/numberFormat";
 
 interface CompletedContract {
     contract_id: string;
@@ -158,11 +159,6 @@ const CompletedContracts = () => {
     //     }
     // };
 
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) return "Не указано";
-        return new Date(dateString).toLocaleDateString("ru-RU");
-    };
-
     if (loading) {
         return <Loader />;
     }
@@ -282,7 +278,11 @@ const CompletedContracts = () => {
                                                         handleRowClick(contract)
                                                     }
                                                 >
-                                                    {contract.contract_price}{" "}
+                                                    {formatAmount(
+                                                        parseFloat(
+                                                            contract.contract_price
+                                                        )
+                                                    )}{" "}
                                                     сум
                                                 </TableCell>
                                                 <TableCell
@@ -291,9 +291,11 @@ const CompletedContracts = () => {
                                                         handleRowClick(contract)
                                                     }
                                                 >
-                                                    {formatDate(
-                                                        contract.deadline_date
-                                                    )}
+                                                    {contract.deadline_date
+                                                        ? formatDate(
+                                                              contract.deadline_date
+                                                          )
+                                                        : "Не указано"}
                                                 </TableCell>
                                                 <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"

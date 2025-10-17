@@ -40,3 +40,26 @@ export const formatCurrency = (amount: number | string): string => {
 export const formatAmount = (amount: number | string): string => {
     return formatNumber(amount);
 };
+
+/**
+ * Formats a date string to dd-mm-yyyy format
+ * @param dateString - The date string to format (ISO format or any valid date string)
+ * @returns Formatted date string in dd-mm-yyyy format
+ */
+export const formatDate = (dateString: string): string => {
+    if (!dateString) return "";
+
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "";
+
+        const day = date.getDate().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
+    } catch (error) {
+        console.error("Error formatting date:", error);
+        return "";
+    }
+};

@@ -27,6 +27,7 @@ export default function AddExpenseModal({
         amount: "",
         comments: "",
     });
+    const [displayAmount, setDisplayAmount] = useState("");
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredCategories, setFilteredCategories] = useState<
@@ -48,7 +49,7 @@ export default function AddExpenseModal({
         try {
             const response: any = await PostSimple("api/expenses/create", {
                 expenses_category_id: parseInt(formData.expenses_category_id),
-                amount: parseInt(formData.amount),
+                amount: parseFloat(formData.amount),
                 comments: formData.comments || undefined,
             });
 
@@ -59,6 +60,7 @@ export default function AddExpenseModal({
                     amount: "",
                     comments: "",
                 });
+                setDisplayAmount("");
                 changeStatus(); // Table list ni yangilash
                 onClose();
             } else {
@@ -79,11 +81,55 @@ export default function AddExpenseModal({
     const handleClose = () => {
         // Loading bo'lsa ham modal yopish mumkin
         setFormData({ expenses_category_id: "", amount: "", comments: "" });
+        setDisplayAmount("");
         setSearchQuery("");
         setFilteredCategories([]);
         setIsDropdownOpen(false);
         setLoading(false); // Loading state ni ham tozalash
         onClose();
+    };
+
+    const formatNumberWithSpaces = (value: string) => {
+        // Remove all spaces first
+        const cleanValue = value.replace(/\s/g, "");
+
+        // Split by decimal point
+        const parts = cleanValue.split(".");
+
+        // Format the integer part with spaces
+        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+        // Combine with decimal part if exists
+        return parts.length > 1 ? `${integerPart}.${parts[1]}` : integerPart;
+    };
+
+    const handleAmountChange = (value: string) => {
+        // Remove all non-numeric characters except decimal point and spaces
+        const cleanValue = value.replace(/[^0-9.\s]/g, "");
+
+        // Remove spaces for processing
+        const numericValue = cleanValue.replace(/\s/g, "");
+
+        // Ensure only one decimal point
+        const parts = numericValue.split(".");
+        if (parts.length > 2) {
+            return;
+        }
+
+        // Limit decimal places to 2
+        if (parts[1] && parts[1].length > 2) {
+            return;
+        }
+
+        // Format with spaces for display
+        const formattedValue = formatNumberWithSpaces(numericValue);
+
+        // Update both display and form data
+        setDisplayAmount(formattedValue);
+        setFormData({
+            ...formData,
+            amount: numericValue, // Store without spaces for API
+        });
     };
 
     const performSearch = async (query: string) => {
@@ -126,7 +172,6 @@ export default function AddExpenseModal({
         setFilteredCategories(categories);
     }, [categories]);
 
-    // Update filtered categories when search query changes
     useEffect(() => {
         if (!searchQuery.trim()) {
             setFilteredCategories(categories);
@@ -287,15 +332,12 @@ export default function AddExpenseModal({
                             </label>
                             <div className="relative">
                                 <InputField
-                                    type="number"
-                                    value={formData.amount}
+                                    type="text"
+                                    value={displayAmount}
                                     onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            amount: e.target.value,
-                                        })
+                                        handleAmountChange(e.target.value)
                                     }
-                                    placeholder="0"
+                                    placeholder="0.00"
                                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors"
                                     required
                                 />

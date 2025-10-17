@@ -1,5 +1,6 @@
 import EcommerceMetrics from "../../components/ecommerce/EcommerceMetrics";
 import StatisticsChart from "../../components/ecommerce/StatisticsChart";
+import WorkersEarningsChart from "../../components/ecommerce/WorkersEarningsChart";
 
 import PageMeta from "../../components/common/PageMeta";
 
@@ -20,6 +21,10 @@ export default function Home() {
 
                 <div className="col-span-12">
                     <StatisticsChart />
+                </div>
+
+                <div className="col-span-12">
+                    <WorkersEarningsChart />
                 </div>
                 {/*
                 <div className="col-span-12 xl:col-span-5">

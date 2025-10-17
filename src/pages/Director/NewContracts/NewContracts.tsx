@@ -17,7 +17,7 @@ import {
 import Linkto from "../../../components/ui/link/LinkTo";
 import Button from "../../../components/ui/button/Button";
 import AssignModal from "./AssignModal";
-import { formatCurrency } from "../../../utils/numberFormat";
+import { formatCurrency, formatDate } from "../../../utils/numberFormat";
 import Loader from "../../../components/ui/loader/Loader.tsx";
 
 interface NewContract {
@@ -36,6 +36,7 @@ interface NewContract {
     phone_number: string;
     bank_account: string;
     bank_address: string;
+    contract_price: string;
     inn: string;
     mfo: string;
     oked: string;
@@ -69,9 +70,6 @@ const NewContracts = () => {
                 response?.result || response?.data?.result || [];
             const totalPagesData =
                 response?.pages || response?.data?.pages || 1;
-
-
-
 
             setContracts(contractsData);
             setTotalPages(totalPagesData);
@@ -190,59 +188,65 @@ const NewContracts = () => {
 
                                 {/* Table Body */}
                                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                    {contracts?.map((contract: NewContract, index: number) => (
-                                        <TableRow
-                                            key={contract.contract_id}
-                                            className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                        >
-                                            <TableCell
-                                                className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
+                                    {contracts?.map(
+                                        (
+                                            contract: NewContract,
+                                            index: number
+                                        ) => (
+                                            <TableRow
+                                                key={contract.contract_id}
+                                                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                             >
-                                                {index+1}
-                                            </TableCell>
+                                                <TableCell
+                                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    onClick={() =>
+                                                        handleRowClick(contract)
+                                                    }
+                                                >
+                                                    {index + 1}
+                                                </TableCell>
 
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                {contract.client_name}
-                                            </TableCell>
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                {formatCurrency(
-                                                    parseFloat(
-                                                        contract.worker_price
-                                                    )
-                                                )}
-                                            </TableCell>
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                {contract.object_address}
-                                            </TableCell>
-                                            <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                onClick={() =>
-                                                    handleRowClick(contract)
-                                                }
-                                            >
-                                                {new Date(
-                                                    contract.deadline_date
-                                                ).toLocaleDateString("ru-RU")}
-                                            </TableCell>
-                                            {/* <TableCell
+                                                <TableCell
+                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    onClick={() =>
+                                                        handleRowClick(contract)
+                                                    }
+                                                >
+                                                    {contract.client_name}
+                                                </TableCell>
+                                                <TableCell
+                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    onClick={() =>
+                                                        handleRowClick(contract)
+                                                    }
+                                                >
+                                                    {formatCurrency(
+                                                        parseFloat(
+                                                            contract.contract_price
+                                                        )
+                                                    )}
+                                                </TableCell>
+                                                <TableCell
+                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    onClick={() =>
+                                                        handleRowClick(contract)
+                                                    }
+                                                >
+                                                    {contract.object_address}
+                                                </TableCell>
+                                                <TableCell
+                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    onClick={() =>
+                                                        handleRowClick(contract)
+                                                    }
+                                                >
+                                                    {contract.deadline_date
+                                                        ? formatDate(
+                                                              contract.deadline_date
+                                                          )
+                                                        : "Не указано"}
+                                                </TableCell>
+                                                {/* <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
@@ -252,7 +256,7 @@ const NewContracts = () => {
                                                     {contract.days_diff_text}
                                                 </span>
                                             </TableCell> */}
-                                            {/* <TableCell
+                                                {/* <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
@@ -268,7 +272,7 @@ const NewContracts = () => {
                                                     </span>
                                                 )}
                                             </TableCell> */}
-                                            {/* <TableCell
+                                                {/* <TableCell
                                                 className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
@@ -277,36 +281,37 @@ const NewContracts = () => {
                                                 {contract.comments ||
                                                     "Нет комментариев"}
                                             </TableCell> */}
-                                            <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                <div className="flex items-center gap-2">
-                                                    <Linkto
-                                                        to={`/new-contracts/${contract.contract_id}`}
-                                                        size="xs"
-                                                        variant="outline"
-                                                        startIcon={
-                                                            <FaRegEye className="size-4" />
-                                                        }
-                                                    >
-                                                        {""}
-                                                    </Linkto>
-                                                    <Button
-                                                        size="xs"
-                                                        variant="outline"
-                                                        onClick={() =>
-                                                            handleAssignWorker(
-                                                                contract
-                                                            )
-                                                        }
-                                                        startIcon={
-                                                            <FaUserPlus className="size-4" />
-                                                        }
-                                                    >
-                                                        {""}
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    <div className="flex items-center gap-2">
+                                                        <Linkto
+                                                            to={`/new-contracts/${contract.contract_id}`}
+                                                            size="xs"
+                                                            variant="outline"
+                                                            startIcon={
+                                                                <FaRegEye className="size-4" />
+                                                            }
+                                                        >
+                                                            {""}
+                                                        </Linkto>
+                                                        <Button
+                                                            size="xs"
+                                                            variant="outline"
+                                                            onClick={() =>
+                                                                handleAssignWorker(
+                                                                    contract
+                                                                )
+                                                            }
+                                                            startIcon={
+                                                                <FaUserPlus className="size-4" />
+                                                            }
+                                                        >
+                                                            {""}
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>
@@ -334,6 +339,7 @@ const NewContracts = () => {
                     onClose={() => setAssignModalOpen(false)}
                     contractId={selectedContract.contract_id.toString()}
                     contractNumber={selectedContract.contract_number}
+                    contractPrice={parseFloat(selectedContract.contract_price)}
                     onSuccess={handleAssignmentSuccess}
                 />
             )}

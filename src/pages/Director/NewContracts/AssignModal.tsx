@@ -4,12 +4,14 @@ import { toast } from "react-hot-toast";
 import Button from "../../../components/ui/button/Button";
 import { Modal } from "../../../components/ui/modal";
 import DatePicker from "../../../components/form/date-picker";
+import { formatAmount } from "../../../utils/numberFormat";
 
 interface AssignModalProps {
     isOpen: boolean;
     onClose: () => void;
     contractId: string;
     contractNumber: string;
+    contractPrice?: number;
     onSuccess?: () => void;
 }
 
@@ -23,6 +25,7 @@ const AssignModal: React.FC<AssignModalProps> = ({
     onClose,
     contractId,
     contractNumber,
+    contractPrice,
     onSuccess,
 }) => {
     const [users, setUsers] = useState<User[]>([]);
@@ -61,6 +64,12 @@ const AssignModal: React.FC<AssignModalProps> = ({
             ...prev,
             [field]: value,
         }));
+    };
+
+    const calculatePercentageAmount = () => {
+        if (!contractPrice || !formData.percent) return 0;
+        const percentage = parseFloat(formData.percent);
+        return (contractPrice * percentage) / 100;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -121,6 +130,14 @@ const AssignModal: React.FC<AssignModalProps> = ({
                         Договор:{" "}
                         <span className="font-medium">{contractNumber}</span>
                     </p>
+                    {contractPrice && (
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                            Стоимость:{" "}
+                            <span className="font-medium">
+                                {formatAmount(contractPrice)} сум
+                            </span>
+                        </p>
+                    )}
                 </div>
 
                 {/* User Selection */}
@@ -163,6 +180,17 @@ const AssignModal: React.FC<AssignModalProps> = ({
                         placeholder="2.5"
                         required
                     />
+                    {contractPrice && formData.percent && (
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                            <p className="text-sm text-blue-700 dark:text-blue-300">
+                                Сумма к выплате:{" "}
+                                <span className="font-medium">
+                                    {formatAmount(calculatePercentageAmount())}{" "}
+                                    сум
+                                </span>
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Deadline Date */}

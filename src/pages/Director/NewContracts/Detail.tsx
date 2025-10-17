@@ -15,6 +15,7 @@ interface NewContract {
     contract_status: string;
     object_address: string;
     worker_price: string;
+    contract_price: string;
     deadline_date: string | null;
     days_diff: string | null;
     days_diff_text: string | null;
@@ -175,7 +176,7 @@ const NewContractDetail = () => {
                                 Стоимость работ
                             </p>
                             <p className="text-2xl font-bold text-brand-500">
-                                {formatCurrency(contract.worker_price)}
+                                {formatCurrency(contract.contract_price)}
                             </p>
                         </div>
                     </div>
@@ -432,6 +433,7 @@ const NewContractDetail = () => {
                 onClose={() => setAssignModalOpen(false)}
                 contractId={contract.contract_id}
                 contractNumber={contract.contract_number}
+                contractPrice={parseFloat(contract.contract_price)}
                 onSuccess={() => {
                     // Refresh the contract details after successful assignment
                     fetchContractDetails();
