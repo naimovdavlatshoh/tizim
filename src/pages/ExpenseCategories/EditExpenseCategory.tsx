@@ -61,16 +61,13 @@ export default function EditExpenseCategoryModal({
                 formData
             );
 
-            if (response?.status === 200 || response?.data?.success) {
+            if (response) {
                 toast.success("Категория успешно обновлена!");
                 onSuccess();
                 onClose();
-            } else {
-                toast.error("Что-то пошло не так при обновлении категории");
             }
-        } catch (error) {
-            console.error("Error updating category:", error);
-            toast.error("Что-то пошло не так при обновлении категории");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.error);
         } finally {
             setLoading(false);
         }

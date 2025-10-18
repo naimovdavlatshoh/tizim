@@ -25,8 +25,8 @@ export default function DeleteUserModal({
         setIsLoading(true);
         try {
             await onDelete();
-        } catch (error) {
-            console.error("Error deleting user:", error);
+        } catch (error: any) {
+            console.error(error?.response?.data?.error);
         } finally {
             setIsLoading(false);
         }

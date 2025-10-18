@@ -28,8 +28,8 @@ export default function DeleteUserModal({
             await onDelete();
             toast.success("Клиент успешно удален!");
             onClose();
-        } catch (error) {
-            toast.error("Что-то пошло не так при удалении клиента");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.error);
         } finally {
             setIsLoading(false);
         }

@@ -49,12 +49,9 @@ export default function AddExpenseCategoryModal({
                 setFormData({ category_name: "" });
                 onSuccess();
                 onClose();
-            } else {
-                toast.error("Что-то пошло не так при создании категории");
             }
-        } catch (error) {
-            console.error("Error creating category:", error);
-            toast.error("Что-то пошло не так при создании категории");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.error);
         } finally {
             setLoading(false);
         }

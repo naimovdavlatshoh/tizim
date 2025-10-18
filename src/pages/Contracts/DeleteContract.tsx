@@ -35,9 +35,8 @@ export default function DeleteContractModal({
                 onSuccess?.();
                 onClose();
             }
-        } catch (error) {
-            console.error("Error deleting contract:", error);
-            toast.error("Ошибка при удалении договора");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.error);
         } finally {
             setIsDeleting(false);
         }

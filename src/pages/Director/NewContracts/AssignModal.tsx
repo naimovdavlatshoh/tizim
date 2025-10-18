@@ -90,11 +90,11 @@ const AssignModal: React.FC<AssignModalProps> = ({
                 comments: formData.comments,
             });
 
-            if (response?.status === 200 || response?.data?.success) {
+            if (response) {
                 toast.success("Сотрудник успешно назначен на договор");
                 onSuccess?.();
                 onClose();
-                // Reset form
+
                 setFormData({
                     user_id: "",
                     contract_id: contractId,
@@ -102,12 +102,9 @@ const AssignModal: React.FC<AssignModalProps> = ({
                     deadline_date: "",
                     comments: "",
                 });
-            } else {
-                toast.error("Ошибка при назначении сотрудника");
             }
-        } catch (error) {
-            console.error("Error assigning worker:", error);
-            toast.error("Ошибка при назначении сотрудника");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.error);
         } finally {
             setLoading(false);
         }

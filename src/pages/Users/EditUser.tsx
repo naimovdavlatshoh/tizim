@@ -79,19 +79,15 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 
         PostDataTokenJson(`api/user/update/${user?.user_id}`, payload)
             .then((res: any) => {
-                if (res?.status === 200 || res?.success) {
+                if (res) {
                     toast.success("Пользователь успешно обновлен");
                     changeStatus();
                     onClose();
                     console.log("Обновлено успешно");
-                } else {
-                    toast.error("Ошибка при обновлении пользователя");
                 }
             })
             .catch((error: any) => {
-                console.error("Ошибка:", error);
-                const errorMessage =
-                    error?.response?.data?.error || "Произошла ошибка";
+                const errorMessage = error?.response?.data?.error;
                 setResponse(errorMessage);
                 toast.error(errorMessage);
             })

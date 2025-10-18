@@ -193,9 +193,8 @@ const Reports = () => {
             setSelectedContract("");
             setSelectedFiles([]);
             fetchReports();
-        } catch (error) {
-            console.error("Error creating report:", error);
-            toast.error("Ошибка при создании отчета");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.error);
         } finally {
             setSubmitting(false);
         }

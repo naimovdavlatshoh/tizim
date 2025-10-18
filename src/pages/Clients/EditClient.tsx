@@ -169,27 +169,17 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                 client?.client_type === 1 ? payload2 : payload
             )
                 .then((res: any) => {
-                    if (res?.status === 200 || res?.success) {
+                    if (res) {
                         changeStatus();
                         onClose();
-                        console.log("Обновлено успешно");
-                        // Toast faqat backend dan response kelganda
                         toast.success("Клиент успешно обновлен!");
-                    } else {
-                        // Toast faqat backend dan response kelganda
-                        toast.error(
-                            "Что-то пошло не так при обновлении клиента"
-                        );
                     }
                 })
                 .catch((error: any) => {
                     onClose();
-                    const errorMessage =
-                        error?.response?.data?.error || "Что-то пошло не так";
+                    const errorMessage = error?.response?.data?.error;
                     setResponse(errorMessage);
-                    // console.log(error);
 
-                    // Toast faqat backend dan response kelganda
                     toast.error(errorMessage);
                 })
                 .finally(() => {

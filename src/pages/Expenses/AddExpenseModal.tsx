@@ -53,7 +53,7 @@ export default function AddExpenseModal({
                 comments: formData.comments || undefined,
             });
 
-            if (response?.status === 200 || response?.data?.success) {
+            if (response) {
                 toast.success("Расход успешно создан");
                 setFormData({
                     expenses_category_id: "",
@@ -61,16 +61,11 @@ export default function AddExpenseModal({
                     comments: "",
                 });
                 setDisplayAmount("");
-                changeStatus(); // Table list ni yangilash
-                onClose();
-            } else {
-                toast.error("Ошибка при создании расхода");
-                // Error holatida ham modal yopish
+                changeStatus();
                 onClose();
             }
-        } catch (error) {
-            console.error("Error creating expense:", error);
-            toast.error("Что-то пошло не так при создании расхода");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.error);
             // Error holatida ham modal yopish
             onClose();
         } finally {
@@ -152,12 +147,10 @@ export default function AddExpenseModal({
                 )}`
             );
 
-            if (response?.status === 200 || response?.data?.success) {
+            if (response) {
                 const searchResults =
                     response?.data?.result || response?.result || [];
                 setFilteredCategories(searchResults);
-            } else {
-                setFilteredCategories(categories);
             }
         } catch (error) {
             console.error("Error searching categories:", error);
