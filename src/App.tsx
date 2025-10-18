@@ -21,6 +21,7 @@ import Home from "./pages/Dashboard/Home";
 import UserList from "./pages/Users/UserList";
 import { Toaster } from "react-hot-toast";
 import ClientList from "./pages/Clients/ClientList";
+import Debtors from "./pages/Debtors/Debtors";
 import ContractList from "./pages/Contracts/ContractList";
 import ContractDetails from "./pages/Contracts/ContractDetails";
 import ContractDetailPage from "./pages/Contracts/ContractDetailPage";
@@ -97,6 +98,7 @@ export default function App() {
                             />
                             <Route path="/users" element={<UserList />} />
                             <Route path="/clients" element={<ClientList />} />
+                            <Route path="/debtors" element={<Debtors />} />
                             <Route
                                 path="/contracts"
                                 element={<ContractList />}

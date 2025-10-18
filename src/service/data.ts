@@ -3,8 +3,19 @@ import { handleAuthError } from "../utils/authUtils";
 
 axios.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (handleAuthError(error)) {
+    async (error) => {
+        const wasHandled = await handleAuthError(error);
+        if (wasHandled) {
+            // If token was refreshed, retry the original request
+            if (error.config && !error.config._retry) {
+                error.config._retry = true;
+                // Update the authorization header with the new token
+                const newToken = localStorage.getItem("token");
+                if (newToken) {
+                    error.config.headers.Authorization = `Bearer ${newToken}`;
+                }
+                return axios.request(error.config);
+            }
             return Promise.resolve({ data: { handled: true } });
         }
         return Promise.reject(error);
@@ -51,10 +62,11 @@ export const PostData = async (url: string, data: any) => {
 };
 
 export const PostDataToken = async (url: string, data: any) => {
+    const token = localStorage.getItem("token");
     const response = await axios.post(BASE_URL + url, data, {
         headers: {
             "Content-Type": "multipart/formData",
-            Authorization: `Bearer ${Token}`,
+            Authorization: `Bearer ${token}`,
         },
     });
     return response;
@@ -69,47 +81,52 @@ export const PostDocxContract = async (
     formData.append("contract_file", docxBlob, "shartnoma.docx");
     formData.append("contract_data", JSON.stringify(contractData));
 
+    const token = localStorage.getItem("token");
     const response = await axios.post(BASE_URL + url, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${Token}`,
+            Authorization: `Bearer ${token}`,
         },
     });
     return response;
 };
 
 export const PostDataTokenJson = async (url: string, data: any) => {
+    const token = localStorage.getItem("token");
     const response = await axios.post(BASE_URL + url, data, {
         headers: {
-            Authorization: `Bearer ${Token}`,
+            Authorization: `Bearer ${token}`,
         },
     });
     return response;
 };
 
 export const PostSimple = async (url: string, data: any = {}) => {
+    const token = localStorage.getItem("token");
     const response = await axios.post(BASE_URL + url, data, {
         headers: {
-            Authorization: `Bearer ${Token}`,
+            Authorization: `Bearer ${token}`,
         },
     });
     return response;
 };
 
 export const PostSimpleFormData = async (url: string, data: FormData) => {
+    const token = localStorage.getItem("token");
     const response = await axios.post(BASE_URL + url, data, {
         headers: {
-            Authorization: `Bearer ${Token}`,
+            Authorization: `Bearer ${token}`,
         },
     });
     return response;
 };
 
 export const GetDataSimple = async (url: string) => {
-    if (Token) {
+    const token = localStorage.getItem("token");
+    if (token) {
         const response = await axios.get(BASE_URL + url, {
             headers: {
-                Authorization: `Bearer ${Token}`,
+                Authorization: `Bearer ${token}`,
             },
         });
         return response.data;
@@ -119,10 +136,11 @@ export const GetDataSimple = async (url: string) => {
     }
 };
 export const GetDataSimpleUrl = async (url: string) => {
-    if (Token) {
+    const token = localStorage.getItem("token");
+    if (token) {
         const response = await axios.get(url, {
             headers: {
-                Authorization: `Bearer ${Token}`,
+                Authorization: `Bearer ${token}`,
             },
         });
         return response.data;
@@ -133,9 +151,10 @@ export const GetDataSimpleUrl = async (url: string) => {
 };
 
 export const DeleteData = async (url: string) => {
+    const token = localStorage.getItem("token");
     const response = await axios.delete(BASE_URL + url, {
         headers: {
-            Authorization: `Bearer ${Token}`,
+            Authorization: `Bearer ${token}`,
         },
     });
     return response;

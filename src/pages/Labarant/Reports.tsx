@@ -166,6 +166,7 @@ const Reports = () => {
 
     const handleCreateReport = async () => {
         if (!reportText.trim()) {
+            setCreateModalOpen(false);
             toast.error("Пожалуйста, введите текст отчета");
             return;
         }
@@ -194,6 +195,7 @@ const Reports = () => {
             setSelectedFiles([]);
             fetchReports();
         } catch (error: any) {
+            setCreateModalOpen(false);
             toast.error(error?.response?.data?.error);
         } finally {
             setSubmitting(false);

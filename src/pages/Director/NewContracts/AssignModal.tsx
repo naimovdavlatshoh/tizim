@@ -104,6 +104,7 @@ const AssignModal: React.FC<AssignModalProps> = ({
                 });
             }
         } catch (error: any) {
+            onClose();
             toast.error(error?.response?.data?.error);
         } finally {
             setLoading(false);

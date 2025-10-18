@@ -67,6 +67,7 @@ export default function EditExpenseCategoryModal({
                 onClose();
             }
         } catch (error: any) {
+            onClose();
             toast.error(error?.response?.data?.error);
         } finally {
             setLoading(false);

@@ -83,6 +83,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             })
             .catch((error: any) => {
                 onClose();
+
                 setResponse(error.response.data.error);
 
                 toast.error(error.response.data.error);

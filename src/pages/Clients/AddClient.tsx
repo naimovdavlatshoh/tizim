@@ -274,11 +274,11 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 resetForms();
                 changeStatus();
                 onClose();
-                // Toast faqat backend dan response kelganda
+
                 toast.success("Клиент успешно добавлен!");
             }
         } catch (error: any) {
-            console.error("Ошибка:", error);
+            onClose();
             const errorMessage = error?.response?.data?.error;
             setResponse(errorMessage);
 

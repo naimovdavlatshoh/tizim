@@ -56,6 +56,12 @@ const navItems: NavItem[] = [
         roles: [1], // Admin va Director
     },
     {
+        name: "Должники",
+        icon: <GroupIcon />,
+        path: "/debtors",
+        roles: [1], // Admin va Director
+    },
+    {
         name: "Договоры",
         icon: <DocsIcon />,
         path: "/contracts",

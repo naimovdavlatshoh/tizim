@@ -65,9 +65,8 @@ export default function AddExpenseModal({
                 onClose();
             }
         } catch (error: any) {
-            toast.error(error?.response?.data?.error);
-            // Error holatida ham modal yopish
             onClose();
+            toast.error(error?.response?.data?.error);
         } finally {
             setLoading(false);
         }

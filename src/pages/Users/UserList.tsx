@@ -44,6 +44,7 @@ export default function ClientList() {
 
     const handleDownloadExcel = async (): Promise<void> => {
         if (!startDate || !endDate) {
+            setExcelModalOpen(false);
             toast.error("Пожалуйста, выберите даты");
             return;
         }
@@ -83,9 +84,10 @@ export default function ClientList() {
             setExcelModalOpen(false);
             setStartDate("");
             setEndDate("");
-        } catch (error) {
-            console.error("Error downloading excel:", error);
-            toast.error("Ошибка при загрузке Excel файла");
+        } catch (error: any) {
+            setExcelModalOpen(false);
+            console.error(error?.response?.data?.error);
+            toast.error(error?.response?.data?.error);
         } finally {
             setDownloading(false);
         }
