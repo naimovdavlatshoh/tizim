@@ -154,11 +154,6 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             }
         }
 
-        if (!selectedFile) {
-            setFormError("Пожалуйста, загрузите файл");
-            return false;
-        }
-
         return true;
     };
 

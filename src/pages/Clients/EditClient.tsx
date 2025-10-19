@@ -48,7 +48,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
 }) => {
     const [clientName, setClientName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
-    const [businessName, setBusinessName] = useState("");
+    // const [businessName, setBusinessName] = useState("");
     const [businessAddress, setBusinessAddress] = useState("");
     const [bankAccount, setBankAccount] = useState("");
     const [bankAddress, setBankAddress] = useState("");
@@ -68,7 +68,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
         if (client) {
             setClientName(client?.client_name || "");
             setPhoneNumber(client?.phone_number || "");
-            setBusinessName(client?.business_name || "");
+            // setBusinessName(client?.business_name || "");
             setBusinessAddress(client?.business_address || "");
             setBankAccount(client?.bank_account || "");
             setBankAddress(client?.bank_address || "");
@@ -101,7 +101,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
         const payload = {
             client_name: clientName,
             phone_number: phoneNumber,
-            business_name: businessName || undefined,
+            // business_name: businessName || undefined,
             business_address: businessAddress || undefined,
             bank_account: bankAccount || undefined,
             bank_address: bankAddress || undefined,
@@ -117,7 +117,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
         const payload2 = {
             client_name: clientName,
             phone_number: phoneNumber,
-            business_name: businessName || undefined,
+            // business_name: businessName || undefined,
             business_address: businessAddress || undefined,
             bank_account: bankAccount || undefined,
             bank_address: bankAddress || undefined,
@@ -231,7 +231,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                 {/* Business fields - Юридическое лицо (client_type: 1) */}
                 {client?.client_type === 1 && (
                     <>
-                        <div>
+                        {/* <div>
                             <Label htmlFor="businessName">
                                 Название компании
                             </Label>
@@ -244,7 +244,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                                     setBusinessName(e.target.value)
                                 }
                             />
-                        </div>
+                        </div> */}
                         <div>
                             <Label htmlFor="businessAddress">
                                 Адрес компании
@@ -299,7 +299,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                                 onChange={(e) => setMfo(e.target.value)}
                             />
                         </div>
-                        <div className="md:col-span-2">
+                        <div className="md:col-span-1">
                             <Label htmlFor="oked">ОКЭД</Label>
                             <Input
                                 type="text"
@@ -316,14 +316,14 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                         // - Кем выдан паспорт (passport_given_by)
                         // - Дата выдачи паспорта (passport_given_date)
                         */}
-                        <div className="md:col-span-2">
+                        {/* <div className="md:col-span-2">
                             <Label htmlFor="file">Файл</Label>
                             <input
                                 type="file"
                                 id="file"
                                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                             />
-                        </div>
+                        </div> */}
                     </>
                 )}
 

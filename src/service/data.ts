@@ -1,27 +1,16 @@
 import axios from "axios";
 import { handleAuthError } from "../utils/authUtils";
 
+
 axios.interceptors.response.use(
     (response) => response,
-    async (error) => {
-        const wasHandled = await handleAuthError(error);
-        if (wasHandled) {
-            // If token was refreshed, retry the original request
-            if (error.config && !error.config._retry) {
-                error.config._retry = true;
-                // Update the authorization header with the new token
-                const newToken = localStorage.getItem("token");
-                if (newToken) {
-                    error.config.headers.Authorization = `Bearer ${newToken}`;
-                }
-                return axios.request(error.config);
-            }
+    (error) => {
+        if (handleAuthError(error)) {
             return Promise.resolve({ data: { handled: true } });
         }
         return Promise.reject(error);
     }
 );
-
 export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
     const token = localStorage.getItem("token"); // yoki sessionStorage
 
