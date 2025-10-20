@@ -9,9 +9,11 @@ import {
 } from "../../components/ui/table";
 import { toast } from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
-import { DeleteData } from "../../service/data";
+import { PostDataTokenJson } from "../../service/data";
 import { formatAmount, formatDate } from "../../utils/numberFormat";
 import { FaRegEye } from "react-icons/fa";
+import { Modal } from "../../components/ui/modal";
+import { TrashBinIcon } from "../../icons";
 
 interface Payment {
     payment_id: number;
@@ -36,19 +38,38 @@ export default function TablePayment({
     changeStatus,
 }: TablePaymentProps) {
     const navigate = useNavigate();
-    const [selectedPayment] = useState<Payment | null>(null);
+    const [selectedPayment, setSelectedPayment] = useState<Payment | null>(
+        null
+    );
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-    const onDeletePayment = (): void => {
-        if (selectedPayment) {
-            DeleteData(
-                `api/payments/delete/${selectedPayment.payment_id}`
-            ).then(() => {
-                toast.success("Платеж успешно удален");
-                changeStatus();
-            });
+    const handleDeleteClick = (payment: Payment) => {
+        setSelectedPayment(payment);
+        setDeleteModalOpen(true);
+    };
+
+    const onDeletePayment = async (): Promise<void> => {
+        if (!selectedPayment) return;
+
+        setIsDeleting(true);
+        try {
+            await PostDataTokenJson(
+                `api/payments/delete/${selectedPayment.payment_id}`,
+                {}
+            );
+            toast.success("Платеж успешно удален");
+            changeStatus();
+            setDeleteModalOpen(false);
+            setSelectedPayment(null);
+        } catch (error: any) {
+            setDeleteModalOpen(false);
+            toast.error(
+                error?.response?.data?.error || "Ошибка при удалении платежа"
+            );
+        } finally {
+            setIsDeleting(false);
         }
-        setDeleteModalOpen(false);
     };
 
     const handleViewContractDetail = (contractId: number) => {
@@ -192,7 +213,7 @@ export default function TablePayment({
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         <div className="flex items-center gap-2">
                                             <Button
-                                                size="sm"
+                                                size="xs"
                                                 variant="outline"
                                                 className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                                                 onClick={() =>
@@ -202,6 +223,18 @@ export default function TablePayment({
                                                 }
                                             >
                                                 <FaRegEye className="size-4" />
+                                            </Button>
+                                            <Button
+                                                onClick={() =>
+                                                    handleDeleteClick(payment)
+                                                }
+                                                size="xs"
+                                                variant="danger"
+                                                startIcon={
+                                                    <TrashBinIcon className="size-4" />
+                                                }
+                                            >
+                                                {""}
                                             </Button>
                                         </div>
                                     </TableCell>
@@ -213,30 +246,50 @@ export default function TablePayment({
             </div>
 
             {/* Delete Confirmation Modal */}
-            {deleteModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                            Удалить платеж?
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">
-                            Вы уверены, что хотите удалить этот платеж? Это
-                            действие нельзя отменить.
-                        </p>
-                        <div className="flex justify-end gap-3">
-                            <Button
-                                variant="outline"
-                                onClick={() => setDeleteModalOpen(false)}
-                            >
-                                Отмена
-                            </Button>
-                            <Button variant="danger" onClick={onDeletePayment}>
-                                Удалить
-                            </Button>
-                        </div>
+            <Modal
+                isOpen={deleteModalOpen}
+                onClose={() => {
+                    setDeleteModalOpen(false);
+                    setSelectedPayment(null);
+                }}
+                className="max-w-md"
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                        Удалить платеж?
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        Вы уверены, что хотите удалить этот платеж? Это действие
+                        нельзя отменить.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setDeleteModalOpen(false);
+                                setSelectedPayment(null);
+                            }}
+                            disabled={isDeleting}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={onDeletePayment}
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? (
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    Удаление...
+                                </div>
+                            ) : (
+                                "Удалить"
+                            )}
+                        </Button>
                     </div>
                 </div>
-            )}
+            </Modal>
         </div>
     );
 }
