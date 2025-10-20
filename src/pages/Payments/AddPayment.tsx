@@ -124,7 +124,6 @@ export default function AddPaymentModal({
             [field]: String(value),
         }));
 
-        // If contract is selected, update the selected contract price
         if (field === "contract_id") {
             const contractId = parseInt(String(value));
             const selectedContract = contracts.find(
@@ -150,7 +149,7 @@ export default function AddPaymentModal({
             const resp: any = await GetDataSimple(
                 `api/contracts/read/${contractId}`
             );
-            const data = resp?.data || resp; // backend may return directly or under data
+            const data = resp?.data || resp;
             const payments: any[] = data?.payments || [];
             const paidTotal = payments.reduce(
                 (sum: number, p: any) => sum + (Number(p?.amount) || 0),
@@ -165,13 +164,13 @@ export default function AddPaymentModal({
     const handleSubmit = async (): Promise<void> => {
         // Form validatsiyasi
         if (!formData.contract_id || !formData.amount) {
-            onClose();
+            handleClose();
             toast.error("Пожалуйста, заполните все обязательные поля");
             return;
         }
 
         if (parseFloat(formData.amount) <= 0) {
-            onClose();
+            handleClose();
             toast.error("Сумма должна быть больше 0");
             return;
         }
@@ -196,19 +195,10 @@ export default function AddPaymentModal({
                 toast.success("Платеж успешно создан!");
                 setResponse(JSON.stringify(response?.data || response));
                 changeStatus();
-                onClose();
-                // Form ni tozalash
-                setFormData({
-                    contract_id: "",
-                    is_advance: "0",
-                    amount: "",
-                    payment_type: "1",
-                    comments: "",
-                });
-                setSelectedContractPrice(null);
+                handleClose();
             }
         } catch (error: any) {
-            onClose();
+            handleClose();
             toast.error(
                 error?.response?.data?.error
                     ? error?.response?.data?.error
@@ -219,10 +209,25 @@ export default function AddPaymentModal({
         }
     };
 
+    const handleClose = () => {
+        // Form ma'lumotlarini tozalash
+        setFormData({
+            contract_id: "",
+            is_advance: "0",
+            amount: "",
+            payment_type: "1",
+            comments: "",
+        });
+        setSelectedContractPrice(null);
+        setSelectedContractPaidTotal(0);
+        setFilteredContracts(contracts);
+        onClose();
+    };
+
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={handleClose}
             className="max-w-[800px] p-6 lg:p-10 overflow-visible"
         >
             <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
@@ -327,7 +332,7 @@ export default function AddPaymentModal({
             <div className="flex justify-end gap-2 pt-6">
                 <button
                     type="button"
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                     Отмена
