@@ -24,33 +24,33 @@ export default function SignInForm() {
         };
         PostData(`login`, data)
             .then((res: any) => {
-                localStorage.setItem("token", res.data.jwt);
-                localStorage.setItem("role_id", res.data.role_id);
-                localStorage.setItem("login", res.data.login);
-                localStorage.setItem(
-                    "name",
-                    res.data.firstname + " " + res.data.lastname
-                );
-                toast.success(res.data.message);
-                console.log(res.data);
+                if (res.data.status == 200) {
+                    localStorage.setItem("token", res.data.jwt);
+                    localStorage.setItem("role_id", res.data.role_id);
+                    localStorage.setItem("login", res.data.login);
+                    localStorage.setItem(
+                        "name",
+                        res.data.firstname + " " + res.data.lastname
+                    );
+                    toast.success(res.data.message);
+                    console.log(res.data);
 
-                // Redirect based on user role after token is stored
-                const roleId = res.data.role_id;
-                setTimeout(() => {
-                    if (roleId == "1" || roleId == "2") {
-                        window.location.href = "/";
-                    } else {
-                        // Labarant or other roles - go to my-contracts
-                        window.location.href = "/my-contracts";
-                    }
-                }, 500);
+                    // Redirect based on user role after token is stored
+                    const roleId = res.data.role_id;
+                    setTimeout(() => {
+                        if (roleId == "1" || roleId == "2") {
+                            window.location.href = "/";
+                        } else {
+                            // Labarant or other roles - go to my-contracts
+                            window.location.href = "/my-contracts";
+                        }
+                    }, 500);
+                } else {
+                    toast.error("Что-то пошло не так");
+                }
             })
-
             .catch(() => {
                 toast.error("Что-то пошло не так");
-            })
-            .finally(() => {
-                setIsLoading(false);
             });
     };
 
