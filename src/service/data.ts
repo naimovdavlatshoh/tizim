@@ -1,7 +1,7 @@
 import axios from "axios";
 import { handleAuthError } from "../utils/authUtils";
 
-
+export const BASE_URL = "https://apitizim.argon.uz/";
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -25,6 +25,14 @@ export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
 
     return response.data;
 };
+export const GetDataSimplePDF = async (url: string) => {
+    return axios.get(BASE_URL + url, {
+        responseType: "blob", // 🟢 PDF uchun shart
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+};
 export const GetDataSimpleBlobExel = async (url: string, config: any = {}) => {
     const token = localStorage.getItem("token"); // yoki sessionStorage
 
@@ -39,8 +47,6 @@ export const GetDataSimpleBlobExel = async (url: string, config: any = {}) => {
 
     return response.data;
 };
-
-export const BASE_URL = "https://apitizim.argon.uz/";
 
 export const Token = localStorage.getItem("token");
 export const Role = localStorage.getItem("role");

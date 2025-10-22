@@ -6,7 +6,7 @@ import { formatCurrency } from "../../../utils/numberFormat";
 import {
     GetDataSimple,
     PostDataTokenJson,
-    GetDataSimpleBlob,
+    BASE_URL,
 } from "../../../service/data";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
@@ -16,6 +16,7 @@ import TextArea from "../../../components/form/input/TextArea";
 import Label from "../../../components/form/Label";
 
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
 interface PendingContract {
     contract_id: string;
@@ -73,7 +74,6 @@ const PendingContractDetail = () => {
     const [comments, setComments] = useState<{ [key: string]: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
-    // const navigate = useNavigate();
     useEffect(() => {
         if (id) {
             fetchContractDetails();
@@ -88,7 +88,6 @@ const PendingContractDetail = () => {
             const contractsData =
                 response?.result || response?.data?.result || [];
 
-            // Find the specific contract by ID
             const foundContract = contractsData.find(
                 (contract: PendingContract) => contract.contract_id == id
             );
@@ -201,29 +200,41 @@ const PendingContractDetail = () => {
     const handleDownloadDocument = async (documentId: string) => {
         setDownloadingDoc(documentId);
         try {
-            const response = await GetDataSimpleBlob(
-                `api/appointment/result/pdf/${documentId}`
+            const response = await axios.get(
+                `${BASE_URL}/api/appointment/result/pdf/${documentId}`,
+                {
+                    responseType: "blob", // 🔥 majburiy
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
+                    },
+                }
             );
-            const blob = new Blob([response.data], {
-                type: "application/pdf",
-            });
+
+            // Faylni yaratamiz
+            const blob = new Blob([response.data], { type: "application/pdf" });
             const url = window.URL.createObjectURL(blob);
+
+            // Faylni avtomatik yuklash
             const link = document.createElement("a");
             link.href = url;
-            link.download = `document_${documentId}.pdf`;
+            link.setAttribute("download", `document_${documentId}.pdf`);
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            toast.success("Документ успешно скачан!");
+            link.remove();
+
+            // URLni tozalaymiz
+            setTimeout(() => window.URL.revokeObjectURL(url), 30000);
+
+            toast.success("PDF документ успешно скачан!");
         } catch (error) {
-            console.error("Error downloading document:", error);
+            console.error(error);
             toast.error("Ошибка при скачивании документа");
         } finally {
             setDownloadingDoc(null);
         }
     };
-
     const getStatusColor = (status: string) => {
         switch (status) {
             case "3":
@@ -990,7 +1001,6 @@ const PendingContractDetail = () => {
                                                                             </div>
                                                                         )}
 
-                                                                    {/* Download Button for Document */}
                                                                     {task.document_id && (
                                                                         <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
                                                                             <Button

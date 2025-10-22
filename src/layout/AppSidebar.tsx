@@ -483,17 +483,19 @@ const AppSidebar: React.FC = () => {
                             </h2>
                             {renderMenuItems(filteredNavItems, "main")}
                         </div>
-                        <a
-                            href="https://cbu.uz/"
-                            target="_blank"
-                            rel="noreferrer"
-                            title="Центральный банк Республики Узбекистан"
-                        >
-                            <img
-                                src="https://cbu.uz/ru/informer/?txtclr=212121&brdclr=FFC700&bgclr=FFE27D&r_choose=USD_EUR_RUB"
-                                alt=""
-                            />
-                        </a>
+                        {localStorage.getItem("role_id") == "1" && (
+                            <a
+                                href="https://cbu.uz/"
+                                target="_blank"
+                                rel="noreferrer"
+                                title="Центральный банк Республики Узбекистан"
+                            >
+                                <img
+                                    src="https://cbu.uz/ru/informer/?txtclr=212121&brdclr=FFC700&bgclr=FFE27D&r_choose=USD_EUR_RUB"
+                                    alt=""
+                                />
+                            </a>
+                        )}
                         {/* <div className="">
                             <h2
                                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
