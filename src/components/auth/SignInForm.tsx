@@ -24,7 +24,7 @@ export default function SignInForm() {
         };
         PostData(`login`, data)
             .then((res: any) => {
-                if (res.data.status == 200) {
+                if (res.data.jwt) {
                     localStorage.setItem("token", res.data.jwt);
                     localStorage.setItem("role_id", res.data.role_id);
                     localStorage.setItem("login", res.data.login);
