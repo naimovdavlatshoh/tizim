@@ -259,17 +259,6 @@ const PendingContractDetail = () => {
         }
     };
 
-    const getTestTypeText = (type: string) => {
-        switch (type) {
-            case "1":
-                return "Основной";
-            case "2":
-                return "Дополнительный";
-            default:
-                return "Неизвестно";
-        }
-    };
-
     const getTaskStatusText = (status: string) => {
         switch (status) {
             case "1":
@@ -565,9 +554,6 @@ const PendingContractDetail = () => {
                                             {test.tests_name}
                                         </span>
                                     </div>
-                                    <Badge color="light">
-                                        {getTestTypeText(test.test_type)}
-                                    </Badge>
                                 </div>
                             ))}
                         </div>

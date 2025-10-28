@@ -98,28 +98,6 @@ const CompletedContractDetail = () => {
         }
     };
 
-    const getClientTypeText = (type: string) => {
-        switch (type) {
-            case "1":
-                return "Физическое лицо";
-            case "2":
-                return "Юридическое лицо";
-            default:
-                return "Неизвестно";
-        }
-    };
-
-    const getTestTypeText = (type: string) => {
-        switch (type) {
-            case "1":
-                return "Основной";
-            case "2":
-                return "Дополнительный";
-            default:
-                return "Неизвестно";
-        }
-    };
-
     const getTaskStatusText = (status: string) => {
         switch (status) {
             case "1":
@@ -186,9 +164,6 @@ const CompletedContractDetail = () => {
                                 color={getStatusColor(contract.contract_status)}
                             >
                                 Завершен
-                            </Badge>
-                            <Badge color="light">
-                                {getClientTypeText(contract.client_type)}
                             </Badge>
                         </div>
                         <div className="text-right">
@@ -399,9 +374,6 @@ const CompletedContractDetail = () => {
                                             {test.tests_name}
                                         </span>
                                     </div>
-                                    <Badge color="light">
-                                        {getTestTypeText(test.test_type)}
-                                    </Badge>
                                 </div>
                             ))}
                         </div>

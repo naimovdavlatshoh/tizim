@@ -140,9 +140,9 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
             );
             const contractsData = response || response?.data || [];
             setContracts(contractsData);
-        } catch (error) {
-            console.error("Error fetching contracts:", error);
-            toast.error("Ошибка при загрузке договоров");
+        } catch (error:any) {
+            setContractListModalOpen(false)
+            toast.error(error?.response?.data?.error);
         } finally {
             setLoadingContracts(false);
         }
@@ -325,7 +325,7 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
             <Modal
                 isOpen={contractListModalOpen}
                 onClose={() => setContractListModalOpen(false)}
-                className="max-w-5xl p-6 lg:p-10"
+                className="max-w-7xl p-6 lg:p-10"
             >
                 <div className="space-y-4">
                     <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
@@ -397,27 +397,27 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                                     index
                                                 }
                                             >
-                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                <TableCell className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">
                                                     {index + 1}
                                                 </TableCell>
-                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                <TableCell className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">
                                                     {contract.contract_number ||
                                                         "-"}
                                                 </TableCell>
-                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                <TableCell className="px-4 py-3 max-w-[200px] text-center text-gray-600 dark:text-gray-400">
                                                     {contract.business_name ||
                                                         "-"}
                                                 </TableCell>
-                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                <TableCell className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">
                                                     {contract.contract_date ||
                                                         "-"}
                                                 </TableCell>
-                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                <TableCell className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">
                                                     {contract.contract_price
                                                         ? `${contract.contract_price.toLocaleString()} сум`
                                                         : "-"}
                                                 </TableCell>
-                                                <TableCell className="px-4 py-3">
+                                                <TableCell className="px-4 py-3 text-center">
                                                     <span
                                                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                                             contract.contract_status_text ===
@@ -433,7 +433,7 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                                             "-"}
                                                     </span>
                                                 </TableCell>
-                                                <TableCell className="px-4 py-3">
+                                                <TableCell className="px-4 py-3 text-center">
                                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
                                                         {contract.contract_payment_status_text ||
                                                             "-"}

@@ -92,28 +92,6 @@ const NewContractDetail = () => {
         }
     };
 
-    const getClientTypeText = (type: string) => {
-        switch (type) {
-            case "1":
-                return "Физическое лицо";
-            case "2":
-                return "Юридическое лицо";
-            default:
-                return "Неизвестно";
-        }
-    };
-
-    const getTestTypeText = (type: string) => {
-        switch (type) {
-            case "1":
-                return "Основной";
-            case "2":
-                return "Дополнительный";
-            default:
-                return "Неизвестно";
-        }
-    };
-
     // formatCurrency function is now imported from utils
 
     const formatDate = (dateString: string | null) => {
@@ -166,9 +144,6 @@ const NewContractDetail = () => {
                                 color={getStatusColor(contract.contract_status)}
                             >
                                 Новый договор
-                            </Badge>
-                            <Badge color="light">
-                                {getClientTypeText(contract.client_type)}
                             </Badge>
                         </div>
                         <div className="text-right">
@@ -380,9 +355,6 @@ const NewContractDetail = () => {
                                             {test.tests_name}
                                         </span>
                                     </div>
-                                    <Badge color="light">
-                                        {getTestTypeText(test.test_type)}
-                                    </Badge>
                                 </div>
                             ))}
                         </div>
