@@ -13,7 +13,6 @@ export default function SignInForm() {
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    // const [isChecked, setIsChecked] = useState(false);
     const handleSubmit = (e: any) => {
         e.preventDefault();
         setIsLoading(true);

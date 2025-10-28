@@ -224,7 +224,7 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
             <Modal
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                className="max-w-4xl"
+                className="max-w-7xl"
             >
                 <div className="relative w-full p-6 bg-white rounded-3xl dark:bg-gray-900">
                     <div className="mb-6">
@@ -312,14 +312,18 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
                                                         )}
                                                     </TableCell>
                                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                        {renderFieldValue(
-                                                            payment.comments
-                                                        )}
+                                                        <div className="max-w-[400px] break-words">
+                                                            {renderFieldValue(
+                                                                payment.comments
+                                                            )}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                        {renderFieldValue(
-                                                            payment.object_address
-                                                        )}
+                                                        <div className="max-w-[400px] break-words">
+                                                            {renderFieldValue(
+                                                                payment.object_address
+                                                            )}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                         {renderFieldValue(

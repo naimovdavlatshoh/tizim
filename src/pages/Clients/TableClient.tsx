@@ -1,4 +1,5 @@
 import { DownloadIcon, PencilIcon } from "../../icons";
+import { FaRegEye } from "react-icons/fa";
 import {
     Table,
     TableBody,
@@ -13,7 +14,12 @@ import toast from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
 import DeleteUserModal from "./DeleteClient";
 import ClientDetailsModal from "./ClientDetailsModal";
-import { DeleteData, GetDataSimpleBlob } from "../../service/data";
+import {
+    DeleteData,
+    GetDataSimpleBlob,
+    GetDataSimple,
+} from "../../service/data";
+import { Modal } from "../../components/ui/modal";
 
 interface Users {
     client_id: number;
@@ -56,6 +62,9 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
     const [downloadingClientId, setDownloadingClientId] = useState<
         number | null
     >(null);
+    const [contractListModalOpen, setContractListModalOpen] = useState(false);
+    const [contracts, setContracts] = useState<any[]>([]);
+    const [loadingContracts, setLoadingContracts] = useState(false);
     console.log(response);
 
     // Helper function to render field value or "Не указано" badge
@@ -119,6 +128,23 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
             toast.error("Ошибка при загрузке документа");
         } finally {
             setDownloadingClientId(null);
+        }
+    };
+
+    const handleViewContracts = async (clientId: number) => {
+        setContractListModalOpen(true);
+        setLoadingContracts(true);
+        try {
+            const response = await GetDataSimple(
+                `api/clients/contractlist/${clientId}`
+            );
+            const contractsData = response || response?.data || [];
+            setContracts(contractsData);
+        } catch (error) {
+            console.error("Error fetching contracts:", error);
+            toast.error("Ошибка при загрузке договоров");
+        } finally {
+            setLoadingContracts(false);
         }
     };
 
@@ -223,6 +249,19 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                     <Button
                                         className="mr-2"
                                         onClick={() =>
+                                            handleViewContracts(order.client_id)
+                                        }
+                                        size="xs"
+                                        variant="primary"
+                                        startIcon={
+                                            <FaRegEye className="size-4" />
+                                        }
+                                    >
+                                        {" "}
+                                    </Button>
+                                    <Button
+                                        className="mr-2"
+                                        onClick={() =>
                                             handleDownloadClientDocument(
                                                 order.client_id
                                             )
@@ -283,6 +322,132 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                 onClose={() => setClientDetailsModalOpen(false)}
                 client={selectedClient}
             />
+            <Modal
+                isOpen={contractListModalOpen}
+                onClose={() => setContractListModalOpen(false)}
+                className="max-w-5xl p-6 lg:p-10"
+            >
+                <div className="space-y-4">
+                    <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
+                        Список договоров
+                    </h2>
+                    {loadingContracts ? (
+                        <div className="flex justify-center py-8">
+                            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : contracts.length === 0 ? (
+                        <p className="text-center text-gray-500 py-8">
+                            Нет договоров
+                        </p>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader className="border-b border-gray-200 dark:border-white/[0.05]">
+                                    <TableRow>
+                                        <TableCell
+                                            isHeader
+                                            className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            #
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            Номер договора
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            Название компании
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            Дата
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            Цена
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            Статус
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            Оплата
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                    {contracts.map(
+                                        (contract: any, index: number) => (
+                                            <TableRow
+                                                key={
+                                                    contract.contract_id ||
+                                                    index
+                                                }
+                                            >
+                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                    {contract.contract_number ||
+                                                        "-"}
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                    {contract.business_name ||
+                                                        "-"}
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                    {contract.contract_date ||
+                                                        "-"}
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                    {contract.contract_price
+                                                        ? `${contract.contract_price.toLocaleString()} сум`
+                                                        : "-"}
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3">
+                                                    <span
+                                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                            contract.contract_status_text ===
+                                                            "Активный"
+                                                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                                : contract.contract_status_text ===
+                                                                  "Завершенный"
+                                                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                                                : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                                                        }`}
+                                                    >
+                                                        {contract.contract_status_text ||
+                                                            "-"}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3">
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                                        {contract.contract_payment_status_text ||
+                                                            "-"}
+                                                    </span>
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
+                </div>
+            </Modal>
         </div>
     );
 }

@@ -234,7 +234,7 @@ export default function AddPaymentModal({
                 Добавить платеж
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-visible">
-                <div className="overflow-visible">
+                <div className="overflow-visible col-span-2">
                     <Label htmlFor="contract_id">Договор *</Label>
                     <Select
                         options={contractOptions}

@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
 import DeleteUserModal from "./DeleteUser";
 import { DeleteData } from "../../service/data";
+import { Modal } from "../../components/ui/modal";
 
 interface Users {
     user_id: number;
@@ -23,6 +24,7 @@ interface Users {
     role_id: number;
     role_name: string;
     created_at: string;
+    photo_url?: string | null;
 }
 interface TableUserProps {
     users: Users[];
@@ -36,6 +38,9 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
     const [selectedUser, setSelectedUser] = useState<Users | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+    const [previewImageUrl, setPreviewImageUrl] = useState<string>("");
+    const [previewUserName, setPreviewUserName] = useState<string>("");
     console.log(response);
 
     const onDeleteUser = async () => {
@@ -101,9 +106,26 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                 </TableCell>
                                 <TableCell className="px-5 py-4 sm:px-6 text-start">
                                     <div className="flex items-center gap-3">
-                                        <div className=" overflow-hidden rounded-full bg-gray-100 p-3 text-blue-500 text-xl">
-                                            <UserIcon />
-                                        </div>
+                                        {order.photo_url ? (
+                                            <img
+                                                src={order.photo_url}
+                                                alt={`${order.firstname} ${order.lastname}`}
+                                                onClick={() => {
+                                                    setPreviewImageUrl(
+                                                        order.photo_url!
+                                                    );
+                                                    setPreviewUserName(
+                                                        `${order.firstname} ${order.lastname}`
+                                                    );
+                                                    setImagePreviewOpen(true);
+                                                }}
+                                                className="size-12 rounded-full object-cover border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-80 transition-opacity"
+                                            />
+                                        ) : (
+                                            <div className="overflow-hidden rounded-full bg-gray-100 p-3 text-blue-500 text-xl">
+                                                <UserIcon />
+                                            </div>
+                                        )}
                                         <div>
                                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                                 {order.firstname}
@@ -175,6 +197,22 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                 }
                 isDeleting={isDeleting}
             />
+            <Modal
+                isOpen={imagePreviewOpen}
+                onClose={() => setImagePreviewOpen(false)}
+                className="max-w-4xl p-6"
+            >
+                <div className="relative">
+                    <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
+                        {previewUserName}
+                    </h2>
+                    <img
+                        src={previewImageUrl}
+                        alt={previewUserName}
+                        className="w-full h-auto rounded-lg"
+                    />
+                </div>
+            </Modal>
         </div>
     );
 }

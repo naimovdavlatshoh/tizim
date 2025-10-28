@@ -4,7 +4,7 @@ import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
-import { PostDataTokenJson } from "../../service/data";
+import { PostDataTokenJson, PostSimpleFormData } from "../../service/data";
 import { toast } from "react-hot-toast";
 
 interface EditUserModalProps {
@@ -30,6 +30,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     const [password, setPassword] = useState("");
     const [roleId, setRoleId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
     const options = [
         { value: 1, label: "Директор" },
@@ -72,7 +73,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             role_id: roleId,
         };
 
-        // Agar password kiritilgan bo'lsa, uni qo'shamiz
         if (password.trim()) {
             payload.password = password;
         }
@@ -94,6 +94,34 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             .finally(() => {
                 setIsLoading(false);
             });
+    };
+
+    const handleAvatarChange = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file || !user?.user_id) return;
+        const formData = new FormData();
+        formData.append("photo", file);
+        try {
+            setIsUploadingAvatar(true);
+            await PostSimpleFormData(
+                `api/user/uploadphoto/${user.user_id}`,
+                formData
+            );
+            toast.success("Аватар успешно загружен");
+            changeStatus();
+        } catch (error: any) {
+            onClose();
+            const errorMessage =
+                error?.response?.data?.error || "Не удалось загрузить аватар";
+            setResponse(errorMessage);
+            toast.error(errorMessage);
+        } finally {
+            setIsUploadingAvatar(false);
+            // reset input value to allow re-uploading the same file if needed
+            e.currentTarget.value = "";
+        }
     };
 
     // Joriy rolni topish
@@ -120,6 +148,23 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                         value={firstname}
                         onChange={(e) => setFirstname(e.target.value)}
                     />
+                </div>
+                <div>
+                    <Label htmlFor="avatar">Загрузить аватар</Label>
+                    <input
+                        id="avatar"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-200"
+                        disabled={isUploadingAvatar}
+                    />
+                    {isUploadingAvatar && (
+                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                            Загрузка аватара...
+                        </div>
+                    )}
                 </div>
                 <div>
                     <Label htmlFor="lastname">Введите фамилию</Label>
