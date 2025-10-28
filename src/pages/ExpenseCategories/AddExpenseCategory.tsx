@@ -96,7 +96,9 @@ export default function AddExpenseCategoryModal({
                         </Button>
                         <Button
                             type="submit"
-                            disabled={loading}
+                            disabled={
+                                loading || formData.category_name.length < 3
+                            }
                             className="px-6 py-2.5"
                         >
                             {loading ? "Создание..." : "Создать"}

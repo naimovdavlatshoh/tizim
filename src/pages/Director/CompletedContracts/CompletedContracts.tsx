@@ -111,16 +111,16 @@ const CompletedContracts = () => {
     //     }
     // };
 
-    const getClientTypeText = (type: string) => {
-        switch (type) {
-            case "1":
-                return "Физическое лицо";
-            case "2":
-                return "Юридическое лицо";
-            default:
-                return "Неизвестно";
-        }
-    };
+    // const getClientTypeText = (type: string) => {
+    //     switch (type) {
+    //         case "1":
+    //             return "Физическое лицо";
+    //         case "2":
+    //             return "Юридическое лицо";
+    //         default:
+    //             return "Неизвестно";
+    //     }
+    // };
 
     // const getTestTypeText = (type: string) => {
     //     switch (type) {
@@ -190,7 +190,7 @@ const CompletedContracts = () => {
                                                 Клиент
                                             </span>
                                         </TableCell>
-                                        <TableCell className="py-3 text-left">
+                                        <TableCell className="py-3 px-3 text-left">
                                             <span className="text-sm font-medium text-gray-900 dark:text-white">
                                                 Адрес объекта
                                             </span>
@@ -238,7 +238,7 @@ const CompletedContracts = () => {
                                                     {index + 1}
                                                 </TableCell>
                                                 <TableCell
-                                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    className="pl-5 py-3  text-gray-500 text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
                                                         handleRowClick(contract)
                                                     }
@@ -246,7 +246,7 @@ const CompletedContracts = () => {
                                                     {contract.contract_number}
                                                 </TableCell>
                                                 <TableCell
-                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    className="py-3 text-gray-500 max-w-[140px] text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
                                                         handleRowClick(contract)
                                                     }
@@ -257,15 +257,11 @@ const CompletedContracts = () => {
                                                                 contract.client_name
                                                             }
                                                         </p>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                            {getClientTypeText(
-                                                                contract.client_type
-                                                            )}
-                                                        </p>
+
                                                     </div>
                                                 </TableCell>
                                                 <TableCell
-                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    className="py-3 px-4 text-gray-500 max-w-[230px] text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
                                                         handleRowClick(contract)
                                                     }

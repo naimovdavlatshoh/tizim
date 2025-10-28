@@ -187,12 +187,12 @@ const ContractDetailPage: React.FC = () => {
                             >
                                 {contract.contract_payment_status_text}
                             </span>
-                            <Button
-                                className="bg-red-500 hover:bg-red-600"
+                            <button
+                                className="bg-gray-500 hover:bg-gray-600 border-none text-white py-2 rounded-md px-5"
                                 onClick={() => navigate(-1)}
                             >
                                 Назад
-                            </Button>
+                            </button>
                         </div>
                     </div>
                 </div>
