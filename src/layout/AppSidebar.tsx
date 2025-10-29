@@ -119,7 +119,7 @@ const navItems: NavItem[] = [
         name: "Face ID",
         icon: <TbFaceId />,
         path: "/face-id",
-        roles: [1], // Admin va Director
+        roles: [1,2], // Admin va Director
     },
     // {
     //     icon: <CalenderIcon />,
