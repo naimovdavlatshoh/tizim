@@ -37,8 +37,10 @@ export default function SignInForm() {
                     // Redirect based on user role after token is stored
                     const roleId = res.data.role_id;
                     setTimeout(() => {
-                        if (roleId == "1" || roleId == "2") {
+                        if (roleId == "1") {
                             window.location.href = "/";
+                        } else if (roleId == "2") {
+                            window.location.href = "/clients";
                         } else {
                             // Labarant or other roles - go to my-contracts
                             window.location.href = "/my-contracts";
@@ -46,9 +48,11 @@ export default function SignInForm() {
                     }, 500);
                 } else {
                     toast.error("Что-то пошло не так");
+                    setIsLoading(false);
                 }
             })
             .catch(() => {
+                setIsLoading(false);
                 toast.error("Что-то пошло не так");
             });
     };
