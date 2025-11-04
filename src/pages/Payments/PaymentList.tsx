@@ -172,8 +172,33 @@ export default function PaymentList() {
             setEndDate("");
         } catch (error: any) {
             setExcelModalOpen(false);
-            console.error("Error downloading excel:", error);
-            toast.error(error?.response?.data?.error);
+            console.log("Error downloading excel:", error);
+
+            let message = "Произошла ошибка";
+
+            if (error.response) {
+                const data = error.response.data;
+
+                if (data instanceof ArrayBuffer) {
+                    try {
+                        const decoder = new TextDecoder("utf-8");
+                        const text = decoder.decode(data);
+                        const parsed = JSON.parse(text);
+                        message = parsed.error || text;
+                    } catch {
+                        const decoder = new TextDecoder("utf-8");
+                        message = decoder.decode(data);
+                    }
+                } else if (typeof data === "object" && data.error) {
+                    message = data.error;
+                } else {
+                    message = error.message;
+                }
+            } else {
+                message = error.message;
+            }
+
+            toast.error(message);
         } finally {
             setDownloading(false);
         }

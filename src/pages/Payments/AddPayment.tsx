@@ -224,6 +224,8 @@ export default function AddPaymentModal({
             }
         } catch (error: any) {
             handleClose();
+            console.log(error);
+
             toast.error(
                 error?.response?.data?.error
                     ? error?.response?.data?.error
