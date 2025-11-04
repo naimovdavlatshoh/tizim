@@ -182,7 +182,7 @@ const CompletedContracts = () => {
                                         </TableCell>
                                         <TableCell className="pl-5 py-3 text-left">
                                             <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                                Номер договора
+                                                Н/договора
                                             </span>
                                         </TableCell>
                                         <TableCell className="py-3 text-left">

@@ -139,10 +139,35 @@ export default function AddPaymentModal({
         }
     };
 
-    const contractOptions = filteredContracts.map((contract) => ({
-        value: contract.contract_id,
-        label: `${contract.contract_number} - ${contract.client_name}`,
-    }));
+    // Create contract options, ensuring selected contract is included
+    const contractOptions = (() => {
+        const options = filteredContracts.map((contract) => ({
+            value: contract.contract_id,
+            label: `${contract.contract_number} - ${contract.client_name}`,
+        }));
+
+        // If a contract is selected but not in filteredContracts, add it
+        if (formData.contract_id) {
+            const selectedContractId = parseInt(formData.contract_id);
+            const isSelectedInOptions = options.some(
+                (opt) => opt.value === selectedContractId
+            );
+
+            if (!isSelectedInOptions) {
+                const selectedContract = contracts.find(
+                    (contract) => contract.contract_id === selectedContractId
+                );
+                if (selectedContract) {
+                    options.unshift({
+                        value: selectedContract.contract_id,
+                        label: `${selectedContract.contract_number} - ${selectedContract.client_name}`,
+                    });
+                }
+            }
+        }
+
+        return options;
+    })();
 
     const fetchContractTotals = async (contractId: number) => {
         try {
@@ -340,9 +365,23 @@ export default function AddPaymentModal({
                 <button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={loading}
+                    disabled={
+                        loading ||
+                        (selectedContractPrice !== null &&
+                            Math.max(
+                                selectedContractPrice -
+                                    selectedContractPaidTotal,
+                                0
+                            ) === 0)
+                    }
                     className={`px-4 py-2 rounded-md text-white transition-colors ${
-                        loading
+                        loading ||
+                        (selectedContractPrice !== null &&
+                            Math.max(
+                                selectedContractPrice -
+                                    selectedContractPaidTotal,
+                                0
+                            ) === 0)
                             ? "bg-blue-400 cursor-not-allowed"
                             : "bg-blue-600 hover:bg-blue-700"
                     }`}

@@ -3,9 +3,12 @@ import { useParams } from "react-router";
 import ComponentCard from "../../../components/common/ComponentCard";
 import Badge from "../../../components/ui/badge/Badge";
 import { formatCurrency } from "../../../utils/numberFormat";
-import { GetDataSimple } from "../../../service/data";
+import { BASE_URL, GetDataSimple } from "../../../service/data";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
+import axios from "axios";
+import { DownloadIcon } from "../../../icons";
+import { toast } from "react-hot-toast";
 
 interface CompletedContract {
     contract_id: string;
@@ -57,12 +60,22 @@ const CompletedContractDetail = () => {
     const { id } = useParams();
     const [contract, setContract] = useState<CompletedContract | null>(null);
     const [loading, setLoading] = useState(true);
+    const [contractDocumentId, seContractDocumentId] = useState<number | null>(
+        null
+    );
 
     useEffect(() => {
         if (id) {
             fetchContractDetails();
+            GetDataSimple(`api/appointment/info?contract_id=${id}`).then(
+                (response: any) => {
+                    seContractDocumentId(response?.document_id);
+                }
+            );
         }
     }, [id]);
+
+    console.log(contractDocumentId);
 
     const fetchContractDetails = async () => {
         try {
@@ -89,14 +102,14 @@ const CompletedContractDetail = () => {
         }
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "6":
-                return "success";
-            default:
-                return "light";
-        }
-    };
+    // const getStatusColor = (status: string) => {
+    //     switch (status) {
+    //         case "6":
+    //             return "success";
+    //         default:
+    //             return "light";
+    //     }
+    // };
 
     const getTaskStatusText = (status: string) => {
         switch (status) {
@@ -145,6 +158,42 @@ const CompletedContractDetail = () => {
         );
     }
 
+    const handleDownloadDocument = async (documentId: string) => {
+        try {
+            const response = await axios.get(
+                `${BASE_URL}/api/appointment/result/pdf/${documentId}`,
+                {
+                    responseType: "blob", // 🔥 majburiy
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
+                    },
+                }
+            );
+
+            // Faylni yaratamiz
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+
+            // Faylni avtomatik yuklash
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `document_${documentId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            // URLni tozalaymiz
+            setTimeout(() => window.URL.revokeObjectURL(url), 30000);
+
+            toast.success("PDF документ успешно скачан!");
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.response.data.error);
+        }
+    };
+
     return (
         <>
             <PageMeta
@@ -152,19 +201,82 @@ const CompletedContractDetail = () => {
                 description="Детали завершенного договора"
             />
             <PageBreadcrumb
-                pageTitle={`Договор №${contract.contract_number}`}
+                pageTitle={`Договор №${contract.contract_number} `}
             />
 
             <div className="space-y-6">
                 {/* Contract Header */}
-                <ComponentCard title={`Договор №${contract.contract_number}`}>
+                <ComponentCard
+                    title={`Договор №${contract.contract_number} - Завершен`}
+                >
                     <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-4">
-                            <Badge
-                                color={getStatusColor(contract.contract_status)}
+                        <div className="flex items-center justify-start">
+                            <button
+                                onClick={async () => {
+                                    // if (
+                                    //     currentContract.contract_type === "1" ||
+                                    //     currentContract.contract_type === "2"
+                                    // ) {
+                                    //     // For contract_type 3, use template
+                                    //     generateChequeFromData({
+                                    //         ...currentContract,
+                                    //         qrCode: qrCode,
+                                    //     });
+                                    // } else {
+                                    // For other contract types, download from API
+                                    try {
+                                        const response = await axios.post(
+                                            `${BASE_URL}api/contracts/wordcreate/${contract.contract_id}`,
+                                            {},
+                                            {
+                                                responseType: "blob",
+
+                                                headers: {
+                                                    Authorization: `Bearer ${localStorage.getItem(
+                                                        "token"
+                                                    )}`, // 🔑 token qo‘shildi
+                                                },
+                                            } // DOCX ni to‘g‘ri olish uchun
+                                        );
+
+                                        const blob = new Blob([response.data], {
+                                            type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                        });
+
+                                        const url =
+                                            window.URL.createObjectURL(blob);
+                                        const link =
+                                            document.createElement("a");
+                                        link.href = url;
+                                        link.download = `contract_${contract.contract_number}.docx`;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                        window.URL.revokeObjectURL(url);
+                                    } catch (err) {
+                                        console.error("Download error:", err);
+                                    }
+                                    // }
+                                }}
+                                className="bg-blue-600 mr-5 text-white hover:bg-blue-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2"
                             >
-                                Завершен
-                            </Badge>
+                                <DownloadIcon />
+                                Скачать документ
+                            </button>
+                            {contract.final_document?.document_id && (
+                                <button
+                                    onClick={() =>
+                                        handleDownloadDocument(
+                                            contract.final_document
+                                                ?.document_id || ""
+                                        )
+                                    }
+                                    className="bg-green-600 text-white hover:bg-green-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2"
+                                >
+                                    <DownloadIcon />
+                                    Скачать результат pdf
+                                </button>
+                            )}
                         </div>
                         <div className="text-right">
                             <p className="text-sm text-gray-500">

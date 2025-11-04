@@ -70,11 +70,16 @@ const ContractDetailPage: React.FC = () => {
     const [contract, setContract] = useState<ContractDetail | null>(null);
     const [loading, setLoading] = useState(true);
 
+
+
     useEffect(() => {
         if (id) {
             fetchContractDetails();
         }
     }, [id]);
+
+    console.log(contract?.contract_type);
+
 
     const fetchContractDetails = async () => {
         setLoading(true);
@@ -231,14 +236,16 @@ const ContractDetailPage: React.FC = () => {
                                         {contract.percent}%
                                     </p>
                                 </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Количество месяцев
-                                    </label>
-                                    <p className="text-gray-900 dark:text-white">
-                                        {contract.contract_months} месяцев
-                                    </p>
-                                </div>
+                                {contract.contract_type === 5 && (
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                            Количество месяцев
+                                        </label>
+                                        <p className="text-gray-900 dark:text-white">
+                                            {contract.contract_months} месяцев
+                                        </p>
+                                    </div>
+                                )}
                                 <div>
                                     <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                         Дата договора
@@ -546,28 +553,32 @@ const ContractDetailPage: React.FC = () => {
                                         сум
                                     </span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600 dark:text-gray-400">
-                                        Ежемесячный платеж:
-                                    </span>
-                                    <span className="font-medium text-gray-900 dark:text-white">
-                                        {contract.monthlypayments.length > 0
-                                            ? formatAmount(
-                                                  contract.monthlypayments[0]
-                                                      .monthly_fee
-                                              )
-                                            : "0"}{" "}
-                                        сум
-                                    </span>
-                                </div>
-                                <div className="flex justify-between">
+                                {contract.contract_type === 5 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                            Ежемесячный платеж:
+                                        </span>
+                                        <span className="font-medium text-gray-900 dark:text-white">
+                                            {contract.monthlypayments.length > 0
+                                                ? formatAmount(
+                                                      contract
+                                                          .monthlypayments[0]
+                                                          .monthly_fee
+                                                  )
+                                                : "0"}{" "}
+                                            сум
+                                        </span>
+                                    </div>
+                                )}
+
+                                {contract.contract_type === 5 && <div className="flex justify-between">
                                     <span className="text-gray-600 dark:text-gray-400">
                                         Количество месяцев:
                                     </span>
                                     <span className="font-medium text-gray-900 dark:text-white">
                                         {contract.contract_months}
                                     </span>
-                                </div>
+                                </div>}
                             </div>
                         </div>
                     </div>

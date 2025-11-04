@@ -137,6 +137,12 @@ const PendingContracts = () => {
                                         >
                                             #
                                         </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Н/договора
+                                        </TableCell>
 
                                         <TableCell
                                             isHeader
@@ -207,6 +213,14 @@ const PendingContracts = () => {
                                                     }
                                                 >
                                                     {index + 1}
+                                                </TableCell>
+                                                <TableCell
+                                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                    onClick={() =>
+                                                        handleRowClick(contract)
+                                                    }
+                                                >
+                                                    {contract.contract_number}
                                                 </TableCell>
 
                                                 <TableCell

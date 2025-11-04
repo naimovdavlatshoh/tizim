@@ -116,6 +116,12 @@ export default function TableContract({
                             </TableCell>
                             <TableCell
                                 isHeader
+                                className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Н/договора
+                            </TableCell>
+                            <TableCell
+                                isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
                                 Клиент
@@ -178,9 +184,15 @@ export default function TableContract({
                                 >
                                     {index + 1}
                                 </TableCell>
+                                <TableCell
+                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                    onClick={() => handleRowClick(contract)}
+                                >
+                                    {contract.contract_number}
+                                </TableCell>
 
                                 <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                    className="py-3 text-gray-500 w-[150px] pr-5 text-theme-sm dark:text-gray-400"
                                     onClick={() => handleRowClick(contract)}
                                 >
                                     {contract.client_name}
@@ -219,8 +231,11 @@ export default function TableContract({
                                         className={`px-2 py-1 rounded-full text-xs ${
                                             contract.contract_payment_status ===
                                             1
-                                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                                : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                                                ? "bg-blue-100 text-blue-800 "
+                                                : contract.contract_payment_status ===
+                                                  2
+                                                ? "bg-green-100 text-green-800 "
+                                                : "bg-gray-100 text-gray-800 "
                                         }`}
                                     >
                                         {contract.contract_payment_status_text}
@@ -233,7 +248,7 @@ export default function TableContract({
                                     {contract.phone_number}
                                 </TableCell>
                                 <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 w-[200px] pr-2 text-start"
                                     onClick={() => handleRowClick(contract)}
                                 >
                                     {contract.business_name}

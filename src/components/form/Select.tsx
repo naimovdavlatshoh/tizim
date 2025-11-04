@@ -85,9 +85,14 @@ const Select: React.FC<SelectProps> = ({
     };
 
     const toggleDropdown = () => {
-        setIsOpen(!isOpen);
-        if (!isOpen) {
+        const willOpen = !isOpen;
+        setIsOpen(willOpen);
+        if (willOpen) {
             setSearchTerm("");
+            // Reset search when dropdown opens - show all options
+            if (searchable && onSearch) {
+                onSearch("");
+            }
         }
     };
 

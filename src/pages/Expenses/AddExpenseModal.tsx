@@ -329,7 +329,7 @@ export default function AddExpenseModal({
                                     onChange={(e) =>
                                         handleAmountChange(e.target.value)
                                     }
-                                    placeholder="0.00"
+                                    placeholder="0"
                                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors"
                                     required
                                 />

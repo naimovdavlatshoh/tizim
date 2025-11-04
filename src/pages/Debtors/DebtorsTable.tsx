@@ -64,11 +64,13 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
     const formatCurrency = (amount: number | string) => {
         const numAmount =
             typeof amount === "string" ? parseFloat(amount) : amount;
-        return new Intl.NumberFormat("uz-UZ", {
-            style: "currency",
-            currency: "UZS",
+        // Format number with thousand separators
+        const formatted = new Intl.NumberFormat("uz-UZ", {
             minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(numAmount);
+        // Return formatted number with UZS at the end
+        return `${formatted} UZS`;
     };
 
     // Helper function to format date
@@ -228,12 +230,12 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
             >
                 <div className="relative w-full p-6 bg-white rounded-3xl dark:bg-gray-900">
                     <div className="mb-6">
-                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                        <h3 className="text-xl mb-3 font-semibold text-gray-800 dark:text-white/90">
                             Платежи по договору №
                             {selectedDebtor?.contract_number}
                         </h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Клиент: {selectedDebtor?.client_name}
+                            Клиент: <span className="text-black font-bold">{selectedDebtor?.client_name}</span>
                         </p>
                     </div>
 
