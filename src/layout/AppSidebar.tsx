@@ -14,7 +14,7 @@ import {
     ChevronDownIcon,
     GridIcon,
     GroupIcon,
-    HorizontaLDots,
+    // HorizontaLDots,
     // ListIcon,
     // PageIcon,
     // PieChartIcon,
