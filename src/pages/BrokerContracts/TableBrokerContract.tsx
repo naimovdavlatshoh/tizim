@@ -320,11 +320,15 @@ export default function TableBrokerContract({
                                                 />
                                             </svg>
                                         </Button>
+
                                         <Button
                                             onClick={() =>
                                                 openPdfUploadModal(contract)
                                             }
                                             size="xs"
+                                            disabled={
+                                                contract?.contract_status !== 1
+                                            }
                                             variant="primary"
                                         >
                                             <svg
@@ -341,6 +345,7 @@ export default function TableBrokerContract({
                                                 />
                                             </svg>
                                         </Button>
+
                                         <Button
                                             onClick={() =>
                                                 openDeleteModal(contract)
