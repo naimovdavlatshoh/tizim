@@ -132,7 +132,7 @@ const navItems: NavItem[] = [
         name: "Контракты брокера",
         icon: <DocsIcon />,
         path: "/broker-contracts",
-        roles: [5], // Faqat Admin
+        roles: [1,5], // Faqat Admin
     },
     // {
     //     icon: <CalenderIcon />,
