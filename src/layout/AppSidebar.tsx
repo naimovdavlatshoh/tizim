@@ -123,17 +123,18 @@ const navItems: NavItem[] = [
         roles: [1, 2], // Admin va Director
     },
     {
-        name: "Письма",
-        icon: <EnvelopeIcon />,
-        path: "/letters",
-        roles: [1,5], // Faqat Admin
-    },
-    {
         name: "Контракты брокера",
         icon: <DocsIcon />,
         path: "/broker-contracts",
-        roles: [1,5], // Faqat Admin
+        roles: [1, 5], // Faqat Admin
     },
+    {
+        name: "Письма",
+        icon: <EnvelopeIcon />,
+        path: "/letters",
+        roles: [1, 5], // Faqat Admin
+    },
+
     // {
     //     icon: <CalenderIcon />,
     //     name: "Calendar",
@@ -476,9 +477,7 @@ const AppSidebar: React.FC = () => {
                                         ? "lg:justify-center"
                                         : "justify-start"
                                 }`}
-                            >
-
-                            </h2>
+                            ></h2>
                             {renderMenuItems(filteredNavItems, "main")}
                         </div>
                         {localStorage.getItem("role_id") == "1" && (
