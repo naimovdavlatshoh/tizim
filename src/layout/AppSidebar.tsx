@@ -132,7 +132,7 @@ const navItems: NavItem[] = [
         name: "Письма",
         icon: <EnvelopeIcon />,
         path: "/letters",
-        roles: [1, 5], // Faqat Admin
+        roles: [1], // Faqat Admin
     },
 
     // {
