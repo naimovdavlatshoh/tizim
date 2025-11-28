@@ -6,7 +6,7 @@ import {
     GetDataSimple,
     PostSimpleFormData,
     PostSimple,
-    GetDataSimpleBlob,
+    GetDataSimplePDF,
     DeleteData,
 } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
@@ -53,7 +53,7 @@ const Reports = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedContract, setSelectedContract] = useState<string>("");
     const [reportText, setReportText] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -72,7 +72,8 @@ const Reports = () => {
 
     const userRole = parseInt(localStorage.getItem("role_id") || "0");
     const isDirector = userRole === 1;
-    const isLabarant = userRole === 4 || userRole === 2 || userRole === 3 || userRole === 5;
+    const isLabarant =
+        userRole === 4 || userRole === 2 || userRole === 3 || userRole === 5;
 
     useEffect(() => {
         fetchReports();
@@ -178,10 +179,10 @@ const Reports = () => {
             const formData = new FormData();
             formData.append("data", JSON.stringify(reportData));
 
-            // Add files separately
-            selectedFiles.forEach((file) => {
-                formData.append("files", file);
-            });
+            // Add file if selected
+            if (selectedFile) {
+                formData.append("files", selectedFile);
+            }
 
             await PostSimpleFormData("api/reports/create", formData);
 
@@ -189,7 +190,7 @@ const Reports = () => {
             setCreateModalOpen(false);
             setReportText("");
             setSelectedContract("");
-            setSelectedFiles([]);
+            setSelectedFile(null);
             fetchReports();
         } catch (error: any) {
             setCreateModalOpen(false);
@@ -201,18 +202,18 @@ const Reports = () => {
 
     const handleDownloadReport = async (reportId: string) => {
         try {
-            const response = await GetDataSimpleBlob(
+            const response = await GetDataSimplePDF(
                 `api/reports/file/${reportId}`
             );
 
             // Create blob and download
-            const blob = new Blob([response], {
-                type: "application/octet-stream",
+            const blob = new Blob([response.data], {
+                type: "application/pdf",
             });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `report-${reportId}.docx`;
+            link.download = `report-${reportId}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -244,8 +245,8 @@ const Reports = () => {
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(event.target.files || []);
-        setSelectedFiles(files);
+        const file = event.target.files?.[0] || null;
+        setSelectedFile(file);
     };
 
     const handleContractSearch = async (searchTerm: string) => {
@@ -596,16 +597,15 @@ const Reports = () => {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Файлы (необязательно)
+                                Файл (необязательно)
                             </label>
                             <FileInput
                                 onChange={handleFileChange}
                                 className="w-full"
-                                multiple
                             />
-                            {selectedFiles.length > 0 && (
+                            {selectedFile && (
                                 <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                    Выбрано файлов: {selectedFiles.length}
+                                    Выбран файл: {selectedFile.name}
                                 </div>
                             )}
                         </div>
