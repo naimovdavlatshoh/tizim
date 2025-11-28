@@ -2,15 +2,15 @@ import axios from "axios";
 import { handleAuthError } from "../utils/authUtils";
 
 export const BASE_URL = "https://apitizim.argon.uz/";
-axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (handleAuthError(error)) {
-            return Promise.resolve({ data: { handled: true } });
-        }
-        return Promise.reject(error);
-    }
-);
+// axios.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//         if (handleAuthError(error)) {
+//             return Promise.resolve({ data: { handled: true } });
+//         }
+//         return Promise.reject(error);
+//     }
+// );
 export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
     const token = localStorage.getItem("token"); // yoki sessionStorage
 

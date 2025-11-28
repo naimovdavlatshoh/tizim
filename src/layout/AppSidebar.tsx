@@ -462,25 +462,10 @@ const AppSidebar: React.FC = () => {
             onMouseEnter={() => !isExpanded && setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div
-                className={`py-8 flex ${
-                    !isExpanded && !isHovered
-                        ? "lg:justify-center"
-                        : "justify-start"
-                }`}
-            >
-                <Link to="/">
-                    {isExpanded || isHovered || isMobileOpen ? (
-                        <span className="text-2xl font-bold text-brand-500 dark:text-brand-400">
-                            TIZIM
-                        </span>
-                    ) : (
-                        <span className="text-xl font-bold text-brand-500 dark:text-brand-400">
-                            T
-                        </span>
-                    )}
-                </Link>
-            </div>
+            <Link to="/" className="px-0 pt-5">
+                <img src="logo.png" alt="logo" className="w-1/3" />
+            </Link>
+
             <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
                 <nav className="mb-6">
                     <div className="flex flex-col gap-4">
@@ -492,11 +477,7 @@ const AppSidebar: React.FC = () => {
                                         : "justify-start"
                                 }`}
                             >
-                                {isExpanded || isHovered || isMobileOpen ? (
-                                    "Menu"
-                                ) : (
-                                    <HorizontaLDots className="size-6" />
-                                )}
+
                             </h2>
                             {renderMenuItems(filteredNavItems, "main")}
                         </div>

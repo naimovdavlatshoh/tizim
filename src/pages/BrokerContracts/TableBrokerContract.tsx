@@ -191,6 +191,7 @@ export default function TableBrokerContract({
             }
         } catch (error: any) {
             console.error("Error uploading PDF:", error);
+            closePdfUploadModal();
             toast.error(
                 error?.response?.data?.error ||
                     "Что-то пошло не так при загрузке PDF файла"
