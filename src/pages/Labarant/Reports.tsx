@@ -72,7 +72,7 @@ const Reports = () => {
 
     const userRole = parseInt(localStorage.getItem("role_id") || "0");
     const isDirector = userRole === 1;
-    const isLabarant = userRole === 4 || userRole === 2 || userRole === 3;
+    const isLabarant = userRole === 4 || userRole === 2 || userRole === 3 || userRole === 5;
 
     useEffect(() => {
         fetchReports();

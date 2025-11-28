@@ -96,7 +96,7 @@ const navItems: NavItem[] = [
         name: "Отчеты",
         icon: <TbMessageReport />,
         path: "/reports",
-        roles: [1, 2, 3, 4], // Director va Labarant
+        roles: [1, 2, 3, 4, 5], // Director va Labarant
     },
     {
         name: "Платежи",
