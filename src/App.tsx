@@ -30,6 +30,8 @@ import PaymentList from "./pages/Payments/PaymentList";
 import ExpenseCategoryList from "./pages/ExpenseCategories/ExpenseCategoryList";
 import ExpenseList from "./pages/Expenses";
 import FaceIdList from "./pages/FaceId";
+import LetterList from "./pages/Letters";
+import BrokerContractList from "./pages/BrokerContracts";
 import { SearchProvider } from "./context/SearchContext";
 import NewContracts from "./pages/Director/NewContracts/NewContracts";
 import NewContractDetail from "./pages/Director/NewContracts/Detail";
@@ -155,6 +157,11 @@ export default function App() {
                             />
                             <Route path="/expenses" element={<ExpenseList />} />
                             <Route path="/face-id" element={<FaceIdList />} />
+                            <Route path="/letters" element={<LetterList />} />
+                            <Route
+                                path="/broker-contracts"
+                                element={<BrokerContractList />}
+                            />
 
                             {/* Ui Elements */}
                             <Route path="/alerts" element={<Alerts />} />

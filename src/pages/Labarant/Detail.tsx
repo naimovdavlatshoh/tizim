@@ -322,7 +322,7 @@ const MyContractDetail = () => {
                                                     </div>
                                                 </div>
                                             )}
-                                            {appointmentInfo.contract_price && (
+                                            {/* {appointmentInfo.contract_price && (
                                                 <div>
                                                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                         Стоимость договора
@@ -335,7 +335,7 @@ const MyContractDetail = () => {
                                                         )}
                                                     </div>
                                                 </div>
-                                            )}
+                                            )} */}
                                             {appointmentInfo.worker_price && (
                                                 <div>
                                                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">

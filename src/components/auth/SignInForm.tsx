@@ -45,6 +45,8 @@ export default function SignInForm() {
                             window.location.href = "/";
                         } else if (roleId == "2") {
                             window.location.href = "/clients";
+                        } else if (roleId == "5") {
+                            window.location.href = "/broker-contracts";
                         } else {
                             // Labarant or other roles - go to my-contracts
                             window.location.href = "/my-contracts";

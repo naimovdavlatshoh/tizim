@@ -67,15 +67,12 @@ const Reports = () => {
     // User search states
     const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
     const [userSearching, setUserSearching] = useState(false);
-
-    // Filter states
     const [filterContractId, setFilterContractId] = useState<string>("");
     const [filterUserId, setFilterUserId] = useState<string>("");
 
-    // Get user role
     const userRole = parseInt(localStorage.getItem("role_id") || "0");
     const isDirector = userRole === 1;
-    const isLabarant = userRole === 4;
+    const isLabarant = userRole === 4 || userRole === 2 || userRole === 3;
 
     useEffect(() => {
         fetchReports();

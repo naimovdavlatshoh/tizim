@@ -28,7 +28,7 @@ interface IndividualClientData {
 interface LegalEntityClientData {
     client_type: 1;
     client_name: string;
-    // business_name: string;
+    business_name: string;
     phone_number: string;
     bank_account: string;
     bank_address: string;
@@ -70,7 +70,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
     // Legal entity client form data
     const [legalData, setLegalData] = useState({
         client_name: "",
-        // business_name: "",
+        business_name: "",
         phone_number: "",
         bank_account: "",
         bank_address: "",
@@ -137,7 +137,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
     const validateLegalForm = (): boolean => {
         const requiredFields = [
             "client_name",
-            // "business_name",
+            "business_name",
             "phone_number",
             "bank_account",
             "bank_address",
@@ -187,7 +187,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             const payload: LegalEntityClientData = {
                 client_type: 1,
                 client_name: legalData.client_name,
-                // business_name: legalData.business_name,
+                business_name: legalData.business_name,
                 phone_number: legalData.phone_number,
                 bank_account: legalData.bank_account,
                 bank_address: legalData.bank_address,
@@ -244,7 +244,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 const data = {
                     client_type: legalPayload.client_type,
                     client_name: legalPayload.client_name,
-                    // business_name: legalPayload.business_name,
+                    business_name: legalPayload.business_name,
                     phone_number: legalPayload.phone_number,
                     bank_account: legalPayload.bank_account,
                     bank_address: legalPayload.bank_address,
@@ -296,7 +296,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
 
         setLegalData({
             client_name: "",
-            // business_name: "",
+            business_name: "",
             phone_number: "",
             bank_account: "",
             bank_address: "",
@@ -484,11 +484,11 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             {activeTab === "legal" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-2">
                     <div>
-                        <Label htmlFor="legalClientName">Ф.И.О клиента *</Label>
+                        <Label htmlFor="legalClientName">Имя директора *</Label>
                         <Input
                             type="text"
                             id="legalClientName"
-                            placeholder="Ф.И.О клиента"
+                            placeholder="Имя директора"
                             value={legalData.client_name}
                             onChange={(e) =>
                                 handleLegalInputChange(
@@ -515,7 +515,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                             }
                         />
                     </div>
-                    {/* <div>
+                    <div>
                         <Label htmlFor="legalBusinessName">
                             Название компании *
                         </Label>
@@ -531,7 +531,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                                 )
                             }
                         />
-                    </div> */}
+                    </div>
                     <div>
                         <Label htmlFor="legalBusinessAddress">
                             Адрес компании *

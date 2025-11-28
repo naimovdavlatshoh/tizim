@@ -24,6 +24,10 @@ const AppHeader: React.FC = () => {
             setCurrentPage("users");
         } else if (path.includes("/expense-categories")) {
             setCurrentPage("expense-categories");
+        } else if (path.includes("/letters")) {
+            setCurrentPage("letters");
+        } else if (path.includes("/broker-contracts")) {
+            setCurrentPage("broker-contracts");
         } else if (path.includes("/dashboard") || path === "/") {
             setCurrentPage("dashboard");
         } else {

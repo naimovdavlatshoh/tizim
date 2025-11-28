@@ -548,7 +548,7 @@ const AddContract = () => {
                                     placeholder={`Последний номер договора: ${lastnumber}`}
                                 />
                             </div>
-                            <div>
+                            {/* <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                     Название компании *
                                 </label>
@@ -562,7 +562,7 @@ const AddContract = () => {
                                     }
                                     placeholder="Введите название компании"
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                     Адрес объекта *

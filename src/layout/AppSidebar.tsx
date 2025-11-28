@@ -23,6 +23,7 @@ import {
     // UserCircleIcon,
     UserIcon,
     DocsIcon,
+    EnvelopeIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useSearch } from "../context/SearchContext";
@@ -53,37 +54,37 @@ const navItems: NavItem[] = [
         name: "Клиенты",
         icon: <GroupIcon />,
         path: "/clients",
-        roles: [1,2], // Admin va Director
+        roles: [1, 2], // Admin va Director
     },
     {
         name: "Должники",
         icon: <GroupIcon />,
         path: "/debtors",
-        roles: [1,2], // Admin va Director
+        roles: [1, 2], // Admin va Director
     },
     {
         name: "Договоры",
         icon: <DocsIcon />,
         path: "/contracts",
-        roles: [1,2], // Admin va Director
+        roles: [1, 2], // Admin va Director
     },
     {
         name: "Новые договоры",
         icon: <IoDocumentLockOutline />,
         path: "/new-contracts",
-        roles: [1,2], // Faqat Director
+        roles: [1, 2], // Faqat Director
     },
     {
         name: "Договоры в процессе",
         icon: <MdPendingActions />,
         path: "/pending-contracts",
-        roles: [1,2], // Faqat Director
+        roles: [1, 2], // Faqat Director
     },
     {
         name: "Завершенные договоры",
         icon: <DocsIcon />,
         path: "/completed-contracts",
-        roles: [1,2], // Faqat Director
+        roles: [1, 2], // Faqat Director
     },
     {
         name: "Мои договоры",
@@ -101,25 +102,37 @@ const navItems: NavItem[] = [
         name: "Платежи",
         icon: <GrMoney />,
         path: "/payments",
-        roles: [1,2], // Admin va Director
+        roles: [1, 2], // Admin va Director
     },
     {
         name: "Категории расходов",
         icon: <TbCategory />,
         path: "/expense-categories",
-        roles: [1,2], // Admin va Director
+        roles: [1, 2], // Admin va Director
     },
     {
         name: "Расходы",
         icon: <GrMoney />,
         path: "/expenses",
-        roles: [1,2], // Admin va Director
+        roles: [1, 2], // Admin va Director
     },
     {
         name: "Face ID",
         icon: <TbFaceId />,
         path: "/face-id",
-        roles: [1,2], // Admin va Director
+        roles: [1, 2], // Admin va Director
+    },
+    {
+        name: "Письма",
+        icon: <EnvelopeIcon />,
+        path: "/letters",
+        roles: [1], // Faqat Admin
+    },
+    {
+        name: "Контракты брокера",
+        icon: <DocsIcon />,
+        path: "/broker-contracts",
+        roles: [5], // Faqat Admin
     },
     // {
     //     icon: <CalenderIcon />,
@@ -266,6 +279,10 @@ const AppSidebar: React.FC = () => {
             setCurrentPage("payments");
         } else if (path === "/users") {
             setCurrentPage("users");
+        } else if (path === "/letters") {
+            setCurrentPage("letters");
+        } else if (path === "/broker-contracts") {
+            setCurrentPage("broker-contracts");
         } else {
             setCurrentPage("");
         }
