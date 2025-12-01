@@ -7,6 +7,7 @@ import {
 } from "../../components/ui/table";
 import { Modal } from "../../components/ui/modal";
 import { useState } from "react";
+import AddPaymentModal from "../Payments/AddPayment.tsx";
 
 interface Payment {
     payment_id: number;
@@ -44,9 +45,15 @@ interface DebtorsTableProps {
     changeStatus?: () => void;
 }
 
-export default function DebtorsTable({ debtors }: DebtorsTableProps) {
+export default function DebtorsTable({
+    debtors,
+    changeStatus,
+}: DebtorsTableProps) {
     const [selectedDebtor, setSelectedDebtor] = useState<Debtor | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState(false);
+    const [selectedContractIdForPayment, setSelectedContractIdForPayment] =
+        useState<number | undefined>(undefined);
 
     // Helper function to render field value or "Не указано" badge
     const renderFieldValue = (value: any) => {
@@ -91,6 +98,16 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedDebtor(null);
+    };
+
+    const handleAddPayment = (debtor: Debtor) => {
+        setSelectedContractIdForPayment(debtor.contract_id);
+        setIsAddPaymentModalOpen(true);
+    };
+
+    const closeAddPaymentModal = () => {
+        setIsAddPaymentModalOpen(false);
+        setSelectedContractIdForPayment(undefined);
     };
 
     // Helper function to get status badge based on remaining amount
@@ -163,7 +180,7 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
                                 </TableCell>
                                 <TableCell
                                     isHeader
-                                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
                                 >
                                     Действия
                                 </TableCell>
@@ -205,15 +222,25 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
                                         )}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        <button
-                                            onClick={() =>
-                                                handleViewPayments(debtor)
-                                            }
-                                            className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors"
-                                        >
-                                            Платежи (
-                                            {debtor.payments?.length || 0})
-                                        </button>
+                                        <div className="flex items-center gap-2 justify-center">
+                                            <button
+                                                onClick={() =>
+                                                    handleViewPayments(debtor)
+                                                }
+                                                className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors"
+                                            >
+                                                История (
+                                                {debtor.payments?.length || 0})
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleAddPayment(debtor)
+                                                }
+                                                className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 transition-colors"
+                                            >
+                                                Оплатить
+                                            </button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -235,7 +262,10 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
                             {selectedDebtor?.contract_number}
                         </h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Клиент: <span className="text-black font-bold">{selectedDebtor?.client_name}</span>
+                            Клиент:{" "}
+                            <span className="text-black font-bold">
+                                {selectedDebtor?.client_name}
+                            </span>
                         </p>
                     </div>
 
@@ -353,6 +383,20 @@ export default function DebtorsTable({ debtors }: DebtorsTableProps) {
                     )}
                 </div>
             </Modal>
+
+            {/* Add Payment Modal */}
+            <AddPaymentModal
+                isOpen={isAddPaymentModalOpen}
+                onClose={closeAddPaymentModal}
+                changeStatus={() => {
+                    if (changeStatus) {
+                        changeStatus();
+                    }
+                }}
+                setResponse={() => {}}
+                selectedContractId={selectedContractIdForPayment}
+                disableContractSelect={true}
+            />
         </>
     );
 }

@@ -142,7 +142,17 @@ const MyContractDetail = () => {
                 `api/appointment/info?contract_id=${id}`
             );
             setAppointmentInfo(response);
-            setIsInfoModalOpen(true);
+
+            // Проверяем, пустой ли массив tasks
+            const tasks = response?.tasks || [];
+            if (tasks.length === 0) {
+                // Если tasks пустой, сразу открываем модал отправки результатов
+                setIsInfoModalOpen(false);
+                setSendResultModalOpen(true);
+            } else {
+                // Если tasks не пустой, показываем информацию
+                setIsInfoModalOpen(true);
+            }
         } catch (error) {
             console.error("Error fetching appointment info:", error);
             toast.error("Ошибка при загрузке информации");
@@ -292,131 +302,16 @@ const MyContractDetail = () => {
                             <div className="space-y-4">
                                 {/* Display appointment info here */}
                                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                                    <h4 className="font-medium text-gray-900 dark:text-white mb-3">
-                                        Детали назначения
-                                    </h4>
                                     <div className="space-y-4">
                                         {/* Main Info */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {appointmentInfo.comments && (
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Комментарии
-                                                    </div>
-                                                    <div className="text-sm text-gray-900 dark:text-white mt-1">
-                                                        {
-                                                            appointmentInfo.comments
-                                                        }
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {appointmentInfo.object_address && (
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Адрес объекта
-                                                    </div>
-                                                    <div className="text-sm text-gray-900 dark:text-white mt-1">
-                                                        {
-                                                            appointmentInfo.object_address
-                                                        }
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {/* {appointmentInfo.contract_price && (
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Стоимость договора
-                                                    </div>
-                                                    <div className="text-sm text-gray-900 dark:text-white mt-1">
-                                                        {formatCurrency(
-                                                            Number(
-                                                                appointmentInfo.contract_price
-                                                            )
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )} */}
-                                            {appointmentInfo.worker_price && (
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Стоимость работ
-                                                    </div>
-                                                    <div className="text-sm text-gray-900 dark:text-white mt-1">
-                                                        {formatCurrency(
-                                                            Number(
-                                                                appointmentInfo.worker_price
-                                                            )
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {appointmentInfo.deadline_date && (
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Срок выполнения
-                                                    </div>
-                                                    <div className="text-sm text-gray-900 dark:text-white mt-1">
-                                                        {formatDate(
-                                                            appointmentInfo.deadline_date
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {appointmentInfo.days_diff_text && (
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Статус
-                                                    </div>
-                                                    <div className="text-sm text-gray-900 dark:text-white mt-1">
-                                                        {
-                                                            appointmentInfo.days_diff_text
-                                                        }
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
 
                                         {/* Users Info */}
-                                        {(appointmentInfo.from_user_name ||
-                                            appointmentInfo.to_user_name) && (
-                                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                                <h5 className="font-medium text-gray-900 dark:text-white mb-3">
-                                                    Участники
-                                                </h5>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {appointmentInfo.from_user_name && (
-                                                        <div>
-                                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                                Отправитель
-                                                            </div>
-                                                            <div className="text-sm text-gray-900 dark:text-white mt-1">
-                                                                {
-                                                                    appointmentInfo.from_user_name
-                                                                }
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    {appointmentInfo.to_user_name && (
-                                                        <div>
-                                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                                Получатель
-                                                            </div>
-                                                            <div className="text-sm text-gray-900 dark:text-white mt-1">
-                                                                {
-                                                                    appointmentInfo.to_user_name
-                                                                }
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
 
                                         {/* Tasks Info */}
                                         {appointmentInfo.tasks &&
                                             appointmentInfo.tasks.length >
                                                 0 && (
-                                                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                                <div className=" pt-4">
                                                     <h5 className="font-medium text-gray-900 dark:text-white mb-3">
                                                         Задачи
                                                     </h5>

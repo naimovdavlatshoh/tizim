@@ -35,7 +35,7 @@ export default function ExpenseCategoryList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/expensescategories/list?page=${page}&limit=10`
+                `api/expensescategories/list?page=${page}&limit=30`
             );
             const categoriesData =
                 response?.result || response?.data?.result || [];
@@ -59,7 +59,7 @@ export default function ExpenseCategoryList() {
             const response: any = await PostSimple(
                 `api/expensescategories/search?keyword=${encodeURIComponent(
                     query
-                )}&page=${page}&limit=10`
+                )}&page=${page}limit=30`
             );
 
             if (response?.status === 200 || response?.data?.success) {

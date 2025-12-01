@@ -130,19 +130,42 @@ export default function TableLetter({
         setSelectedLetterForQr(null);
     };
 
-    const handleDownloadQr = () => {
-        if (!qrCodeUrl) return;
+    const handleDownloadQr = async () => {
+        if (!selectedLetterForQr) {
+            toast.error("Письмо не выбрано");
+            return;
+        }
 
-        const link = document.createElement("a");
-        link.href = qrCodeUrl;
-        link.download = `qrcode-${
-            selectedLetterForQr?.letter_number || "letter"
-        }.png`;
-        link.target = "_blank";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success("QR-код загружен");
+        try {
+            // Используем GetDataSimplePDF для получения blob (работает и для изображений)
+            const response = await GetDataSimplePDF(
+                `api/letter/download/qrcode/${selectedLetterForQr.letter_id}`
+            );
+
+            // Create blob and download
+            const blob = new Blob([response.data], {
+                type: "image/png",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `qrcode-${
+                selectedLetterForQr?.letter_number || "letter"
+            }.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("QR-код успешно скачан");
+            closeQrModal();
+        } catch (error: any) {
+            closeQrModal();
+            toast.error(
+                error?.response?.data?.error ||
+                    "Что-то пошло не так при скачивании QR-кода"
+            );
+        }
     };
 
     const openPdfUploadModal = (letter: Letter) => {

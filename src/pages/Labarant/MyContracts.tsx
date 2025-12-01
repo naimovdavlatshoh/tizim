@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
-import { GetDataSimple } from "../../service/data.ts";
+import { GetDataSimple, GetDataSimplePDF } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 
-import { FaRegEye, FaPaperPlane } from "react-icons/fa";
+import { FaRegEye, FaPaperPlane, FaQrcode } from "react-icons/fa";
 import {
     Table,
     TableBody,
@@ -61,6 +61,7 @@ const MyContracts = () => {
     const [selectedContract, setSelectedContract] = useState<MyContract | null>(
         null
     );
+    const [downloadingQr, setDownloadingQr] = useState<string | null>(null);
 
     useEffect(() => {
         fetchMyContracts();
@@ -70,7 +71,7 @@ const MyContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/my/list?contract_status=5&page=${page}&limit=10`
+                `api/appointment/my/list?contract_status=5&page=${page}&limit=30`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -100,6 +101,45 @@ const MyContracts = () => {
 
     const handleResultSent = () => {
         fetchMyContracts();
+    };
+
+    const handleDownloadQrCode = async (contract: MyContract) => {
+        if (!contract?.contract_id) {
+            toast.error("ID договора не найден");
+            return;
+        }
+
+        setDownloadingQr(contract.contract_id);
+        try {
+            const response = await GetDataSimplePDF(
+                `api/appointment/downloadqrcode/${contract.contract_id}`
+            );
+
+            // Create blob and download
+            const blob = new Blob([response.data], {
+                type: "image/png",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `qrcode-${
+                contract.contract_number || contract.contract_id
+            }.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("QR-код успешно скачан");
+        } catch (error: any) {
+            console.error("Error downloading QR code:", error);
+            toast.error(
+                error?.response?.data?.error ||
+                    "Что-то пошло не так при скачивании QR-кода"
+            );
+        } finally {
+            setDownloadingQr(null);
+        }
     };
 
     if (loading) {
@@ -234,6 +274,28 @@ const MyContracts = () => {
                                             </TableCell>
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                 <div className="flex items-center gap-2">
+                                                    {" "}
+                                                    <Button
+                                                        size="xs"
+                                                        variant="outline"
+                                                        onClick={() =>
+                                                            handleDownloadQrCode(
+                                                                contract
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            downloadingQr ===
+                                                            contract.contract_id
+                                                        }
+                                                        startIcon={
+                                                            <FaQrcode className="size-4" />
+                                                        }
+                                                    >
+                                                        {downloadingQr ===
+                                                        contract.contract_id
+                                                            ? ""
+                                                            : ""}
+                                                    </Button>
                                                     <Linkto
                                                         to={`/my-contracts/${contract.contract_id}`}
                                                         size="xs"

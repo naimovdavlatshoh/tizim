@@ -57,7 +57,7 @@ export default function ExpenseList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/expenses/list?page=${page}&limit=10`
+                `api/expenses/list?page=${page}&limit=30`
             );
             const expensesData =
                 response?.result || response?.data?.result || [];
@@ -76,7 +76,7 @@ export default function ExpenseList() {
     const fetchCategories = useCallback(async () => {
         try {
             const response: any = await GetDataSimple(
-                `api/expensescategories/list?page=1&limit=10`
+                `api/expensescategories/list?page=1&limit=30`
             );
             const categoriesData =
                 response?.result || response?.data?.result || [];
@@ -95,7 +95,7 @@ export default function ExpenseList() {
                 const response: any = await PostSimple(
                     `api/expenses/search?keyword=${encodeURIComponent(
                         query
-                    )}&page=${page}&limit=10`
+                    )}&page=${page}&limit=30`
                 );
 
                 if (response?.status === 200 || response?.data?.success) {

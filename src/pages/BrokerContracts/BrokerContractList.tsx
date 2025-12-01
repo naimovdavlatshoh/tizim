@@ -39,7 +39,7 @@ export default function BrokerContractList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/contracts/broker/list?page=${page}&limit=10`
+                `api/contracts/broker/list?page=${page}&limit=30`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -65,7 +65,7 @@ export default function BrokerContractList() {
                 const response: any = await PostSimple(
                     `api/contracts/broker/search?keyword=${encodeURIComponent(
                         query
-                    )}&page=${page}&limit=10`
+                    )}&page=${page}&limit=30`
                 );
 
                 // PostSimple возвращает response, нужно получить data

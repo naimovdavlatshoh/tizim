@@ -102,7 +102,7 @@ const Reports = () => {
     const fetchReports = async () => {
         setLoading(true);
         try {
-            let url = `api/reports/list?page=${page}&limit=10`;
+            let url = `api/reports/list?page=${page}&limit=30`;
 
             // Add filters for director
             if (isDirector) {
@@ -140,7 +140,7 @@ const Reports = () => {
     const fetchContracts = async () => {
         try {
             const response: any = await GetDataSimple(
-                `api/contracts/list?page=1&limit=10`
+                `api/contracts/list?page=1&limit=30`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -153,7 +153,7 @@ const Reports = () => {
     const fetchUsers = async () => {
         try {
             const response: any = await GetDataSimple(
-                "api/user/list?page=1&limit=10"
+                "api/user/list?page=1&limit=30"
             );
             const usersData = response?.result || response?.data?.result || [];
             setUsers(usersData);

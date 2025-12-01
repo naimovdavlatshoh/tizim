@@ -30,7 +30,7 @@ export default function Debtors() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/debtors/list?page=${page}&limit=10`
+                `api/debtors/list?page=${page}&limit=30`
             );
             const debtorsData =
                 response?.result || response?.data?.result || [];

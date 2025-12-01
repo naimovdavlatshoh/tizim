@@ -35,7 +35,7 @@ export default function LetterList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/letter/list?page=${page}&limit=10`
+                `api/letter/list?page=${page}&limit=30`
             );
             const lettersData =
                 response?.result || response?.data?.result || [];
@@ -45,9 +45,9 @@ export default function LetterList() {
             setFilteredLetters(lettersData);
             setTotalPages(totalPagesData);
             setLoading(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error fetching letters:", error);
-            toast.error("Что-то пошло не так при загрузке писем");
+            toast.error(error?.response?.data?.message || "Что-то пошло не так при загрузке писем");
             setLoading(false);
         }
     }, [page]);
@@ -61,7 +61,7 @@ export default function LetterList() {
                 const response: any = await PostSimple(
                     `api/letter/search?keyword=${encodeURIComponent(
                         query
-                    )}&page=${page}&limit=10`
+                    )}&page=${page}&limit=30`
                 );
 
                 if (response?.status === 200 || response?.data?.success) {

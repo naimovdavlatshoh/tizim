@@ -52,7 +52,7 @@ const FaceIdList: React.FC = () => {
     const fetchFaceIds = useCallback(async () => {
         setLoading(true);
         try {
-            let url = `api/faceid/list?page=${page}&limit=10`;
+            let url = `api/faceid/list?page=${page}&limit=30`;
 
             if (selectedEmployee) {
                 url += `&employeeNoString=${selectedEmployee}`;

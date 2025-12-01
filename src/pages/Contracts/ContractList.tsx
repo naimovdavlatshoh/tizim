@@ -52,7 +52,7 @@ export default function ContractList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/contracts/list?page=${page}&limit=10`
+                `api/contracts/list?page=${page}&limit=30`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -79,7 +79,7 @@ export default function ContractList() {
             const response: any = await PostSimple(
                 `api/contracts/search?keyword=${encodeURIComponent(
                     query
-                )}&page=${page}&limit=10`
+                )}&page=${page}&limit=30`
             );
 
             if (response?.status === 200 || response?.data?.success) {

@@ -130,14 +130,7 @@ const AddContract = () => {
 
     // Laboratoriya testlarini contract_tarif ga qarab yuklash
     useEffect(() => {
-        if (
-            formData.contract_tarif &&
-            (formData.contract_type === 1 ||
-                formData.contract_type === 2 ||
-                formData.contract_type === 5)
-        ) {
-            fetchLabTests(formData.contract_tarif);
-        }
+        fetchLabTests();
     }, [formData.contract_tarif, formData.contract_type]);
 
     // fetchClients function is now replaced by searchClients
@@ -176,10 +169,10 @@ const AddContract = () => {
         }
     };
 
-    const fetchLabTests = async (tarifId: number) => {
+    const fetchLabTests = async () => {
         try {
             const response = await GetDataSimple(
-                `api/contracts/laboratorytest/list?contract_tarif=${tarifId}`
+                `api/contracts/laboratorytest/list?contract_tarif=4`
             );
             setLabTests(response?.result || []);
         } catch (error) {
@@ -339,7 +332,7 @@ const AddContract = () => {
             // Form validatsiyasi
             if (
                 !formData.contract_number ||
-                !formData.business_name ||
+                // !formData.business_name ||
                 !formData.object_address ||
                 !formData.client_id ||
                 !formData.contract_date
@@ -369,7 +362,7 @@ const AddContract = () => {
             // Prepare data based on contract type
             const submitData = {
                 contract_number: formData.contract_number,
-                business_name: formData.business_name,
+                // business_name: formData.business_name,
                 object_address: formData.object_address,
                 client_id: formData.client_id,
                 contract_type: formData.contract_type,
@@ -477,9 +470,7 @@ const AddContract = () => {
                                 />
                             </div>
 
-                            {(formData.contract_type === 1 ||
-                                formData.contract_type === 2 ||
-                                formData.contract_type === 5) && (
+                            {formData.contract_type === 5 && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                         Тариф
@@ -797,46 +788,42 @@ const AddContract = () => {
                     )}
 
                     {/* Laboratory Tests */}
-                    {(formData.contract_type === 1 ||
-                        formData.contract_type === 2 ||
-                        formData.contract_type === 5) &&
-                        formData.contract_tarif && (
-                            <ComponentCard title="Лабораторные исследования">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {labTests.length > 0 ? (
-                                        labTests.map((test) => (
-                                            <label
-                                                key={test.lab_test_id}
-                                                className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={formData.laboratory.some(
-                                                        (item) =>
-                                                            item.lab_test_id ===
-                                                            test.lab_test_id
-                                                    )}
-                                                    onChange={() =>
-                                                        handleLabTestToggle(
-                                                            test.lab_test_id
-                                                        )
-                                                    }
-                                                    className="w-4 h-4 text-brand-500 border-gray-300 rounded focus:ring-brand-500"
-                                                />
-                                                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {test.tests_name}
-                                                </span>
-                                            </label>
-                                        ))
-                                    ) : (
-                                        <p className="text-gray-500 dark:text-gray-400 text-center py-4 col-span-full">
-                                            Для этого тарифа лабораторные тесты
-                                            не найдены
-                                        </p>
-                                    )}
-                                </div>
-                            </ComponentCard>
-                        )}
+
+                    <ComponentCard title="Лабораторные исследования">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {labTests.length > 0 ? (
+                                labTests.map((test) => (
+                                    <label
+                                        key={test.lab_test_id}
+                                        className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.laboratory.some(
+                                                (item) =>
+                                                    item.lab_test_id ===
+                                                    test.lab_test_id
+                                            )}
+                                            onChange={() =>
+                                                handleLabTestToggle(
+                                                    test.lab_test_id
+                                                )
+                                            }
+                                            className="w-4 h-4 text-brand-500 border-gray-300 rounded focus:ring-brand-500"
+                                        />
+                                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                            {test.tests_name}
+                                        </span>
+                                    </label>
+                                ))
+                            ) : (
+                                <p className="text-gray-500 dark:text-gray-400 text-center py-4 col-span-full">
+                                    Для этого тарифа лабораторные тесты не
+                                    найдены
+                                </p>
+                            )}
+                        </div>
+                    </ComponentCard>
 
                     {/* Submit Buttons */}
                     <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">

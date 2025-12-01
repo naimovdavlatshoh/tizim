@@ -45,6 +45,12 @@ const navItems: NavItem[] = [
         roles: [1],
     },
     {
+        name: "Письма",
+        icon: <EnvelopeIcon />,
+        path: "/letters",
+        roles: [1, 5, 6], // Faqat Admin
+    },
+    {
         name: "Пользователи",
         icon: <UserIcon />,
         path: "/users",
@@ -90,13 +96,13 @@ const navItems: NavItem[] = [
         name: "Мои договоры",
         icon: <DocsIcon />,
         path: "/my-contracts",
-        roles: [2, 3, 4], // Faqat Labarant
+        roles: [2, 3, 4, 6],
     },
     {
         name: "Отчеты",
         icon: <TbMessageReport />,
         path: "/reports",
-        roles: [1, 2, 3, 4, 5], // Director va Labarant
+        roles: [1, 2, 3, 4, 5, 6], // Director va Labarant
     },
     {
         name: "Платежи",
@@ -127,12 +133,6 @@ const navItems: NavItem[] = [
         icon: <DocsIcon />,
         path: "/broker-contracts",
         roles: [1, 5], // Faqat Admin
-    },
-    {
-        name: "Письма",
-        icon: <EnvelopeIcon />,
-        path: "/letters",
-        roles: [1,5], // Faqat Admin
     },
 
     // {
@@ -463,9 +463,9 @@ const AppSidebar: React.FC = () => {
             onMouseEnter={() => !isExpanded && setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <Link to="/" className="px-0 pt-5">
+            <div  className="px-0 pt-5">
                 <img src="logo.png" alt="logo" className="w-1/3" />
-            </Link>
+            </div>
 
             <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
                 <nav className="mb-6">

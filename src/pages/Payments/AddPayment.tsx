@@ -17,6 +17,8 @@ interface AddPaymentModalProps {
     onClose: () => void;
     changeStatus: () => void;
     setResponse: (response: string) => void;
+    selectedContractId?: number;
+    disableContractSelect?: boolean;
 }
 
 interface Contract {
@@ -39,6 +41,8 @@ export default function AddPaymentModal({
     onClose,
     changeStatus,
     setResponse,
+    selectedContractId,
+    disableContractSelect = false,
 }: AddPaymentModalProps) {
     const [loading, setLoading] = useState<boolean>(false);
     const [contracts, setContracts] = useState<Contract[]>([]);
@@ -57,18 +61,39 @@ export default function AddPaymentModal({
         comments: "",
     });
 
-    // formatCurrency function is now imported from utils
-
     useEffect(() => {
         if (isOpen) {
             fetchContracts();
+            // Если передан selectedContractId, устанавливаем его в форму
+            if (selectedContractId) {
+                setFormData((prev) => ({
+                    ...prev,
+                    contract_id: String(selectedContractId),
+                }));
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, selectedContractId]);
 
-    // Initialize filtered contracts when contracts are loaded
     useEffect(() => {
         setFilteredContracts(contracts);
-    }, [contracts]);
+        // После загрузки контрактов, если есть selectedContractId, устанавливаем цену и загружаем платежи
+        if (selectedContractId && contracts.length > 0) {
+            const selectedContract = contracts.find(
+                (contract) => contract.contract_id === selectedContractId
+            );
+            if (selectedContract) {
+                // Убеждаемся, что contract_id установлен в форме
+                setFormData((prev) => ({
+                    ...prev,
+                    contract_id: String(selectedContractId),
+                }));
+                setSelectedContractPrice(
+                    selectedContract.contract_price || null
+                );
+                fetchContractTotals(selectedContractId);
+            }
+        }
+    }, [contracts, selectedContractId]);
 
     const fetchContracts = async (): Promise<void> => {
         try {
@@ -138,6 +163,11 @@ export default function AddPaymentModal({
             }
         }
     };
+
+    // Get selected contract info
+    const selectedContractInfo = contracts.find(
+        (contract) => contract.contract_id === selectedContractId
+    );
 
     // Create contract options, ensuring selected contract is included
     const contractOptions = (() => {
@@ -263,17 +293,28 @@ export default function AddPaymentModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-visible">
                 <div className="overflow-visible col-span-2">
                     <Label htmlFor="contract_id">Договор *</Label>
-                    <Select
-                        options={contractOptions}
-                        placeholder="Выберите договор"
-                        onChange={(value) =>
-                            handleInputChange("contract_id", value)
-                        }
-                        className="w-full [&_.select-dropdown]:scrollbar-hide [&_.select-dropdown::-webkit-scrollbar]:hidden [&_.select-dropdown]:-ms-overflow-style:none [&_.select-dropdown]:scrollbar-width:none"
-                        searchable={true}
-                        onSearch={handleContractSearch}
-                        searching={contractSearching}
-                    />
+                    {disableContractSelect && selectedContractInfo ? (
+                        <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                            <p className="text-gray-800 dark:text-gray-200 font-medium">
+                                {selectedContractInfo.contract_number} -{" "}
+                                {selectedContractInfo.client_name}
+                            </p>
+                        </div>
+                    ) : (
+                        <Select
+                            key={`contract-select-${isOpen}-${selectedContractId}`}
+                            options={contractOptions}
+                            placeholder="Выберите договор"
+                            defaultValue={formData.contract_id}
+                            onChange={(value) =>
+                                handleInputChange("contract_id", value)
+                            }
+                            className="w-full [&_.select-dropdown]:scrollbar-hide [&_.select-dropdown::-webkit-scrollbar]:hidden [&_.select-dropdown]:-ms-overflow-style:none [&_.select-dropdown]:scrollbar-width:none"
+                            searchable={true}
+                            onSearch={handleContractSearch}
+                            searching={contractSearching}
+                        />
+                    )}
                     {selectedContractPrice !== null && (
                         <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
                             <div className="flex flex-col gap-1 text-sm">

@@ -4,6 +4,7 @@ import {
     PostSimple,
     GetDataSimple,
     PostSimpleFormData,
+    GetDataSimplePDF,
 } from "../../service/data.ts";
 import { toast } from "react-hot-toast";
 import { Modal } from "../../components/ui/modal/index.tsx";
@@ -44,6 +45,7 @@ export default function TableBrokerContract({
     const [selectedContractForPdf, setSelectedContractForPdf] =
         useState<BrokerContract | null>(null);
     const [uploadingPdf, setUploadingPdf] = useState(false);
+    const [downloadingPdf, setDownloadingPdf] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const openDeleteModal = (contract: BrokerContract) => {
@@ -132,19 +134,44 @@ export default function TableBrokerContract({
         setSelectedContractForQr(null);
     };
 
-    const handleDownloadQr = () => {
-        if (!qrCodeUrl) return;
+    const handleDownloadQr = async () => {
+        if (!selectedContractForQr) {
+            toast.error("Контракт не выбран");
+            return;
+        }
 
-        const link = document.createElement("a");
-        link.href = qrCodeUrl;
-        link.download = `qrcode-${
-            selectedContractForQr?.contract_number || "contract"
-        }.png`;
-        link.target = "_blank";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success("QR-код загружен");
+        setLoadingQr(true);
+        try {
+            const response = await GetDataSimplePDF(
+                `api/contracts/broker/download/qrcode/${selectedContractForQr.contract_id}`
+            );
+
+            // Create blob and download
+            const blob = new Blob([response.data], {
+                type: "image/png",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `qrcode-${
+                selectedContractForQr?.contract_number || "contract"
+            }.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("QR-код успешно скачан");
+            closeQrModal();
+        } catch (error: any) {
+            console.error(error?.response?.data?.error);
+            toast.error(
+                error?.response?.data?.error ||
+                    "Что-то пошло не так при скачивании QR-кода"
+            );
+        } finally {
+            setLoadingQr(false);
+        }
     };
 
     const openPdfUploadModal = (contract: BrokerContract) => {
@@ -198,6 +225,40 @@ export default function TableBrokerContract({
             );
         } finally {
             setUploadingPdf(false);
+        }
+    };
+
+    const handleDownloadPdf = async (contract: BrokerContract) => {
+        setDownloadingPdf(true);
+        try {
+            const response = await GetDataSimplePDF(
+                `api/contracts/pdf/${contract.contract_id}`
+            );
+
+            // Create blob and download
+            const blob = new Blob([response.data], {
+                type: "application/pdf",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `contract-${
+                contract.contract_number || contract.contract_id
+            }.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("PDF файл загружен");
+        } catch (error: any) {
+            console.error("Error downloading PDF:", error);
+            toast.error(
+                error?.response?.data?.error ||
+                    "Что-то пошло не так при загрузке PDF файла"
+            );
+        } finally {
+            setDownloadingPdf(false);
         }
     };
     const formatDate = (dateString: string) => {
@@ -321,30 +382,54 @@ export default function TableBrokerContract({
                                             </svg>
                                         </Button>
 
-                                        <Button
-                                            onClick={() =>
-                                                openPdfUploadModal(contract)
-                                            }
-                                            size="xs"
-                                            disabled={
-                                                contract?.contract_status !== 1
-                                            }
-                                            variant="primary"
-                                        >
-                                            <svg
-                                                className="w-4 h-4"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
+                                        {contract.contract_status === 2 && (
+                                            <Button
+                                                onClick={() =>
+                                                    handleDownloadPdf(contract)
+                                                }
+                                                size="xs"
+                                                variant="primary"
+                                                disabled={downloadingPdf}
+                                                className="bg-green-600 hover:bg-green-500"
                                             >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                />
-                                            </svg>
-                                        </Button>
+                                                <svg
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                    />
+                                                </svg>
+                                            </Button>
+                                        )}
+                                        {contract.contract_status === 1 && (
+                                            <Button
+                                                onClick={() =>
+                                                    openPdfUploadModal(contract)
+                                                }
+                                                size="xs"
+                                                variant="primary"
+                                            >
+                                                <svg
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                    />
+                                                </svg>
+                                            </Button>
+                                        )}
 
                                         <Button
                                             onClick={() =>

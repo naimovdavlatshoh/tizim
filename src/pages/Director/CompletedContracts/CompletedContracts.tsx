@@ -79,7 +79,7 @@ const CompletedContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=6&page=${page}&limit=10`
+                `api/appointment/all/list?contract_status=6&page=${page}&limit=30`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];

@@ -37,6 +37,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
         { value: 3, label: "Эксперт" },
         { value: 4, label: "Лаборант" },
         { value: 5, label: "Брокер" },
+        { value: 6, label: "Начальник лаборатория" },
     ];
     const handleSelectChange = (value: string) => {
         setRoleId(Number(value));
