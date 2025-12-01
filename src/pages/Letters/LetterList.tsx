@@ -112,10 +112,10 @@ export default function LetterList() {
 
     return (
         <>
-            <PageMeta title="BNM Tizim" description="Список писем" />
-            <PageBreadcrumb pageTitle="Писем" />
+            <PageMeta title="BNM Tizim" description=" Список Письма" />
+            <PageBreadcrumb pageTitle="Письма" />
             <ComponentCard
-                title="Список писем"
+                title="Список Письма"
                 desc={
                     <div className="flex gap-3 items-center">
                         <button
