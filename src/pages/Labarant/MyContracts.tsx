@@ -20,6 +20,8 @@ import SendResultModal from "./SendResultModal";
 import { formatCurrency, formatDate } from "../../utils/numberFormat";
 import Loader from "../../components/ui/loader/Loader.tsx";
 
+import { TbDownload } from "react-icons/tb";
+
 interface MyContract {
     contract_id: string;
     contract_number: string;
@@ -49,7 +51,10 @@ interface MyContract {
         test_type: string;
     }>;
     result_for_worker: boolean;
-    final_document: boolean;
+    final_document: {
+        document_id: number;
+        created_at: string;
+    } | null;
 }
 
 const MyContracts = () => {
@@ -62,6 +67,7 @@ const MyContracts = () => {
         null
     );
     const [downloadingQr, setDownloadingQr] = useState<string | null>(null);
+    const [downloadingPdf, setDownloadingPdf] = useState<number | null>(null);
 
     useEffect(() => {
         fetchMyContracts();
@@ -139,6 +145,45 @@ const MyContracts = () => {
             );
         } finally {
             setDownloadingQr(null);
+        }
+    };
+
+    const handleDownloadResultPdf = async (contract: MyContract) => {
+        if (!contract?.final_document?.document_id) {
+            toast.error("Документ не найден");
+            return;
+        }
+
+        setDownloadingPdf(contract.final_document.document_id);
+        try {
+            const response = await GetDataSimplePDF(
+                `api/appointment/result/pdf/${contract.final_document.document_id}`
+            );
+
+            // Create blob and download
+            const blob = new Blob([response.data], {
+                type: "application/pdf",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `result-${
+                contract.contract_number || contract.contract_id
+            }.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("PDF успешно скачан");
+        } catch (error: any) {
+            console.error("Error downloading PDF:", error);
+            toast.error(
+                error?.response?.data?.error ||
+                    "Что-то пошло не так при скачивании PDF"
+            );
+        } finally {
+            setDownloadingPdf(null);
         }
     };
 
@@ -319,6 +364,33 @@ const MyContracts = () => {
                                                         }
                                                     >
                                                         {""}
+                                                    </Button>
+                                                    <Button
+                                                        size="xs"
+                                                        variant="outline"
+                                                        onClick={() =>
+                                                            handleDownloadResultPdf(
+                                                                contract
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            !contract
+                                                                ?.final_document
+                                                                ?.document_id ||
+                                                            downloadingPdf ===
+                                                                contract
+                                                                    .final_document
+                                                                    ?.document_id
+                                                        }
+                                                        startIcon={
+                                                            <TbDownload className="size-4" />
+                                                        }
+                                                    >
+                                                        {downloadingPdf ===
+                                                        contract?.final_document
+                                                            ?.document_id
+                                                            ? ""
+                                                            : ""}
                                                     </Button>
                                                 </div>
                                             </TableCell>
