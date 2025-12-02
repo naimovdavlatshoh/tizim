@@ -32,9 +32,9 @@ interface LegalEntityClientData {
     phone_number: string;
     bank_account: string;
     bank_address: string;
-    inn: number;
-    mfo: number;
-    oked: number;
+    inn: string;
+    mfo: string;
+    oked: string;
     business_address: string;
     // client_address: string; // Commented out - not needed for legal entities
     // passport_series: string; // Commented out - not needed for legal entities
@@ -191,9 +191,9 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 phone_number: legalData.phone_number,
                 bank_account: legalData.bank_account,
                 bank_address: legalData.bank_address,
-                inn: Number(legalData.inn),
-                mfo: Number(legalData.mfo),
-                oked: Number(legalData.oked),
+                inn: legalData.inn,
+                mfo: legalData.mfo,
+                oked: legalData.oked,
                 business_address: legalData.business_address,
                 // client_address: legalData.client_address, // Commented out - not needed for legal entities
                 // passport_series: legalData.passport_series, // Commented out - not needed for legal entities
@@ -204,6 +204,10 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
             await submitClientData(payload);
         }
     };
+
+
+    console.log(Number(legalData.inn));
+
 
     const submitClientData = async (payload: ClientData) => {
         setIsLoading(true);
