@@ -33,6 +33,7 @@ interface Contract {
     phone_number: string;
     bank_account: string;
     bank_address: string;
+    client_type: number;
     inn: number;
     mfo: number;
     oked: number;
@@ -130,6 +131,12 @@ export default function TableContract({
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
+                                Тип клиента
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
                                 Сумма договора
                             </TableCell>
                             <TableCell
@@ -196,6 +203,24 @@ export default function TableContract({
                                     onClick={() => handleRowClick(contract)}
                                 >
                                     {contract.client_name}
+                                </TableCell>
+                                <TableCell
+                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                    onClick={() => handleRowClick(contract)}
+                                >
+                                    <span
+                                        className={`px-2 py-1 rounded-full text-xs ${
+                                            contract.client_type === 1
+                                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                                                : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                        }`}
+                                    >
+                                        {contract.client_type === 1
+                                            ? "Юр. лицо"
+                                            : contract.client_type === 2
+                                            ? "Физ. лицо"
+                                            : "-"}
+                                    </span>
                                 </TableCell>
                                 <TableCell
                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
