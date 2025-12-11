@@ -28,6 +28,14 @@ const AppHeader: React.FC = () => {
             setCurrentPage("letters");
         } else if (path.includes("/broker-contracts")) {
             setCurrentPage("broker-contracts");
+        } else if (path.includes("/fines")) {
+            setCurrentPage("fines");
+        } else if (path.includes("/bonuses")) {
+            setCurrentPage("bonuses");
+        } else if (path.includes("/salary-advances")) {
+            setCurrentPage("salary-advances");
+        } else if (path.includes("/attendance")) {
+            setCurrentPage("attendance");
         } else if (path.includes("/dashboard") || path === "/") {
             setCurrentPage("dashboard");
         } else {

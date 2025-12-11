@@ -35,6 +35,8 @@ export default function ContractList() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [downloading, setDownloading] = useState(false);
+    const [selectedContractType, setSelectedContractType] =
+        useState<string>("");
 
     useEffect(() => {
         if (currentPage === "contracts") {
@@ -46,14 +48,16 @@ export default function ContractList() {
                 fetchContracts();
             }
         }
-    }, [searchQuery, currentPage, status, page]);
+    }, [searchQuery, currentPage, status, page, selectedContractType]);
 
     const fetchContracts = async () => {
         setLoading(true);
         try {
-            const response: any = await GetDataSimple(
-                `api/contracts/list?page=${page}&limit=30`
-            );
+            let url = `api/contracts/list?page=${page}&limit=30`;
+            if (selectedContractType) {
+                url += `&contract_type=${selectedContractType}`;
+            }
+            const response: any = await GetDataSimple(url);
             const contractsData =
                 response?.result || response?.data?.result || [];
             const totalPagesData =
@@ -76,11 +80,13 @@ export default function ContractList() {
         setIsSearching(true);
         try {
             // Search API ni chaqirish (POST request with URL params)
-            const response: any = await PostSimple(
-                `api/contracts/search?keyword=${encodeURIComponent(
-                    query
-                )}&page=${page}&limit=30`
-            );
+            let searchUrl = `api/contracts/search?keyword=${encodeURIComponent(
+                query
+            )}&page=${page}&limit=30`;
+            if (selectedContractType) {
+                searchUrl += `&contract_type=${selectedContractType}`;
+            }
+            const response: any = await PostSimple(searchUrl);
 
             if (response?.status === 200 || response?.data?.success) {
                 const searchResults =
@@ -183,16 +189,68 @@ export default function ContractList() {
                 <ComponentCard
                     title="Договоры"
                     desc={
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-center flex-wrap">
+                            <button
+                                onClick={() => {
+                                    setSelectedContractType("");
+                                    setPage(1);
+                                }}
+                                className={`px-4 py-2 rounded-md transition-colors ${
+                                    selectedContractType === ""
+                                        ? "bg-blue-500 text-white border border-blue-500"
+                                        : "border border-gray-300 hover:bg-blue-200"
+                                }`}
+                            >
+                                Все типы
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setSelectedContractType("1");
+                                    setPage(1);
+                                }}
+                                className={`px-4 py-2 rounded-md transition-colors ${
+                                    selectedContractType === "1"
+                                        ? "bg-blue-500 text-white border border-blue-500"
+                                        : "border border-gray-300 hover:bg-blue-200"
+                                }`}
+                            >
+                                Лаборатория
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setSelectedContractType("2");
+                                    setPage(1);
+                                }}
+                                className={`px-4 py-2 rounded-md transition-colors ${
+                                    selectedContractType === "2"
+                                        ? "bg-blue-500 text-white border border-blue-500"
+                                        : "border border-gray-300 hover:bg-blue-200"
+                                }`}
+                            >
+                                Техник
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setSelectedContractType("3");
+                                    setPage(1);
+                                }}
+                                className={`px-4 py-2 rounded-md transition-colors ${
+                                    selectedContractType === "3"
+                                        ? "bg-blue-500 text-white border border-blue-500"
+                                        : "border border-gray-300 hover:bg-blue-200"
+                                }`}
+                            >
+                                Бетон завод
+                            </button>
                             <button
                                 onClick={handleAddContract}
-                                className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                                className="bg-blue-500 text-white px-5 py-2 rounded-md border border-blue-500 hover:bg-blue-600 transition-colors"
                             >
                                 + Добавить договор
                             </button>
                             <button
                                 onClick={() => setExcelModalOpen(true)}
-                                className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
+                                className="bg-green-500 border border-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
                             >
                                 <FaDownload />
                                 Excel
@@ -221,7 +279,6 @@ export default function ContractList() {
                                 </div>
                                 <button
                                     onClick={() => {
-                                        // Search ni tozalash
                                         window.location.reload();
                                     }}
                                     className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-300 rounded-md transition-colors"

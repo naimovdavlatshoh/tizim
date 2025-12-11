@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { IoDocumentLockOutline } from "react-icons/io5";
-import { MdPendingActions } from "react-icons/md";
+import { MdWarning } from "react-icons/md";
 import { GrMoney } from "react-icons/gr";
 import { TbCategory } from "react-icons/tb";
 import { TbFaceId } from "react-icons/tb";
 import { TbMessageReport } from "react-icons/tb";
+import { FaGift, FaMoneyBillWave } from "react-icons/fa";
 
 // Assume these icons are imported from an icon library
 import {
     // BoxCubeIcon,
-    // CalenderIcon,
+    CalenderIcon,
     ChevronDownIcon,
     GridIcon,
     GroupIcon,
@@ -71,26 +71,13 @@ const navItems: NavItem[] = [
     {
         name: "Договоры",
         icon: <DocsIcon />,
-        path: "/contracts",
         roles: [1, 2], // Admin va Director
-    },
-    {
-        name: "Новые договоры",
-        icon: <IoDocumentLockOutline />,
-        path: "/new-contracts",
-        roles: [1, 2], // Faqat Director
-    },
-    {
-        name: "Договоры в процессе",
-        icon: <MdPendingActions />,
-        path: "/pending-contracts",
-        roles: [1, 2], // Faqat Director
-    },
-    {
-        name: "Завершенные договоры",
-        icon: <DocsIcon />,
-        path: "/completed-contracts",
-        roles: [1, 2], // Faqat Director
+        subItems: [
+            { name: "Договоры", path: "/contracts" },
+            { name: "Новые договоры", path: "/new-contracts" },
+            { name: "Договоры в процессе", path: "/pending-contracts" },
+            { name: "Завершенные договоры", path: "/completed-contracts" },
+        ],
     },
     {
         name: "Мои договоры",
@@ -133,6 +120,30 @@ const navItems: NavItem[] = [
         icon: <DocsIcon />,
         path: "/broker-contracts",
         roles: [1, 5], // Faqat Admin
+    },
+    {
+        name: "Штрафы",
+        icon: <MdWarning />,
+        path: "/fines",
+        roles: [1], // Faqat Admin
+    },
+    {
+        name: "Бонусы",
+        icon: <FaGift />,
+        path: "/bonuses",
+        roles: [1], // Faqat Admin
+    },
+    {
+        name: "Авансы зарплаты",
+        icon: <FaMoneyBillWave />,
+        path: "/salary-advances",
+        roles: [1], // Faqat Admin
+    },
+    {
+        name: "Посещаемость",
+        icon: <CalenderIcon />,
+        path: "/attendance",
+        roles: [1, 2], // Admin va Director
     },
 
     // {
@@ -284,6 +295,12 @@ const AppSidebar: React.FC = () => {
             setCurrentPage("letters");
         } else if (path === "/broker-contracts") {
             setCurrentPage("broker-contracts");
+        } else if (path === "/fines") {
+            setCurrentPage("fines");
+        } else if (path === "/bonuses") {
+            setCurrentPage("bonuses");
+        } else if (path === "/salary-advances") {
+            setCurrentPage("salary-advances");
         } else {
             setCurrentPage("");
         }
@@ -463,7 +480,7 @@ const AppSidebar: React.FC = () => {
             onMouseEnter={() => !isExpanded && setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div  className="px-0 pt-5">
+            <div className="px-0 pt-5">
                 <img src="logo.png" alt="logo" className="w-1/3" />
             </div>
 

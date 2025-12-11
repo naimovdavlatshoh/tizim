@@ -220,9 +220,9 @@ const Reports = () => {
             window.URL.revokeObjectURL(url);
 
             toast.success("Отчет загружен");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error downloading report:", error);
-            toast.error("Ошибка при загрузке отчета");
+            toast.error(error?.response?.data?.error);
         }
     };
 
@@ -233,9 +233,11 @@ const Reports = () => {
             setDeleteModalOpen(false);
             setReportToDelete(null);
             fetchReports();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error deleting report:", error);
-            toast.error("Ошибка при удалении отчета");
+            toast.error(
+                error.response?.data?.error || "Ошибка при удалении отчета"
+            );
         }
     };
 

@@ -32,6 +32,10 @@ import ExpenseList from "./pages/Expenses";
 import FaceIdList from "./pages/FaceId";
 import LetterList from "./pages/Letters";
 import BrokerContractList from "./pages/BrokerContracts";
+import FineList from "./pages/Fines";
+import BonusList from "./pages/Bonuses";
+import SalaryAdvanceList from "./pages/SalaryAdvances";
+import AttendanceList from "./pages/Attendance";
 import { SearchProvider } from "./context/SearchContext";
 import NewContracts from "./pages/Director/NewContracts/NewContracts";
 import NewContractDetail from "./pages/Director/NewContracts/Detail";
@@ -161,6 +165,16 @@ export default function App() {
                             <Route
                                 path="/broker-contracts"
                                 element={<BrokerContractList />}
+                            />
+                            <Route path="/fines" element={<FineList />} />
+                            <Route path="/bonuses" element={<BonusList />} />
+                            <Route
+                                path="/salary-advances"
+                                element={<SalaryAdvanceList />}
+                            />
+                            <Route
+                                path="/attendance"
+                                element={<AttendanceList />}
                             />
 
                             {/* Ui Elements */}

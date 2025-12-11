@@ -2,6 +2,7 @@ import axios from "axios";
 import { handleAuthError } from "../utils/authUtils";
 
 export const BASE_URL = "https://apitizim.argon.uz/";
+// export const BASE_URL = "https://api.bnm-expert.uz/";
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -12,7 +13,7 @@ axios.interceptors.response.use(
     }
 );
 export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
-    const token = localStorage.getItem("token"); // yoki sessionStorage
+    const token = localStorage.getItem("token");
 
     const response = await axios.get(BASE_URL + url, {
         responseType: config.responseType || "json", // blob yoki json
@@ -34,7 +35,7 @@ export const GetDataSimplePDF = async (url: string) => {
     });
 };
 export const GetDataSimpleBlobExel = async (url: string, config: any = {}) => {
-    const token = localStorage.getItem("token"); // yoki sessionStorage
+    const token = localStorage.getItem("token");
 
     const response = await axios.get(BASE_URL + url, {
         responseType: "arraybuffer", // blob yoki json

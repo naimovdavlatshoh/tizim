@@ -49,7 +49,6 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
         setFaceImage(""); // reset
 
         try {
-            // 👉 backenddan blob sifatida olish
             const response: Blob = await GetDataSimpleBlob(
                 `api/faceid/faceimage/${faceId.face_id}`,
                 { responseType: "blob" }
@@ -64,9 +63,12 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
                 console.error("API blob qaytarmadi!");
                 toast.error("Rasmni o'qib bo'lmadi");
             }
-        } catch (error) {
+        } catch (error: any) {
+            setIsImageModalOpen(false);
+            setSelectedFaceId(null);
+            setFaceImage("");
             console.error("Error fetching face image:", error);
-            toast.error("Rasm yuklanmadi");
+            toast.error(error?.response?.data?.error || "Ошибка: Файл не существует.!");
         } finally {
             setLoadingImage(false);
         }

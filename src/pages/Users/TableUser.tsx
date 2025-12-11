@@ -31,6 +31,18 @@ interface TableUserProps {
     changeStatus: () => void;
 }
 
+const getRoleName = (roleId: number): string => {
+    const roleMap: { [key: number]: string } = {
+        1: "Директор",
+        2: "Бухгалтер",
+        3: "Эксперт",
+        4: "Лаборант",
+        5: "Брокер",
+        6: "Начальник лаборатория",
+    };
+    return roleMap[roleId] || "Неизвестная роль";
+};
+
 export default function TableUser({ users, changeStatus }: TableUserProps) {
     const { isOpen, openModal, closeModal } = useModal();
 
@@ -143,7 +155,7 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                     {order.login}
                                 </TableCell>
                                 <TableCell className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                    {order.role_name}
+                                    {getRoleName(order.role_id)}
                                 </TableCell>
                                 <TableCell className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <Button
