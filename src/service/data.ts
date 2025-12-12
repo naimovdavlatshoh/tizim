@@ -16,7 +16,7 @@ export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
     const token = localStorage.getItem("token");
 
     const response = await axios.get(BASE_URL + url, {
-        responseType: config.responseType || "json", // blob yoki json
+        responseType: config.responseType || "json",
         headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...config.headers,

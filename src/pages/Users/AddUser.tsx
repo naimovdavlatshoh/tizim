@@ -366,61 +366,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                         />
                     </div>
                     <div>
-                        <Label>Введите пароль</Label>
-                        <div className="relative">
-                            <Input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                            <button
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                            >
-                                {showPassword ? (
-                                    <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                                ) : (
-                                    <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <Label>Зарплата *</Label>
-                    <Input
-                        type="text"
-                        placeholder="Введите зарплату"
-                        value={displaySalary}
-                        onChange={handleSalaryChange}
-                    />
-                    {isCheckingSalary && (
-                        <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                            <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                Проверка зарплаты...
-                            </p>
-                        </div>
-                    )}
-                    {hourlyRate !== null &&
-                        isSalaryChecked &&
-                        !isCheckingSalary && (
-                            <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-                                <p className="text-sm text-green-800 dark:text-green-200">
-                                    <span className="font-semibold">
-                                        Ставка за час:
-                                    </span>{" "}x
-                                    {formatNumberWithSpaces(
-                                        hourlyRate ? hourlyRate?.toString() : "0"
-                                    )}{" "}
-                                    сум
-                                </p>
-                            </div>
-                        )}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
                         <Label>ID в Face ID (Не обязательно)</Label>
                         {loadingFaceId ? (
                             <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700">
@@ -447,6 +392,64 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                                 defaultValue={employeeNoString || ""}
                             />
                         )}
+                    </div>
+                </div>
+                <div>
+                    <Label>Введите пароль</Label>
+                    <div className="relative">
+                        <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                        >
+                            {showPassword ? (
+                                <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                            ) : (
+                                <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                            )}
+                        </button>
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label>Зарплата *</Label>
+                        <Input
+                            type="text"
+                            placeholder="Введите зарплату"
+                            value={displaySalary}
+                            onChange={handleSalaryChange}
+                        />
+                        {isCheckingSalary && (
+                            <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                                <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                    Проверка зарплаты...
+                                </p>
+                            </div>
+                        )}
+                        {hourlyRate !== null &&
+                            isSalaryChecked &&
+                            !isCheckingSalary && (
+                                <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                                    <p className="text-sm text-green-800 dark:text-green-200">
+                                        <span className="font-semibold">
+                                            Ставка за час:
+                                        </span>{" "}
+                                        x
+                                        {formatNumberWithSpaces(
+                                            hourlyRate
+                                                ? hourlyRate?.toString()
+                                                : "0"
+                                        )}{" "}
+                                        сум
+                                    </p>
+                                </div>
+                            )}
                     </div>
                     <div>
                         <Label>Штраф за опоздание *</Label>

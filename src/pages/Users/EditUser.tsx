@@ -384,52 +384,94 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                         />
                     </div>
                 </div>
-                <div>
-                    <div className="flex items-center gap-3 ">
-                        <Label>
-                            Выберите роль Текущая: {getCurrentRole()?.label}
-                        </Label>
-                    </div>
-                    <Select
-                        options={options}
-                        placeholder="Выберите роль"
-                        onChange={handleSelectChange}
-                        className="dark:bg-dark-900"
-                    />
-                </div>
-                <div>
-                    <Label>Зарплата *</Label>
-                    <Input
-                        type="text"
-                        placeholder="Введите зарплату"
-                        value={displaySalary}
-                        onChange={handleSalaryChange}
-                    />
-                    {isCheckingSalary && (
-                        <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                            <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                Проверка зарплаты...
-                            </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div className="flex items-center gap-3 ">
+                            <Label>
+                                Выберите роль Текущая: {getCurrentRole()?.label}
+                            </Label>
                         </div>
-                    )}
-                    {hourlyRate !== null &&
-                        isSalaryChecked &&
-                        !isCheckingSalary && (
-                            <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-                                <p className="text-sm text-green-800 dark:text-green-200">
-                                    <span className="font-semibold">
-                                        Ставка за час:
-                                    </span>{" "}
-                                    {formatNumberWithSpaces(
-                                        hourlyRate
-                                            ? hourlyRate?.toString()
-                                            : "0"
-                                    )}{" "}
-                                    сум
+                        <Select
+                            options={options}
+                            placeholder="Выберите роль"
+                            onChange={handleSelectChange}
+                            className="dark:bg-dark-900"
+                            defaultValue={roleId?.toString() || ""}
+                        />
+                    </div>
+                    <div>
+                        <Label>ID в Face ID *</Label>
+                        {loadingFaceId ? (
+                            <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700">
+                                Загрузка...
+                            </div>
+                        ) : (
+                            <Select
+                                options={faceIdEmployees.map((emp) => ({
+                                    value:
+                                        emp.employeeNoString?.toString() ||
+                                        emp.face_id?.toString() ||
+                                        "",
+                                    label:
+                                        emp.name ||
+                                        emp.employeeNoString ||
+                                        `ID: ${
+                                            emp.face_id || emp.employeeNoString
+                                        }`,
+                                    disabled: emp.is_integrated === 1,
+                                }))}
+                                placeholder="Выберите Face ID"
+                                onChange={(value) => setEmployeeNoString(value)}
+                                className="dark:bg-dark-900"
+                                defaultValue={employeeNoString || ""}
+                            />
+                        )}
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label>Зарплата *</Label>
+                        <Input
+                            type="text"
+                            placeholder="Введите зарплату"
+                            value={displaySalary}
+                            onChange={handleSalaryChange}
+                        />
+                        {isCheckingSalary && (
+                            <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                                <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                    Проверка зарплаты...
                                 </p>
                             </div>
                         )}
+                        {hourlyRate !== null &&
+                            isSalaryChecked &&
+                            !isCheckingSalary && (
+                                <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                                    <p className="text-sm text-green-800 dark:text-green-200">
+                                        <span className="font-semibold">
+                                            Ставка за час:
+                                        </span>{" "}
+                                        {formatNumberWithSpaces(
+                                            hourlyRate
+                                                ? hourlyRate?.toString()
+                                                : "0"
+                                        )}{" "}
+                                        сум
+                                    </p>
+                                </div>
+                            )}
+                    </div>
+                    <div>
+                        <Label>Штраф за опоздание *</Label>
+                        <Input
+                            type="text"
+                            placeholder="Введите сумму штрафа"
+                            value={displayFineBeingLate}
+                            onChange={handleFineBeingLateChange}
+                        />
+                    </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -439,7 +481,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                             type="file"
                             accept="image/*"
                             onChange={handleAvatarChange}
-                            className="block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-200"
+                            className="block w-full h-11 rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent text-sm text-gray-700 dark:text-gray-300 shadow-theme-xs file:mr-4 file:py-3 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-200 dark:bg-gray-900"
                             disabled={isUploadingAvatar}
                         />
                         {isUploadingAvatar && (
@@ -473,45 +515,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                                 )}
                             </button>
                         </div>
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <Label>ID в Face ID *</Label>
-                        {loadingFaceId ? (
-                            <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700">
-                                Загрузка...
-                            </div>
-                        ) : (
-                            <Select
-                                options={faceIdEmployees.map((emp) => ({
-                                    value:
-                                        emp.employeeNoString?.toString() ||
-                                        emp.face_id?.toString() ||
-                                        "",
-                                    label:
-                                        emp.name ||
-                                        emp.employeeNoString ||
-                                        `ID: ${
-                                            emp.face_id || emp.employeeNoString
-                                        }`,
-                                    disabled: emp.is_integrated === 1,
-                                }))}
-                                placeholder="Выберите Face ID"
-                                onChange={(value) => setEmployeeNoString(value)}
-                                className="dark:bg-dark-900"
-                                defaultValue={employeeNoString || ""}
-                            />
-                        )}
-                    </div>
-                    <div>
-                        <Label>Штраф за опоздание *</Label>
-                        <Input
-                            type="text"
-                            placeholder="Введите сумму штрафа"
-                            value={displayFineBeingLate}
-                            onChange={handleFineBeingLateChange}
-                        />
                     </div>
                 </div>
 
