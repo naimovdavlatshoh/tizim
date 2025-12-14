@@ -14,7 +14,6 @@ axios.interceptors.response.use(
 );
 export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
     const token = localStorage.getItem("token");
-
     const response = await axios.get(BASE_URL + url, {
         responseType: config.responseType || "json",
         headers: {
@@ -23,7 +22,6 @@ export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
         },
         ...config,
     });
-
     return response.data;
 };
 export const GetDataSimplePDF = async (url: string) => {

@@ -36,6 +36,7 @@ import FineList from "./pages/Fines";
 import BonusList from "./pages/Bonuses";
 import SalaryAdvanceList from "./pages/SalaryAdvances";
 import AttendanceList from "./pages/Attendance";
+import EmployeeList from "./pages/Employees";
 import { SearchProvider } from "./context/SearchContext";
 import NewContracts from "./pages/Director/NewContracts/NewContracts";
 import NewContractDetail from "./pages/Director/NewContracts/Detail";
@@ -175,6 +176,10 @@ export default function App() {
                             <Route
                                 path="/attendance"
                                 element={<AttendanceList />}
+                            />
+                            <Route
+                                path="/employees"
+                                element={<EmployeeList />}
                             />
 
                             {/* Ui Elements */}

@@ -145,6 +145,12 @@ const navItems: NavItem[] = [
         path: "/attendance",
         roles: [1, 2], // Admin va Director
     },
+    {
+        name: "Статистика сотрудников",
+        icon: <UserIcon />,
+        path: "/employees",
+        roles: [1, 2], // Admin va Director
+    },
 
     // {
     //     icon: <CalenderIcon />,

@@ -14,6 +14,8 @@ import Button from "../../components/ui/button/Button";
 import DeleteUserModal from "./DeleteUser";
 import { DeleteData } from "../../service/data";
 import { Modal } from "../../components/ui/modal";
+import { useNavigate } from "react-router";
+import { FiEye } from "react-icons/fi";
 
 interface Users {
     user_id: number;
@@ -45,6 +47,7 @@ const getRoleName = (roleId: number): string => {
 
 export default function TableUser({ users, changeStatus }: TableUserProps) {
     const { isOpen, openModal, closeModal } = useModal();
+    const navigate = useNavigate();
 
     const [response, setResponse] = useState("");
     const [selectedUser, setSelectedUser] = useState<Users | null>(null);
@@ -158,33 +161,50 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                     {getRoleName(order.role_id)}
                                 </TableCell>
                                 <TableCell className=" py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                    <Button
-                                        className="mr-2"
-                                        onClick={() => {
-                                            openModal();
-                                            setSelectedUser(order);
-                                        }}
-                                        size="xs"
-                                        variant="outline"
-                                        startIcon={
-                                            <PencilIcon className="size-4" />
-                                        }
-                                    >
-                                        {""}
-                                    </Button>
-                                    <Button
-                                        onClick={() => {
-                                            setDeleteModalOpen(true);
-                                            setSelectedUser(order);
-                                        }}
-                                        size="xs"
-                                        variant="danger"
-                                        startIcon={
-                                            <TrashBinIcon className="size-4" />
-                                        }
-                                    >
-                                        {""}
-                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            className="mr-2"
+                                            onClick={() => {
+                                                navigate(
+                                                    `/employees?user_id=${order.user_id}`
+                                                );
+                                            }}
+                                            size="xs"
+                                            variant="outline"
+                                            startIcon={
+                                                <FiEye className="size-4" />
+                                            }
+                                        >
+                                            {""}
+                                        </Button>
+                                        <Button
+                                            className="mr-2"
+                                            onClick={() => {
+                                                openModal();
+                                                setSelectedUser(order);
+                                            }}
+                                            size="xs"
+                                            variant="outline"
+                                            startIcon={
+                                                <PencilIcon className="size-4" />
+                                            }
+                                        >
+                                            {""}
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                setDeleteModalOpen(true);
+                                                setSelectedUser(order);
+                                            }}
+                                            size="xs"
+                                            variant="danger"
+                                            startIcon={
+                                                <TrashBinIcon className="size-4" />
+                                            }
+                                        >
+                                            {""}
+                                        </Button>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}

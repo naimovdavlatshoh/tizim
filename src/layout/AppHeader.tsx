@@ -36,6 +36,8 @@ const AppHeader: React.FC = () => {
             setCurrentPage("salary-advances");
         } else if (path.includes("/attendance")) {
             setCurrentPage("attendance");
+        } else if (path.includes("/employees")) {
+            setCurrentPage("employees");
         } else if (path.includes("/dashboard") || path === "/") {
             setCurrentPage("dashboard");
         } else {
