@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { GetDataSimple } from "../../service/data";
 import { toast } from "react-hot-toast";
 import Loader from "../../components/ui/loader/Loader";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
-import PageMeta from "../../components/common/PageMeta";
 import Select from "../../components/form/Select";
 import { useSearchParams } from "react-router";
 
@@ -258,18 +256,53 @@ export default function EmployeeList() {
         });
     };
 
-    const getStatusColor = (status: string, dayType: string) => {
-        if (dayType === "weekend")
-            return "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400";
-        if (dayType === "future")
-            return "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-500";
-        if (status.includes("Пришёл вовремя"))
-            return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
-        if (status.includes("Опоздал"))
-            return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300";
-        if (status.includes("Отсутствовал"))
-            return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300";
-        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300";
+    const getInitials = (fullname?: string) => {
+        if (!fullname) return "UZ";
+        const parts = fullname.split(" ").filter(Boolean);
+        if (!parts.length) return "UZ";
+        const first = parts[0]?.[0] || "";
+        const second = parts[1]?.[0] || "";
+        return (first + second).toUpperCase();
+    };
+
+    const getMonthCalendarDays = () => {
+        if (!userStats?.period) return [];
+        const { month, year } = userStats.period;
+        const daysInMonth = new Date(year, month, 0).getDate();
+        return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    };
+
+    const getCalendarDayStatus = (day: number) => {
+        if (!userStats?.period || !userStats.daily_details) {
+            return { color: "bg-gray-100 text-gray-500", details: null };
+        }
+        const { month, year } = userStats.period;
+        const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(
+            day
+        ).padStart(2, "0")}`;
+        const details = userStats.daily_details[dateKey];
+        if (!details) {
+            return { color: "bg-gray-100 text-gray-500", details: null };
+        }
+        if (details.day_type === "weekend") {
+            return { color: "bg-red-500 text-white", details };
+        }
+        if (details.status.includes("Отсутствовал")) {
+            return { color: "bg-red-500 text-white", details };
+        }
+        if (details.status.includes("Опоздал")) {
+            return { color: "bg-yellow-400 text-white", details };
+        }
+        return { color: "bg-emerald-500 text-white", details };
+    };
+
+    const formatTime = (dateString: string | null) => {
+        if (!dateString) return "-";
+        const date = new Date(dateString);
+        return date.toLocaleTimeString("ru-RU", {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
     };
 
     if (loading) {
@@ -278,8 +311,11 @@ export default function EmployeeList() {
 
     return (
         <>
-            <PageMeta title="Статистика сотрудников" description="Статистика сотрудников" />
-            <PageBreadcrumb pageTitle="Статистика сотрудников" />
+            {/* <PageMeta
+                title="Статистика сотрудников"
+                description="Статистика сотрудников"
+            />
+            <PageBreadcrumb pageTitle="Статистика сотрудников" /> */}
             <ComponentCard title="Статистика сотрудников" desc="">
                 <div className="flex gap-6 h-[calc(100vh-250px)]">
                     {/* Left Sidebar - Users List */}
@@ -344,234 +380,540 @@ export default function EmployeeList() {
                     <div className="flex-1 overflow-y-auto pr-2">
                         {selectedUserId ? (
                             <>
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-lg font-semibold dark:text-gray-100">
-                                        Статистика сотрудника
-                                    </h3>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-40">
-                                            <Select
-                                                options={monthOptions}
-                                                placeholder="Выберите месяц"
-                                                onChange={(value) =>
-                                                    setCurrentMonth(
-                                                        Number(value)
-                                                    )
-                                                }
-                                                className="dark:bg-dark-900"
-                                                defaultValue={currentMonth.toString()}
-                                            />
-                                        </div>
-                                        <div className="w-32">
-                                            <Select
-                                                options={yearOptions}
-                                                placeholder="Выберите год"
-                                                onChange={(value) =>
-                                                    setCurrentYear(
-                                                        Number(value)
-                                                    )
-                                                }
-                                                className="dark:bg-dark-900"
-                                                defaultValue={currentYear.toString()}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
                                 {loadingStats ? (
                                     <div className="flex items-center justify-center h-64">
                                         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                                     </div>
                                 ) : userStats ? (
                                     <div className="space-y-6">
-                                        {/* User Info & Period */}
-                                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                                            <div className="flex items-center justify-between mb-4">
+                                        {/* Top profile-style block */}
+                                        <div className="rounded-2xl bg-white dark:bg-gray-900 border px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sky-100 text-sky-700 text-xl font-semibold">
+                                                    {getInitials(
+                                                        userStats.user_info
+                                                            ?.fullname
+                                                    )}
+                                                </div>
                                                 <div>
-                                                    <h4 className="text-xl font-bold dark:text-gray-100">
+                                                    <h4 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
                                                         {userStats.user_info
                                                             ?.fullname || "-"}
                                                     </h4>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                        ID сотрудника:{" "}
+                                                    <p className="mt-1 text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                                                        ID:{" "}
                                                         {userStats.user_info
                                                             ?.employeeNo || "-"}
-                                                    </p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-lg font-semibold dark:text-gray-100">
+                                                        <span className="mx-1">
+                                                            |
+                                                        </span>
                                                         {userStats.period
                                                             ?.display || "-"}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                                <div>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                        Базовая зарплата
-                                                    </p>
-                                                    <p className="text-base font-medium dark:text-gray-100">
-                                                        {formatNumberWithSpaces(
-                                                            userStats
-                                                                .salary_info
-                                                                ?.base_salary
-                                                        )}{" "}
-                                                        {userStats.salary_info
-                                                            ?.currency || "UZS"}
-                                                    </p>
+                                            <div className="flex flex-wrap gap-3 text-xs sm:text-sm">
+                                                <div className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                                    Отработанное время:{" "}
+                                                    <span className="font-semibold">
+                                                        {userStats.work_summary
+                                                            ?.worked_minutes_text ||
+                                                            "0 мин"}
+                                                    </span>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                        Ставка за час
-                                                    </p>
-                                                    <p className="text-base font-medium dark:text-gray-100">
-                                                        {formatNumberWithSpaces(
-                                                            userStats
-                                                                .salary_info
-                                                                ?.hourly_rate
-                                                        )}{" "}
-                                                        {userStats.salary_info
-                                                            ?.currency || "UZS"}
-                                                    </p>
+                                                <div className="px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+                                                    Сверхурочные:{" "}
+                                                    <span className="font-semibold">
+                                                        {userStats.work_summary
+                                                            ?.overtime_minutes_text ||
+                                                            "0 мин"}
+                                                    </span>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                        Штраф за опоздание
-                                                    </p>
-                                                    <p className="text-base font-medium dark:text-gray-100">
-                                                        {formatNumberWithSpaces(
-                                                            userStats
-                                                                .salary_info
-                                                                ?.fine_per_late
-                                                        )}{" "}
-                                                        {userStats.salary_info
-                                                            ?.currency || "UZS"}
-                                                    </p>
+                                                <div className="px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-100">
+                                                    Опозданий:{" "}
+                                                    <span className="font-semibold">
+                                                        {userStats.work_summary
+                                                            ?.late_days || 0}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Work Summary */}
-                                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                                            <h4 className="text-lg font-semibold mb-4 dark:text-gray-100">
-                                                Сводка по работе
-                                            </h4>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {/* Calendar + legend & selectors */}
+                                        <div className="rounded-2xl bg-white dark:bg-gray-900 border px-6 py-5">
+                                            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.4fr)] gap-6">
+                                                {/* Calendar */}
                                                 <div>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                                        Отработано
-                                                    </p>
-                                                    <p className="text-lg font-semibold dark:text-gray-100">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <div>
+                                                            <p className="text-xs uppercase tracking-wide text-gray-400">
+                                                                Календарь
+                                                                посещаемости
+                                                            </p>
+                                                            <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                                                                {userStats
+                                                                    .period
+                                                                    ?.display ||
+                                                                    "-"}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-40">
+                                                                <Select
+                                                                    options={
+                                                                        monthOptions
+                                                                    }
+                                                                    placeholder="Месяц"
+                                                                    onChange={(
+                                                                        value
+                                                                    ) =>
+                                                                        setCurrentMonth(
+                                                                            Number(
+                                                                                value
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                    className="dark:bg-dark-900"
+                                                                    defaultValue={currentMonth.toString()}
+                                                                />
+                                                            </div>
+                                                            <div className="w-32">
+                                                                <Select
+                                                                    options={
+                                                                        yearOptions
+                                                                    }
+                                                                    placeholder="Год"
+                                                                    onChange={(
+                                                                        value
+                                                                    ) =>
+                                                                        setCurrentYear(
+                                                                            Number(
+                                                                                value
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                    className="dark:bg-dark-900"
+                                                                    defaultValue={currentYear.toString()}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 px-4 pt-4 pb-3">
+                                                        <div className="grid grid-cols-7 gap-2 text-center text-[11px] font-medium text-slate-400 mb-3">
+                                                            {[
+                                                                "Du",
+                                                                "Se",
+                                                                "Ch",
+                                                                "Pa",
+                                                                "Ju",
+                                                                "Sh",
+                                                                "Ya",
+                                                            ].map((w) => (
+                                                                <span key={w}>
+                                                                    {w}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                        <div className="grid grid-cols-7 gap-2">
+                                                            {getMonthCalendarDays().map(
+                                                                (day) => {
+                                                                    const {
+                                                                        color,
+                                                                        details,
+                                                                    } =
+                                                                        getCalendarDayStatus(
+                                                                            day
+                                                                        );
+                                                                    return (
+                                                                        <div
+                                                                            key={
+                                                                                day
+                                                                            }
+                                                                            className="flex items-center justify-center relative group"
+                                                                        >
+                                                                            <div
+                                                                                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold cursor-pointer transition-all ${color}`}
+                                                                            >
+                                                                                {
+                                                                                    day
+                                                                                }
+                                                                            </div>
+                                                                            {details && (
+                                                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 w-56">
+                                                                                    <div className="bg-gray-900 text-white text-xs rounded-lg shadow-lg p-3 border border-gray-700">
+                                                                                        <div className="font-semibold mb-2 pb-2 border-b border-gray-700">
+                                                                                            {
+                                                                                                details.status
+                                                                                            }
+                                                                                        </div>
+                                                                                        <div className="space-y-1">
+                                                                                            {details.in && (
+                                                                                                <div className="flex justify-between">
+                                                                                                    <span className="text-gray-400">
+                                                                                                        Вход:
+                                                                                                    </span>
+                                                                                                    <span>
+                                                                                                        {formatTime(
+                                                                                                            details.in
+                                                                                                        )}
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            )}
+                                                                                            {details.out && (
+                                                                                                <div className="flex justify-between">
+                                                                                                    <span className="text-gray-400">
+                                                                                                        Выход:
+                                                                                                    </span>
+                                                                                                    <span>
+                                                                                                        {formatTime(
+                                                                                                            details.out
+                                                                                                        )}
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            )}
+                                                                                            {details.workedMinutes >
+                                                                                                0 && (
+                                                                                                <div className="flex justify-between pt-1 border-t border-gray-700 mt-1">
+                                                                                                    <span className="text-gray-400">
+                                                                                                        Отработано:
+                                                                                                    </span>
+                                                                                                    <span className="font-semibold">
+                                                                                                        {
+                                                                                                            details.workedMinutes_text
+                                                                                                        }
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            )}
+                                                                                            {details.overtimeMinutes >
+                                                                                                0 && (
+                                                                                                <div className="flex justify-between">
+                                                                                                    <span className="text-gray-400">
+                                                                                                        Сверхурочные:
+                                                                                                    </span>
+                                                                                                    <span>
+                                                                                                        {
+                                                                                                            details.overtimeMinutes_text
+                                                                                                        }
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-gray-900 rotate-45 border-r border-b border-gray-700"></div>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Legend + summary */}
+                                                <div className="flex flex-col justify-between gap-2">
+                                                    <div>
+                                                        <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">
+                                                            Ежедневные
+                                                            результаты
+                                                        </p>
+                                                        <div className="space-y-1 text-[11px]">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                                                                    <span className="text-gray-700 dark:text-gray-200">
+                                                                        Пришёл
+                                                                    </span>
+                                                                </div>
+                                                                <span className="font-semibold text-gray-900 dark:text-white text-xs">
+                                                                    {
+                                                                        userStats
+                                                                            .work_summary
+                                                                            ?.valid_days
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="h-2 w-2 rounded-full bg-amber-400" />
+                                                                    <span className="text-gray-700 dark:text-gray-200">
+                                                                        Опоздал
+                                                                    </span>
+                                                                </div>
+                                                                <span className="font-semibold text-gray-900 dark:text-white text-xs">
+                                                                    {
+                                                                        userStats
+                                                                            .work_summary
+                                                                            ?.late_days
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="h-2 w-2 rounded-full bg-rose-500" />
+                                                                    <span className="text-gray-700 dark:text-gray-200">
+                                                                        Отсутствовал
+                                                                    </span>
+                                                                </div>
+                                                                <span className="font-semibold text-gray-900 dark:text-white text-xs">
+                                                                    {
+                                                                        userStats
+                                                                            .work_summary
+                                                                            ?.incomplete_days
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-1">
+                                                        <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">
+                                                            Общие показатели
+                                                        </p>
+                                                        <div className="grid grid-cols-2 gap-2 text-[10px]">
+                                                            <div className="rounded-lg bg-sky-50 px-2 py-1.5">
+                                                                <p className="text-gray-500 text-[10px] leading-tight">
+                                                                    Базовая
+                                                                    зарплата
+                                                                </p>
+                                                                <p className="mt-0.5 text-lg font-semibold text-gray-900">
+                                                                    {formatNumberWithSpaces(
+                                                                        userStats
+                                                                            .salary_info
+                                                                            ?.base_salary
+                                                                    )}{" "}
+                                                                </p>
+                                                            </div>
+                                                            <div className="rounded-lg bg-emerald-50 px-2 py-1.5">
+                                                                <p className="text-gray-500 text-[10px] leading-tight">
+                                                                    Зарплата за
+                                                                    часы
+                                                                </p>
+                                                                <p className="mt-0.5 text-lg font-semibold text-gray-900">
+                                                                    {formatNumberWithSpaces(
+                                                                        userStats
+                                                                            .financial_summary
+                                                                            ?.salary_for_worked_hours
+                                                                    )}{" "}
+                                                                </p>
+                                                            </div>
+                                                            <div className="rounded-lg bg-amber-50 px-2 py-1.5 ">
+                                                                <p className="text-gray-500 text-[10px] leading-tight">
+                                                                    Все бонусы
+                                                                </p>
+                                                                <p className="mt-0.5 text-lg font-semibold text-gray-900">
+                                                                    {formatNumberWithSpaces(
+                                                                        userStats
+                                                                            .financial_summary
+                                                                            ?.bonuses_total
+                                                                    )}{" "}
+                                                                </p>
+                                                            </div>
+                                                            <div className="rounded-lg bg-amber-50 px-2 py-1.5 ">
+                                                                <p className="text-gray-500 text-[10px] leading-tight">
+                                                                    Общая
+                                                                    зарплата
+                                                                </p>
+                                                                <p className="mt-0.5 text-lg font-semibold text-gray-900">
+                                                                    {formatNumberWithSpaces(
+                                                                        userStats
+                                                                            .financial_summary
+                                                                            ?.total_salary ||
+                                                                            0
+                                                                    )}{" "}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Bottom row of summary cards */}
+                                        <div className="space-y-4">
+                                            {/* First row - 3 cards */}
+                                            <div className="grid grid-cols-1 sm:grid-cols-6 gap-4">
+                                                <div className="rounded-2xl flex flex-col justify-between bg-sky-50 px-2 py-2">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <svg
+                                                            className="w-5 h-5 text-sky-600"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                            />
+                                                        </svg>
+
+                                                        <p className="text-xs font-medium text-gray-500">
+                                                            Отработано
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-md font-semibold text-gray-900">
                                                         {userStats.work_summary
                                                             ?.worked_minutes_text ||
                                                             "0 мин"}
                                                     </p>
-                                                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                                                        {userStats.work_summary
-                                                            ?.worked_hours ||
-                                                            0}{" "}
-                                                        часов
-                                                    </p>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                                        Сверхурочные
-                                                    </p>
-                                                    <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+                                                <div className="rounded-2xl flex flex-col justify-between bg-amber-50 px-2 py-2">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <svg
+                                                            className="w-5 h-5 text-amber-600"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                            />
+                                                        </svg>
+
+                                                        <p className="text-xs font-medium text-gray-500">
+                                                            Опоздал
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-md font-semibold text-gray-900">
                                                         {userStats.work_summary
-                                                            ?.overtime_minutes_text ||
+                                                            ?.early_minutes_text ||
                                                             "0 мин"}
                                                     </p>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                                        Полных дней
-                                                    </p>
-                                                    <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-                                                        {userStats.work_summary
-                                                            ?.valid_days || 0}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                                        Опозданий
-                                                    </p>
-                                                    <p className="text-lg font-semibold text-red-600 dark:text-red-400">
-                                                        {userStats.work_summary
-                                                            ?.late_days || 0}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Financial Summary */}
-                                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                                            <h4 className="text-lg font-semibold mb-4 dark:text-gray-100">
-                                                Финансовая сводка
-                                            </h4>
-                                            <div className="space-y-3 mb-4">
-                                                {userStats.financial_summary?.breakdown?.map(
-                                                    (item, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                                                <div className="rounded-2xl flex flex-col justify-between bg-violet-50 px-2 py-2">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <svg
+                                                            className="w-5 h-5 text-violet-600"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
                                                         >
-                                                            <div className="flex-1">
-                                                                <p className="font-medium dark:text-gray-100">
-                                                                    {item.type}
-                                                                </p>
-                                                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                                    {
-                                                                        item.description
-                                                                    }
-                                                                </p>
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <span
-                                                                    className={`text-lg font-bold ${
-                                                                        item.operation ===
-                                                                        "+"
-                                                                            ? "text-green-600 dark:text-green-400"
-                                                                            : "text-red-600 dark:text-red-400"
-                                                                    }`}
-                                                                >
-                                                                    {
-                                                                        item.operation
-                                                                    }{" "}
-                                                                    {formatNumberWithSpaces(
-                                                                        item.amount
-                                                                    )}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                )}
-                                            </div>
-                                            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                                <div className="flex items-center justify-between">
-                                                    <p className="text-lg font-semibold dark:text-gray-100">
-                                                        Итого к выплате
-                                                    </p>
-                                                    <p
-                                                        className={`text-2xl font-bold ${
-                                                            (userStats
-                                                                .financial_summary
-                                                                ?.total_salary ||
-                                                                0) >= 0
-                                                                ? "text-green-600 dark:text-green-400"
-                                                                : "text-red-600 dark:text-red-400"
-                                                        }`}
-                                                    >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                                                            />
+                                                        </svg>
+
+                                                        <p className="text-xs font-medium text-gray-500">
+                                                            KPI
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-md font-semibold text-emerald-600">
+                                                        +{" "}
                                                         {formatNumberWithSpaces(
                                                             userStats
                                                                 .financial_summary
-                                                                ?.total_salary
+                                                                ?.bonuses_total ||
+                                                                0
+                                                        )}{" "}
+                                                        {userStats.salary_info
+                                                            ?.currency || "UZS"}
+                                                    </p>
+                                                </div>
+                                                <div className="rounded-2xl flex flex-col justify-between bg-orange-50 px-2 py-2">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <svg
+                                                            className="w-5 h-5 text-orange-600"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                            />
+                                                        </svg>
+
+                                                        <p className="text-xs font-medium text-gray-500">
+                                                            Аванс
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-md font-semibold text-red-600">
+                                                        -{" "}
+                                                        {formatNumberWithSpaces(
+                                                            userStats
+                                                                .financial_summary
+                                                                ?.advances_total ||
+                                                                0
+                                                        )}{" "}
+                                                        {userStats.salary_info
+                                                            ?.currency || "UZS"}
+                                                    </p>
+                                                </div>
+                                                <div className="rounded-2xl flex flex-col justify-between bg-rose-50 px-2 py-2">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <svg
+                                                            className="w-5 h-5 text-rose-600"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                                            />
+                                                        </svg>
+                                                        <p className="text-xs font-medium text-gray-500">
+                                                            Штраф за опоздание
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-md font-semibold text-red-600">
+                                                        -{" "}
+                                                        {formatNumberWithSpaces(
+                                                            userStats
+                                                                .financial_summary
+                                                                ?.late_fines_total ||
+                                                                0
+                                                        )}{" "}
+                                                        {userStats.salary_info
+                                                            ?.currency || "UZS"}
+                                                    </p>
+                                                </div>
+                                                <div className="rounded-2xl flex flex-col justify-between bg-emerald-50 px-2 py-2">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <svg
+                                                            className="w-5 h-5 text-emerald-600"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                            />
+                                                        </svg>
+                                                        <p className="text-xs font-medium text-gray-500">
+                                                            Начисленная зарплата
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-md font-semibold text-gray-900">
+                                                        {formatNumberWithSpaces(
+                                                            userStats
+                                                                .financial_summary
+                                                                ?.salary_for_worked_hours ||
+                                                                0
                                                         )}{" "}
                                                         {userStats.salary_info
                                                             ?.currency || "UZS"}
                                                     </p>
                                                 </div>
                                             </div>
+
+
                                         </div>
 
                                         {/* Fines, Bonuses, Advances */}
@@ -739,84 +1081,6 @@ export default function EmployeeList() {
                                                         </p>
                                                     )}
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Daily Details Calendar */}
-                                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                                            <h4 className="text-lg font-semibold mb-4 dark:text-gray-100">
-                                                Детали по дням
-                                            </h4>
-                                            <div className="grid grid-cols-7 gap-2">
-                                                {Object.entries(
-                                                    userStats.daily_details ||
-                                                        {}
-                                                )
-                                                    .sort(([dateA], [dateB]) =>
-                                                        dateA.localeCompare(
-                                                            dateB
-                                                        )
-                                                    )
-                                                    .map(([date, details]) => {
-                                                        const dayNumber =
-                                                            new Date(
-                                                                date
-                                                            ).getDate();
-                                                        return (
-                                                            <div
-                                                                key={date}
-                                                                className={`p-3 rounded-lg border text-center ${getStatusColor(
-                                                                    details.status,
-                                                                    details.day_type
-                                                                )}`}
-                                                            >
-                                                                <p className="text-xs font-medium mb-1">
-                                                                    {dayNumber}
-                                                                </p>
-                                                                <p className="text-xs mb-1">
-                                                                    {
-                                                                        details.status
-                                                                    }
-                                                                </p>
-                                                                {details.in && (
-                                                                    <p className="text-xs opacity-75">
-                                                                        В:{" "}
-                                                                        {new Date(
-                                                                            details.in
-                                                                        ).toLocaleTimeString(
-                                                                            "ru-RU",
-                                                                            {
-                                                                                hour: "2-digit",
-                                                                                minute: "2-digit",
-                                                                            }
-                                                                        )}
-                                                                    </p>
-                                                                )}
-                                                                {details.out && (
-                                                                    <p className="text-xs opacity-75">
-                                                                        И:{" "}
-                                                                        {new Date(
-                                                                            details.out
-                                                                        ).toLocaleTimeString(
-                                                                            "ru-RU",
-                                                                            {
-                                                                                hour: "2-digit",
-                                                                                minute: "2-digit",
-                                                                            }
-                                                                        )}
-                                                                    </p>
-                                                                )}
-                                                                {details.workedMinutes >
-                                                                    0 && (
-                                                                    <p className="text-xs font-semibold mt-1">
-                                                                        {
-                                                                            details.workedMinutes_text
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        );
-                                                    })}
                                             </div>
                                         </div>
                                     </div>
