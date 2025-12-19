@@ -256,14 +256,14 @@ export default function EmployeeList() {
         });
     };
 
-    const getInitials = (fullname?: string) => {
-        if (!fullname) return "UZ";
-        const parts = fullname.split(" ").filter(Boolean);
-        if (!parts.length) return "UZ";
-        const first = parts[0]?.[0] || "";
-        const second = parts[1]?.[0] || "";
-        return (first + second).toUpperCase();
-    };
+    // const getInitials = (fullname?: string) => {
+    //     if (!fullname) return "UZ";
+    //     const parts = fullname.split(" ").filter(Boolean);
+    //     if (!parts.length) return "UZ";
+    //     const first = parts[0]?.[0] || "";
+    //     const second = parts[1]?.[0] || "";
+    //     return (first + second).toUpperCase();
+    // };
 
     const getMonthCalendarDays = () => {
         if (!userStats?.period) return [];
@@ -277,6 +277,22 @@ export default function EmployeeList() {
             return { color: "bg-gray-100 text-gray-500", details: null };
         }
         const { month, year } = userStats.period;
+
+        // Check if the day is Sunday (getDay() returns 0 for Sunday)
+        const date = new Date(year, month - 1, day);
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek === 0) {
+            // Sunday - return gray color
+            const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(
+                day
+            ).padStart(2, "0")}`;
+            const details = userStats.daily_details[dateKey];
+            return {
+                color: "bg-gray-300 text-gray-600",
+                details: details || null,
+            };
+        }
+
         const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(
             day
         ).padStart(2, "0")}`;
@@ -387,7 +403,7 @@ export default function EmployeeList() {
                                 ) : userStats ? (
                                     <div className="space-y-6">
                                         {/* Top profile-style block */}
-                                        <div className="rounded-2xl bg-white dark:bg-gray-900 border px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                        {/* <div className="rounded-2xl bg-white dark:bg-gray-900 border px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                             <div className="flex items-center gap-4">
                                                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sky-100 text-sky-700 text-xl font-semibold">
                                                     {getInitials(
@@ -437,7 +453,7 @@ export default function EmployeeList() {
                                                     </span>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> */}
 
                                         {/* Calendar + legend & selectors */}
                                         <div className="rounded-2xl bg-white dark:bg-gray-900 border px-6 py-5">
@@ -912,8 +928,6 @@ export default function EmployeeList() {
                                                     </p>
                                                 </div>
                                             </div>
-
-
                                         </div>
 
                                         {/* Fines, Bonuses, Advances */}
