@@ -304,9 +304,7 @@ export default function TableContract({
                                             }}
                                             size="xs"
                                             variant="danger"
-                                            disabled={
-                                                contract.contract_status !== 1
-                                            }
+                                            
                                             startIcon={
                                                 <FaTrash className="size-4" />
                                             }

@@ -24,6 +24,7 @@ interface MyContract {
     client_id: string;
     client_name: string;
     client_type: string;
+    created_at: string;
     business_name: string;
     phone_number: string;
     bank_account: string;
@@ -70,6 +71,8 @@ const MyContractDetail = () => {
             const foundContract = contractsData.find(
                 (contract: MyContract) => contract.contract_id == id
             );
+            console.log(foundContract);
+
 
             if (foundContract) {
                 setContract(foundContract);
@@ -190,7 +193,7 @@ const MyContractDetail = () => {
             <div className="space-y-6">
                 {/* Contract Header */}
                 <ComponentCard
-                    title={`Договор №${contract.contract_number}`}
+                    title={`Договор №${contract.contract_number}, Создано  ${formatDate(contract?.created_at || "")}`}
                     desc={
                         <div className="flex gap-3">
                             <Button
