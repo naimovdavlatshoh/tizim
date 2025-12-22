@@ -301,10 +301,10 @@ export default function EmployeeList() {
             return { color: "bg-gray-100 text-gray-500", details: null };
         }
         if (details.day_type === "weekend") {
-            return { color: "bg-red-500 text-white", details };
+            return { color: "bg-red-400 text-white", details };
         }
         if (details.status.includes("Отсутствовал")) {
-            return { color: "bg-red-500 text-white", details };
+            return { color: "bg-red-400 text-white", details };
         }
         if (details.status.includes("Опоздал")) {
             return { color: "bg-yellow-400 text-white", details };
@@ -445,7 +445,7 @@ export default function EmployeeList() {
                                                             "0 мин"}
                                                     </span>
                                                 </div>
-                                                <div className="px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-100">
+                                                <div className="px-3 py-1 rounded-full bg-red-50 text-red-400 border border-red-100">
                                                     Опозданий:{" "}
                                                     <span className="font-semibold">
                                                         {userStats.work_summary
@@ -456,7 +456,7 @@ export default function EmployeeList() {
                                         </div> */}
 
                                         {/* Calendar + legend & selectors */}
-                                        <div className="rounded-2xl bg-white dark:bg-gray-900 border px-6 py-5">
+                                        <div className="rounded-2xl bg-white dark:bg-gray-900 border px-6 py-5 relative z-10">
                                             <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.4fr)] gap-6">
                                                 {/* Calendar */}
                                                 <div>
@@ -533,7 +533,10 @@ export default function EmployeeList() {
                                                         </div>
                                                         <div className="grid grid-cols-7 gap-2">
                                                             {getMonthCalendarDays().map(
-                                                                (day) => {
+                                                                (
+                                                                    day,
+                                                                    index
+                                                                ) => {
                                                                     const {
                                                                         color,
                                                                         details,
@@ -541,6 +544,17 @@ export default function EmployeeList() {
                                                                         getCalendarDayStatus(
                                                                             day
                                                                         );
+                                                                    // Calculate row number (1-based)
+                                                                    const rowNumber =
+                                                                        Math.floor(
+                                                                            index /
+                                                                                7
+                                                                        ) + 1;
+                                                                    // Show tooltip below for first 2 rows, above for others
+                                                                    const showBelow =
+                                                                        rowNumber <=
+                                                                        2;
+
                                                                     return (
                                                                         <div
                                                                             key={
@@ -556,48 +570,70 @@ export default function EmployeeList() {
                                                                                 }
                                                                             </div>
                                                                             {details && (
-                                                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 w-56">
-                                                                                    <div className="bg-gray-900 text-white text-xs rounded-lg shadow-lg p-3 border border-gray-700">
+                                                                                <div
+                                                                                    className={`absolute z-50 left-3/4 -translate-x-1/2 hidden group-hover:block w-44 ${
+                                                                                        showBelow
+                                                                                            ? "top-full mt-2"
+                                                                                            : "bottom-full mb-2"
+                                                                                    }`}
+                                                                                >
+                                                                                    <div className="bg-black text-white text-xs rounded-lg shadow-lg px-2 py-1">
                                                                                         <div className="font-semibold mb-2 pb-2 border-b border-gray-700">
-                                                                                            {
-                                                                                                details.status
-                                                                                            }
+                                                                                            {details.status ||
+                                                                                                "-"}
                                                                                         </div>
-                                                                                        <div className="space-y-1">
-                                                                                            {details.in && (
-                                                                                                <div className="flex justify-between">
-                                                                                                    <span className="text-gray-400">
-                                                                                                        Вход:
-                                                                                                    </span>
-                                                                                                    <span>
-                                                                                                        {formatTime(
-                                                                                                            details.in
-                                                                                                        )}
-                                                                                                    </span>
-                                                                                                </div>
-                                                                                            )}
-                                                                                            {details.out && (
-                                                                                                <div className="flex justify-between">
-                                                                                                    <span className="text-gray-400">
-                                                                                                        Выход:
-                                                                                                    </span>
-                                                                                                    <span>
-                                                                                                        {formatTime(
-                                                                                                            details.out
-                                                                                                        )}
-                                                                                                    </span>
-                                                                                                </div>
-                                                                                            )}
-                                                                                            {details.workedMinutes >
+                                                                                        <div className="space-y-1.5">
+                                                                                            <div className="flex justify-between">
+                                                                                                <span className="text-gray-400">
+                                                                                                    Вход:
+                                                                                                </span>
+                                                                                                <span>
+                                                                                                    {details.in
+                                                                                                        ? formatTime(
+                                                                                                              details.in
+                                                                                                          )
+                                                                                                        : "-"}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            <div className="flex justify-between">
+                                                                                                <span className="text-gray-400">
+                                                                                                    Выход:
+                                                                                                </span>
+                                                                                                <span>
+                                                                                                    {details.out
+                                                                                                        ? formatTime(
+                                                                                                              details.out
+                                                                                                          )
+                                                                                                        : "-"}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            <div className="flex justify-between pt-1 border-t border-gray-700 mt-1">
+                                                                                                <span className="text-gray-400">
+                                                                                                    Отработано:
+                                                                                                </span>
+                                                                                                <span className="font-semibold">
+                                                                                                    {details.workedMinutes_text ||
+                                                                                                        "-"}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            <div className="flex justify-between">
+                                                                                                <span className="text-gray-400">
+                                                                                                    Смена:
+                                                                                                </span>
+                                                                                                <span>
+                                                                                                    {details.shiftMinutes_text ||
+                                                                                                        "-"}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            {details.earlyMinutes >
                                                                                                 0 && (
-                                                                                                <div className="flex justify-between pt-1 border-t border-gray-700 mt-1">
+                                                                                                <div className="flex justify-between">
                                                                                                     <span className="text-gray-400">
-                                                                                                        Отработано:
+                                                                                                        Опоздание:
                                                                                                     </span>
-                                                                                                    <span className="font-semibold">
-                                                                                                        {
-                                                                                                            details.workedMinutes_text
-                                                                                                        }
+                                                                                                    <span>
+                                                                                                        {details.earlyMinutes_text ||
+                                                                                                            "-"}
                                                                                                     </span>
                                                                                                 </div>
                                                                                             )}
@@ -608,15 +644,13 @@ export default function EmployeeList() {
                                                                                                         Сверхурочные:
                                                                                                     </span>
                                                                                                     <span>
-                                                                                                        {
-                                                                                                            details.overtimeMinutes_text
-                                                                                                        }
+                                                                                                        {details.overtimeMinutes_text ||
+                                                                                                            "-"}
                                                                                                     </span>
                                                                                                 </div>
                                                                                             )}
                                                                                         </div>
                                                                                     </div>
-                                                                                    <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-gray-900 rotate-45 border-r border-b border-gray-700"></div>
                                                                                 </div>
                                                                             )}
                                                                         </div>
@@ -667,7 +701,7 @@ export default function EmployeeList() {
                                                             </div>
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex items-center gap-1.5">
-                                                                    <span className="h-2 w-2 rounded-full bg-rose-500" />
+                                                                    <span className="h-2 w-2 rounded-full bg-red-400" />
                                                                     <span className="text-gray-700 dark:text-gray-200">
                                                                         Отсутствовал
                                                                     </span>
@@ -854,7 +888,7 @@ export default function EmployeeList() {
                                                             Аванс
                                                         </p>
                                                     </div>
-                                                    <p className="text-md font-semibold text-red-600">
+                                                    <p className="text-md font-semibold text-red-400">
                                                         -{" "}
                                                         {formatNumberWithSpaces(
                                                             userStats
@@ -866,10 +900,10 @@ export default function EmployeeList() {
                                                             ?.currency || "UZS"}
                                                     </p>
                                                 </div>
-                                                <div className="rounded-2xl flex flex-col justify-between bg-rose-50 px-2 py-2">
+                                                <div className="rounded-2xl flex flex-col justify-between bg-red-50 px-2 py-2">
                                                     <div className="flex items-center gap-3 mb-2">
                                                         <svg
-                                                            className="w-5 h-5 text-rose-600"
+                                                            className="w-5 h-5 text-red-400"
                                                             fill="none"
                                                             stroke="currentColor"
                                                             viewBox="0 0 24 24"
@@ -885,7 +919,7 @@ export default function EmployeeList() {
                                                             Штраф за опоздание
                                                         </p>
                                                     </div>
-                                                    <p className="text-md font-semibold text-red-600">
+                                                    <p className="text-md font-semibold text-red-400">
                                                         -{" "}
                                                         {formatNumberWithSpaces(
                                                             userStats
@@ -934,13 +968,13 @@ export default function EmployeeList() {
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             {/* Fines */}
                                             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                                                <h5 className="text-lg font-semibold mb-3 text-red-600 dark:text-red-400">
+                                                <h5 className="text-lg font-semibold mb-3 text-red-400 dark:text-red-400">
                                                     Штрафы (
                                                     {userStats.fines?.count ||
                                                         0}
                                                     )
                                                 </h5>
-                                                <p className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+                                                <p className="text-2xl font-bold text-red-400 dark:text-red-400 mb-4">
                                                     {formatNumberWithSpaces(
                                                         userStats.fines?.total
                                                     )}{" "}
@@ -1043,13 +1077,13 @@ export default function EmployeeList() {
 
                                             {/* Advances */}
                                             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                                                <h5 className="text-lg font-semibold mb-3 text-orange-600 dark:text-orange-400">
+                                                <h5 className="text-lg font-semibold mb-3 text-blue-600 dark:text-blue-400">
                                                     Авансы (
                                                     {userStats.advances
                                                         ?.count || 0}
                                                     )
                                                 </h5>
-                                                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-4">
+                                                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-4">
                                                     {formatNumberWithSpaces(
                                                         userStats.advances
                                                             ?.total
@@ -1062,7 +1096,7 @@ export default function EmployeeList() {
                                                         (advance) => (
                                                             <div
                                                                 key={advance.id}
-                                                                className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded text-sm"
+                                                                className="p-2 bg-blue-50 dark:bg-orange-900/20 rounded text-sm"
                                                             >
                                                                 <p className="font-medium dark:text-gray-100">
                                                                     {formatNumberWithSpaces(
