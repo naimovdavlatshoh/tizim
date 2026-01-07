@@ -6,6 +6,7 @@ import {
     GetDataSimple,
     PostSimple,
     GetDataSimpleBlobExel,
+    getStoredYear,
 } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
@@ -57,7 +58,7 @@ export default function ExpenseList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/expenses/list?page=${page}&limit=30`
+                `api/expenses/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
             const expensesData =
                 response?.result || response?.data?.result || [];

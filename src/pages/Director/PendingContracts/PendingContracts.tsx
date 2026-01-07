@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import { GetDataSimple } from "../../../service/data.ts";
+import { GetDataSimple, getStoredYear } from "../../../service/data.ts";
 import Pagination from "../../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
 import { FaRegEye } from "react-icons/fa";
+import { FaUserEdit } from "react-icons/fa";
 import {
     Table,
     TableBody,
@@ -18,6 +19,10 @@ import Linkto from "../../../components/ui/link/LinkTo";
 import AssignModal from "../NewContracts/AssignModal";
 import { formatDate } from "../../../utils/numberFormat";
 import Loader from "../../../components/ui/loader/Loader.tsx";
+import { PostDataToken } from "../../../service/data.ts";
+import Select from "../../../components/form/Select";
+import Button from "../../../components/ui/button/Button";
+import { Modal } from "../../../components/ui/modal";
 
 interface PendingContract {
     contract_id: string;
@@ -44,6 +49,13 @@ interface PendingContract {
     comments: string | null;
 }
 
+interface User {
+    user_id: number;
+    firstname: string;
+    lastname: string;
+    fathername: string;
+}
+
 const PendingContracts = () => {
     const [contracts, setContracts] = useState<PendingContract[]>([]);
     const [page, setPage] = useState(1);
@@ -52,16 +64,27 @@ const PendingContracts = () => {
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] =
         useState<PendingContract | null>(null);
+    const [replaceModalOpen, setReplaceModalOpen] = useState(false);
+    const [users, setUsers] = useState<User[]>([]);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    const [loadingUsers, setLoadingUsers] = useState(false);
+    const [replacing, setReplacing] = useState(false);
 
     useEffect(() => {
         fetchPendingContracts();
     }, [page]);
 
+    useEffect(() => {
+        if (replaceModalOpen) {
+            fetchUsers();
+        }
+    }, [replaceModalOpen]);
+
     const fetchPendingContracts = async () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=5&page=${page}&limit=30`
+                `api/appointment/all/list?contract_status=5&page=${page}&limit=30&year=${getStoredYear()}`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -90,6 +113,57 @@ const PendingContracts = () => {
     };
 
     console.log(handleAssignWorker);
+
+    const fetchUsers = async () => {
+        setLoadingUsers(true);
+        try {
+            const response: any = await GetDataSimple(
+                "api/user/list?page=1&limit=100"
+            );
+            const usersData = response?.result || response?.data?.result || [];
+            setUsers(Array.isArray(usersData) ? usersData : []);
+        } catch (error: any) {
+            console.error("Error fetching users:", error);
+            toast.error("Ошибка при загрузке сотрудников");
+        } finally {
+            setLoadingUsers(false);
+        }
+    };
+
+    const handleReplaceWorker = async () => {
+        if (!selectedUserId || !selectedContract) {
+            toast.error("Пожалуйста, выберите сотрудника");
+            return;
+        }
+
+        setReplacing(true);
+        try {
+            const response = await PostDataToken(
+                "api/appointment/replaceworker",
+                {
+                    user_id: selectedUserId,
+                    contract_id: Number(selectedContract.contract_id),
+                }
+            );
+
+            if (response?.status === 200 || response?.data?.success) {
+                toast.success("Сотрудник успешно переназначен!");
+                setReplaceModalOpen(false);
+                setSelectedUserId(null);
+                setSelectedContract(null);
+                fetchPendingContracts(); // Refresh the contracts list
+            } else {
+                toast.error("Что-то пошло не так при переназначении");
+            }
+        } catch (error: any) {
+            const errorMessage =
+                error?.response?.data?.message ||
+                "Ошибка при переназначении сотрудника";
+            toast.error(errorMessage);
+        } finally {
+            setReplacing(false);
+        }
+    };
 
     const handleAssignmentSuccess = () => {
         // Refresh the contracts list after successful assignment
@@ -312,6 +386,28 @@ const PendingContracts = () => {
                                                         >
                                                             {""}
                                                         </Linkto>
+                                                        {contract.worker_name && (
+                                                            <Button
+                                                                onClick={() => {
+                                                                    setReplaceModalOpen(
+                                                                        true
+                                                                    );
+                                                                    setSelectedContract(
+                                                                        contract
+                                                                    );
+                                                                    setSelectedUserId(
+                                                                        null
+                                                                    );
+                                                                }}
+                                                                size="xs"
+                                                                variant="outline"
+                                                                startIcon={
+                                                                    <FaUserEdit className="size-4" />
+                                                                }
+                                                            >
+                                                                {""}
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -347,6 +443,75 @@ const PendingContracts = () => {
                     onSuccess={handleAssignmentSuccess}
                 />
             )}
+
+            {/* Replace Worker Modal */}
+            <Modal
+                isOpen={replaceModalOpen}
+                onClose={() => {
+                    setReplaceModalOpen(false);
+                    setSelectedUserId(null);
+                    setSelectedContract(null);
+                }}
+                className="max-w-md"
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                        Переназначить сотрудника
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Договор: {selectedContract?.contract_number}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Текущий исполнитель:{" "}
+                        {selectedContract?.worker_name || "Не назначен"}
+                    </p>
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Выберите нового сотрудника
+                        </label>
+                        {loadingUsers ? (
+                            <div className="text-center py-4">
+                                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+                            </div>
+                        ) : (
+                            <Select
+                                options={users.map((user) => ({
+                                    value: user.user_id,
+                                    label: `${user.firstname} ${
+                                        user.lastname
+                                    } ${user.fathername || ""}`.trim(),
+                                }))}
+                                placeholder="Выберите сотрудника"
+                                onChange={(value) =>
+                                    setSelectedUserId(Number(value))
+                                }
+                                className="dark:bg-dark-900"
+                            />
+                        )}
+                    </div>
+                    <div className="flex justify-end gap-3">
+                        <Button
+                            onClick={() => {
+                                setReplaceModalOpen(false);
+                                setSelectedUserId(null);
+                                setSelectedContract(null);
+                            }}
+                            variant="outline"
+                            size="sm"
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            onClick={handleReplaceWorker}
+                            variant="primary"
+                            size="sm"
+                            disabled={!selectedUserId || replacing}
+                        >
+                            {replacing ? "Переназначение..." : "Переназначить"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </>
     );
 };

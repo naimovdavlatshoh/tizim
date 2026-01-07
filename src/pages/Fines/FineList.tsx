@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
-import { GetDataSimple, PostSimple } from "../../service/data.ts";
+import { GetDataSimple, getStoredYear, PostSimple } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import TableFine from "./TableFine.tsx";
@@ -34,7 +34,7 @@ export default function FineList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/user-fines/list?page=${page}&limit=10`
+                `api/user-fines/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
             const finesData = response?.result || response?.data?.result || [];
             const totalPagesData =
@@ -62,7 +62,7 @@ export default function FineList() {
                 const response: any = await PostSimple(
                     `api/user-fines/search?keyword=${encodeURIComponent(
                         query
-                    )}&page=${page}&limit=10`
+                    )}&page=${page}&limit=30&year=${getStoredYear()}`
                 );
 
                 if (response?.status === 200 || response?.data?.success) {

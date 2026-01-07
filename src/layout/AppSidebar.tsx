@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { MdWarning } from "react-icons/md";
 import { GrMoney } from "react-icons/gr";
 import { TbCategory } from "react-icons/tb";
-import { TbFaceId } from "react-icons/tb";
 import { TbMessageReport } from "react-icons/tb";
-import { FaGift, FaMoneyBillWave } from "react-icons/fa";
+import { FaGift } from "react-icons/fa";
 
 // Assume these icons are imported from an icon library
 import {
@@ -71,7 +69,7 @@ const navItems: NavItem[] = [
     {
         name: "Договоры",
         icon: <DocsIcon />,
-        roles: [1, 2], // Admin va Director
+        roles: [1, 2],
         subItems: [
             { name: "Договоры", path: "/contracts" },
             { name: "Новые договоры", path: "/new-contracts" },
@@ -109,12 +107,12 @@ const navItems: NavItem[] = [
         path: "/expenses",
         roles: [1, 2], // Admin va Director
     },
-    {
-        name: "Face ID",
-        icon: <TbFaceId />,
-        path: "/face-id",
-        roles: [1, 2], // Admin va Director
-    },
+    // {
+    //     name: "Face ID",
+    //     icon: <TbFaceId />,
+    //     path: "/face-id",
+    //     roles: [1, 2], // Admin va Director
+    // },
     {
         name: "Контракты брокера",
         icon: <DocsIcon />,
@@ -122,23 +120,33 @@ const navItems: NavItem[] = [
         roles: [1, 5], // Faqat Admin
     },
     {
-        name: "Штрафы",
-        icon: <MdWarning />,
-        path: "/fines",
-        roles: [1], // Faqat Admin
-    },
-    {
         name: "Бонусы",
         icon: <FaGift />,
-        path: "/bonuses",
-        roles: [1], // Faqat Admin
+        roles: [1],
+        subItems: [
+            { name: "Бонусы", path: "/bonuses" },
+            { name: "Штрафы", path: "/fines" },
+            { name: "Авансы зарплаты", path: "/salary-advances" },
+        ],
     },
-    {
-        name: "Авансы зарплаты",
-        icon: <FaMoneyBillWave />,
-        path: "/salary-advances",
-        roles: [1], // Faqat Admin
-    },
+    // {
+    //     name: "Штрафы",
+    //     icon: <MdWarning />,
+    //     path: "/fines",
+    //     roles: [1], // Faqat Admin
+    // },
+    // {
+    //     name: "Бонусы",
+    //     icon: <FaGift />,
+    //     path: "/bonuses",
+    //     roles: [1], // Faqat Admin
+    // },
+    // {
+    //     name: "Авансы зарплаты",
+    //     icon: <FaMoneyBillWave />,
+    //     path: "/salary-advances",
+    //     roles: [1], // Faqat Admin
+    // },
     {
         name: "Посещаемость",
         icon: <CalenderIcon />,

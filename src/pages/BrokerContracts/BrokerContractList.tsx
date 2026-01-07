@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
-import { GetDataSimple, PostSimple } from "../../service/data.ts";
+import { GetDataSimple, getStoredYear, PostSimple } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import TableBrokerContract from "./TableBrokerContract.tsx";
@@ -39,7 +39,7 @@ export default function BrokerContractList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/contracts/broker/list?page=${page}&limit=30`
+                `api/contracts/broker/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -65,7 +65,7 @@ export default function BrokerContractList() {
                 const response: any = await PostSimple(
                     `api/contracts/broker/search?keyword=${encodeURIComponent(
                         query
-                    )}&page=${page}&limit=30`
+                    )}&page=${page}&limit=30&year=${getStoredYear()}`
                 );
 
                 // PostSimple возвращает response, нужно получить data

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import ComponentCard from "../../components/common/ComponentCard";
 import Badge from "../../components/ui/badge/Badge";
@@ -8,6 +8,8 @@ import Loader from "../../components/ui/loader/Loader";
 import toast from "react-hot-toast";
 import { formatCurrency } from "../../utils/numberFormat";
 import axios from "axios";
+
+import { GrEdit } from "react-icons/gr";
 
 // Beautiful outline icons
 const ContractIcon = () => (
@@ -215,6 +217,7 @@ const ContractDetails = () => {
     );
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     console.log(contracts);
 
     useEffect(() => {
@@ -435,20 +438,28 @@ const ContractDetails = () => {
                     </div>
                 </div>
 
+                {/* Hidden file input - always rendered */}
+                <input
+                    type="file"
+                    accept=".pdf"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="pdf-upload"
+                    disabled={uploading}
+                />
+
                 <div className="mt-4 flex items-center gap-3">
                     {/* File Upload Button */}
                     {currentContract?.contract_status == 1 && (
                         <div className="relative">
-                            <input
-                                type="file"
-                                accept=".pdf"
-                                onChange={handleFileUpload}
-                                className="hidden"
-                                id="pdf-upload"
-                                disabled={uploading}
-                            />
                             <label
                                 htmlFor="pdf-upload"
+                                onClick={(e) => {
+                                    if (uploading) {
+                                        e.preventDefault();
+                                    }
+                                }}
                                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-md font-medium cursor-pointer transition-colors ${
                                     uploading
                                         ? "bg-gray-400 text-gray-600 cursor-not-allowed"
@@ -536,58 +547,70 @@ const ContractDetails = () => {
 
                     {/* Download PDF Button */}
                     {currentContract.contract_status !== 1 && (
-                        <button
-                            onClick={async () => {
-                                try {
-                                    const response = await axios.get(
-                                        `${BASE_URL}api/contracts/pdf/${currentContract.contract_id}`,
-                                        {
-                                            responseType: "blob",
-                                            headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                    "token"
-                                                )}`,
-                                            },
-                                        }
-                                    );
+                        <>
+                            {" "}
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const response = await axios.get(
+                                            `${BASE_URL}api/contracts/pdf/${currentContract.contract_id}`,
+                                            {
+                                                responseType: "blob",
+                                                headers: {
+                                                    Authorization: `Bearer ${localStorage.getItem(
+                                                        "token"
+                                                    )}`,
+                                                },
+                                            }
+                                        );
 
-                                    const blob = new Blob([response.data], {
-                                        type: "application/pdf",
-                                    });
-                                    const url =
-                                        window.URL.createObjectURL(blob);
-                                    const link = document.createElement("a");
-                                    link.href = url;
-                                    link.download = `contract_${currentContract.contract_number}.pdf`;
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                    window.URL.revokeObjectURL(url);
-                                } catch (err: any) {
-                                    console.error(err);
-                                    toast.error(
-                                        err.response.data.error ||
-                                            "Ошибка при скачивании PDF"
-                                    );
-                                }
-                            }}
-                            className="bg-red-600 text-white hover:bg-red-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2"
-                        >
-                            <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                                        const blob = new Blob([response.data], {
+                                            type: "application/pdf",
+                                        });
+                                        const url =
+                                            window.URL.createObjectURL(blob);
+                                        const link =
+                                            document.createElement("a");
+                                        link.href = url;
+                                        link.download = `contract_${currentContract.contract_number}.pdf`;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                        window.URL.revokeObjectURL(url);
+                                    } catch (err: any) {
+                                        console.error(err);
+                                        toast.error(
+                                            err.response.data.error ||
+                                                "Ошибка при скачивании PDF"
+                                        );
+                                    }
+                                }}
+                                className="bg-red-600 text-white hover:bg-red-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                />
-                            </svg>
-                            Скачать копию договора
-                        </button>
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={1.5}
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    />
+                                </svg>
+                                Скачать копию договора
+                            </button>
+                            <button
+                                onClick={() => {
+                                    fileInputRef.current?.click();
+                                }}
+                                className="bg-orange-600 text-white hover:bg-orange-700 h-[40px] w-[40px] transition-colors  p-2 rounded-md font-medium flex items-center gap-2"
+                            >
+                                <GrEdit size={20} />
+                            </button>
+                        </>
                     )}
                 </div>
             </ComponentCard>

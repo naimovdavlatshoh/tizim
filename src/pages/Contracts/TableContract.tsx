@@ -292,19 +292,11 @@ export default function TableContract({
                                         </Linkto>
                                         <Button
                                             onClick={() => {
-                                                if (
-                                                    contract.contract_status ===
-                                                    1
-                                                ) {
-                                                    setDeleteModalOpen(true);
-                                                    setSelectedContract(
-                                                        contract
-                                                    );
-                                                }
+                                                setDeleteModalOpen(true);
+                                                setSelectedContract(contract);
                                             }}
                                             size="xs"
                                             variant="danger"
-                                            
                                             startIcon={
                                                 <FaTrash className="size-4" />
                                             }

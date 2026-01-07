@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
-import { GetDataSimple } from "../../service/data.ts";
+import { GetDataSimple, getStoredYear } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 
@@ -30,7 +30,7 @@ export default function Debtors() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/debtors/list?page=${page}&limit=30`
+                `api/debtors/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
             const debtorsData =
                 response?.result || response?.data?.result || [];

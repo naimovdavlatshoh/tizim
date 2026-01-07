@@ -300,6 +300,12 @@ export default function EmployeeList() {
         if (!details) {
             return { color: "bg-gray-100 text-gray-500", details: null };
         }
+
+        // Check if there's no "in" but there's "out" - show in pink
+        if (!details.in && details.out) {
+            return { color: "bg-pink-400 text-white", details };
+        }
+
         if (details.day_type === "weekend") {
             return { color: "bg-red-400 text-white", details };
         }

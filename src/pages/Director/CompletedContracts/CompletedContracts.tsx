@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import { GetDataSimple } from "../../../service/data.ts";
+import { GetDataSimple, getStoredYear } from "../../../service/data.ts";
 import Pagination from "../../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
@@ -79,7 +79,7 @@ const CompletedContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=6&page=${page}&limit=30`
+                `api/appointment/all/list?contract_status=6&page=${page}&limit=30&year=${getStoredYear()}`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];

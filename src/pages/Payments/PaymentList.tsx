@@ -6,6 +6,7 @@ import {
     GetDataSimple,
     PostSimple,
     GetDataSimpleBlobExel,
+    getStoredYear,
 } from "../../service/data";
 import Pagination from "../../components/common/Pagination";
 import { Toaster } from "react-hot-toast";
@@ -63,7 +64,7 @@ export default function PaymentList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/payments/list?page=${page}&limit=30`
+                `api/payments/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
             const paymentsData: Payment[] =
                 response?.result || response?.data?.result || [];

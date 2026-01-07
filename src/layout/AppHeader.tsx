@@ -5,12 +5,37 @@ import { useSearch } from "../context/SearchContext";
 // import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 // import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
+import Select from "../components/form/Select";
 
 const AppHeader: React.FC = () => {
     const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
     const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
     const { searchQuery, setSearchQuery, setCurrentPage } = useSearch();
     const location = useLocation();
+
+    // Get year from localStorage or default to 2026
+    const getStoredYear = () => {
+        const stored = localStorage.getItem("selectedYear");
+        return stored ? parseInt(stored, 10) : 2026;
+    };
+
+    const [selectedYear, setSelectedYear] = useState<number>(getStoredYear());
+
+    // Year options
+    const yearOptions = [
+        { value: 2025, label: "2025" },
+        { value: 2026, label: "2026" },
+        { value: 2027, label: "2027" },
+        { value: 2028, label: "2028" },
+    ];
+
+    const handleYearChange = (value: string) => {
+        const year = Number(value);
+        localStorage.setItem("selectedYear", year.toString());
+        setSelectedYear(year);
+        // Reload page when year changes
+        window.location.reload();
+    };
 
     useEffect(() => {
         const path = location.pathname;
@@ -156,7 +181,7 @@ const AppHeader: React.FC = () => {
                         </svg>
                     </button>
 
-                    <div className="hidden lg:block">
+                    <div className="hidden lg:flex items-center gap-3">
                         <form>
                             <div className="relative">
                                 <span className="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
@@ -191,7 +216,17 @@ const AppHeader: React.FC = () => {
                                 </button>
                             </div>
                         </form>
+                        <div className="w-32">
+                            <Select
+                                options={yearOptions}
+                                placeholder="Год"
+                                onChange={handleYearChange}
+                                className="dark:bg-dark-900"
+                                defaultValue={selectedYear.toString()}
+                            />
+                        </div>
                     </div>
+                    <div className=""></div>
                 </div>
                 <div
                     className={`${

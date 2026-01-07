@@ -30,12 +30,16 @@ export default function LetterList() {
     const [status, setStatus] = useState(false);
     const [loading, setLoading] = useState(false);
     const { isOpen, openModal, closeModal } = useModal();
+    const getStoredYear = () => {
+        const stored = localStorage.getItem("selectedYear");
+        return stored;
+    };
 
     const fetchLetters = useCallback(async () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/letter/list?page=${page}&limit=30`
+                `api/letter/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
             const lettersData =
                 response?.result || response?.data?.result || [];
@@ -47,7 +51,10 @@ export default function LetterList() {
             setLoading(false);
         } catch (error: any) {
             console.error("Error fetching letters:", error);
-            toast.error(error?.response?.data?.message || "Что-то пошло не так при загрузке писем");
+            toast.error(
+                error?.response?.data?.message ||
+                    "Что-то пошло не так при загрузке писем"
+            );
             setLoading(false);
         }
     }, [page]);

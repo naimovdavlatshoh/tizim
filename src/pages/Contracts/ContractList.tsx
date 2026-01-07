@@ -7,6 +7,7 @@ import {
     GetDataSimple,
     PostSimple,
     GetDataSimpleBlobExel,
+    getStoredYear,
 } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
@@ -53,7 +54,7 @@ export default function ContractList() {
     const fetchContracts = async () => {
         setLoading(true);
         try {
-            let url = `api/contracts/list?page=${page}&limit=30`;
+            let url = `api/contracts/list?page=${page}&limit=30&year=${getStoredYear()}`;
             if (selectedContractType) {
                 url += `&contract_type=${selectedContractType}`;
             }

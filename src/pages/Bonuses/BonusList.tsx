@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
-import { GetDataSimple, PostSimple } from "../../service/data.ts";
+import { GetDataSimple, getStoredYear, PostSimple } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import TableBonus from "./TableBonus.tsx";
@@ -34,7 +34,7 @@ export default function BonusList() {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/user-bonuses/list?page=${page}&limit=100`
+                `api/user-bonuses/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
             const bonusesData =
                 response?.result || response?.data?.result || [];
@@ -63,7 +63,7 @@ export default function BonusList() {
                 const response: any = await PostSimple(
                     `api/user-bonuses/search?keyword=${encodeURIComponent(
                         query
-                    )}&page=${page}&limit=100`
+                    )}&page=${page}&limit=100&year=${getStoredYear()}`
                 );
 
                 if (response?.status === 200 || response?.data?.success) {

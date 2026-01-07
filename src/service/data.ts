@@ -153,3 +153,8 @@ export const DeleteData = async (url: string) => {
     });
     return response;
 };
+
+export const getStoredYear = () => {
+    const stored = localStorage.getItem("selectedYear");
+    return stored;
+};
