@@ -51,6 +51,8 @@ const AppHeader: React.FC = () => {
             setCurrentPage("expense-categories");
         } else if (path.includes("/letters")) {
             setCurrentPage("letters");
+        } else if (path.includes("/protocols")) {
+            setCurrentPage("protocols");
         } else if (path.includes("/broker-contracts")) {
             setCurrentPage("broker-contracts");
         } else if (path.includes("/fines")) {

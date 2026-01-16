@@ -49,6 +49,12 @@ const navItems: NavItem[] = [
         roles: [1, 5, 6], // Faqat Admin
     },
     {
+        name: "Протоколы",
+        icon: <DocsIcon />,
+        path: "/protocols",
+        roles: [1, 5, 6], // Faqat Admin
+    },
+    {
         name: "Пользователи",
         icon: <UserIcon />,
         path: "/users",
