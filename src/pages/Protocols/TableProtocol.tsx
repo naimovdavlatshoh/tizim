@@ -24,6 +24,8 @@ interface Protocol {
     acceptance_status: string;
     word_file?: string | null;
     pdf_file?: string | null;
+    is_word_added?: number;
+    is_pdf_added?: number;
 }
 
 interface TableProtocolProps {
@@ -494,60 +496,92 @@ export default function TableProtocol({
                                                 </svg>
                                             </Button>
                                         </div>
-                                        {/* Word Upload/Download - оба всегда видны */}
-                                        <div title="Загрузить Word файл">
-                                            <Button
-                                                onClick={() =>
-                                                    openWordUploadModal(
-                                                        protocol
-                                                    )
-                                                }
-                                                size="xs"
-                                                variant="primary"
-                                            >
-                                                <svg
-                                                    className="w-4 h-4"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
+                                        {/* Word Upload/Download */}
+                                        {protocol.is_word_added === 1 ? (
+                                            // Если is_word_added === 1, только download
+                                            <div title="Скачать Word файл">
+                                                <Button
+                                                    className="bg-emerald-600 hover:bg-emerald-500"
+                                                    onClick={() =>
+                                                        handleDownloadWord(protocol)
+                                                    }
+                                                    size="xs"
+                                                    disabled={downloadingWord}
                                                 >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                    />
-                                                </svg>
-                                            </Button>
-                                        </div>
-                                        <div title="Скачать Word файл">
-                                            <Button
-                                                className="bg-emerald-600 hover:bg-emerald-500"
-                                                onClick={() =>
-                                                    handleDownloadWord(protocol)
-                                                }
-                                                size="xs"
-                                                disabled={downloadingWord}
-                                            >
-                                                <svg
-                                                    className="w-4 h-4"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                    />
-                                                </svg>
-                                            </Button>
-                                        </div>
+                                                    <svg
+                                                        className="w-4 h-4"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                        />
+                                                    </svg>
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            // Если is_word_added !== 1, upload и download
+                                            <>
+                                                {parseInt(localStorage.getItem("role_id") || "0") == 6?<div title="Загрузить Word файл">
+                                                    <Button
+                                                        onClick={() =>
+                                                            openWordUploadModal(
+                                                                protocol
+                                                            )
+                                                        }
+                                                        size="xs"
+                                                        variant="primary"
+                                                    >
+                                                        <svg
+                                                            className="w-4 h-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                            />
+                                                        </svg>
+                                                    </Button>
+                                                </div>:""}
+                                                {protocol.is_word_added == 1?
+                                                <div title="Скачать Word файл">
+                                                    <Button
+                                                        className="bg-emerald-600 hover:bg-emerald-500"
+                                                        onClick={() =>
+                                                            handleDownloadWord(protocol)
+                                                        }
+                                                        size="xs"
+                                                        disabled={downloadingWord}
+                                                    >
+                                                        <svg
+                                                            className="w-4 h-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                            />
+                                                        </svg>
+                                                    </Button>
+                                                </div>:""}
+                                            </>
+                                        )}
 
                                         {/* PDF Upload/Download */}
-                                        {protocol.is_accepted === 1 ? (
-                                            // Если is_accepted === 1, только download
+                                        {protocol.is_pdf_added === 1 ? (
+                                            // Если is_pdf_added === 1, только download
                                             <div title="Скачать PDF файл">
                                                 <Button
                                                     className="bg-teal-600 hover:bg-teal-500"
@@ -575,7 +609,7 @@ export default function TableProtocol({
                                                 </Button>
                                             </div>
                                         ) : (
-                                            // Если is_accepted !== 1, upload и download
+                                            // Если is_pdf_added !== 1, upload и download
                                             <>
                                                 <div title="Загрузить PDF файл">
                                                     <Button
@@ -602,34 +636,37 @@ export default function TableProtocol({
                                                         </svg>
                                                     </Button>
                                                 </div>
+                                                {protocol.is_pdf_added == 1?
+
                                                 <div title="Скачать PDF файл">
-                                                    <Button
-                                                        className="bg-teal-600 hover:bg-teal-500"
-                                                        onClick={() =>
-                                                            handleDownloadPdf(
-                                                                protocol
-                                                            )
-                                                        }
-                                                        size="xs"
-                                                        disabled={
-                                                            downloadingPdf
-                                                        }
+                                                <Button
+                                                    className="bg-teal-600 hover:bg-teal-500"
+                                                    onClick={() =>
+                                                        handleDownloadPdf(
+                                                            protocol
+                                                        )
+                                                    }
+                                                    size="xs"
+                                                    disabled={
+                                                        downloadingPdf
+                                                    }
+                                                >
+                                                    <svg
+                                                        className="w-4 h-4"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
                                                     >
-                                                        <svg
-                                                            className="w-4 h-4"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                            />
-                                                        </svg>
-                                                    </Button>
-                                                </div>
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                        />
+                                                    </svg>
+                                                </Button>
+                                            </div>:""}
+
                                             </>
                                         )}
                                         {canDelete && (

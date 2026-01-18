@@ -4,7 +4,7 @@ import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
 import {
     GetDataSimple,
-    // PostSimple,  
+    // PostSimple,
     PostDataTokenJson,
 } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
@@ -28,6 +28,8 @@ interface Protocol {
     created_by: string;
     created_at: string;
     acceptance_status: string;
+    is_word_added?: number;
+    is_pdf_added?: number;
 }
 
 export default function ProtocolList() {
