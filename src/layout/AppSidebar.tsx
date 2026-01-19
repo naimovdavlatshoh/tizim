@@ -501,7 +501,7 @@ const AppSidebar: React.FC = () => {
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className="px-0 pt-5">
-                <img src="logo.png" alt="logo" className="w-1/3" />
+                <img src="logo.jpg" alt="logo" className="w-1/3" />
             </div>
 
             <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">

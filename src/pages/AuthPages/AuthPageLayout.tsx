@@ -13,7 +13,7 @@ export default function AuthLayout({
             <div className="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0">
                 {children}
                 <div className="items-center hidden w-full h-full lg:w-1/2  lg:grid">
-                    <img className="w-full h-full object-contain" src={"/main.jpg"} alt="" />
+                    <img className="w-full h-full object-contain" src={"/logo.jpg"} alt="" />
                 </div>
 
             </div>
