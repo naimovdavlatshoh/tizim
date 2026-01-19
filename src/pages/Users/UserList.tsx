@@ -12,7 +12,7 @@ import Loader from "../../components/ui/loader/Loader.tsx";
 import { Modal } from "../../components/ui/modal";
 import Button from "../../components/ui/button/Button";
 import { FaDownload } from "react-icons/fa";
-import DatePicker from "../../components/form/date-picker";
+import Select from "../../components/form/Select";
 import { toast } from "react-hot-toast";
 
 export default function ClientList() {
@@ -25,9 +25,45 @@ export default function ClientList() {
     console.log(response);
     const [loading, setLoading] = useState(false);
     const [excelModalOpen, setExcelModalOpen] = useState(false);
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
     const [downloading, setDownloading] = useState(false);
+
+    // Get month name in Russian
+    const getMonthName = (month: number) => {
+        const months = [
+            "Январь",
+            "Февраль",
+            "Март",
+            "Апрель",
+            "Май",
+            "Июнь",
+            "Июль",
+            "Август",
+            "Сентябрь",
+            "Октябрь",
+            "Ноябрь",
+            "Декабрь",
+        ];
+        return months[month - 1] || "";
+    };
+
+    // Month options for Select
+    const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1).map(
+        (month) => ({
+            value: month,
+            label: getMonthName(month),
+        })
+    );
+
+    // Year options for Select
+    const yearOptions = Array.from(
+        { length: 5 },
+        (_, i) => new Date().getFullYear() - 2 + i
+    ).map((year) => ({
+        value: year,
+        label: year.toString(),
+    }));
 
     useEffect(() => {
         setLoading(true);
@@ -43,28 +79,16 @@ export default function ClientList() {
     };
 
     const handleDownloadExcel = async (): Promise<void> => {
-        if (!startDate || !endDate) {
+        if (!selectedYear || !selectedMonth) {
             setExcelModalOpen(false);
-            toast.error("Пожалуйста, выберите даты");
+            toast.error("Пожалуйста, выберите год и месяц");
             return;
         }
 
         setDownloading(true);
         try {
-            // Convert Y-m-d format to d-m-Y format
-            const formatDateForAPI = (dateString: string) => {
-                const date = new Date(dateString);
-                const day = date.getDate().toString().padStart(2, "0");
-                const month = (date.getMonth() + 1).toString().padStart(2, "0");
-                const year = date.getFullYear();
-                return `${day}-${month}-${year}`;
-            };
-
-            const formattedStartDate = formatDateForAPI(startDate);
-            const formattedEndDate = formatDateForAPI(endDate);
-
             const response = await GetDataSimpleBlobExel(
-                `api/excel/staffbonus?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
+                `api/excel/attendance?year=${selectedYear}&month=${selectedMonth}`
             );
 
             // Create blob and download
@@ -74,7 +98,7 @@ export default function ClientList() {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `staffbonus-${startDate}-${endDate}.xlsx`;
+            link.download = `attendance-${selectedYear}-${selectedMonth}.xlsx`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -82,12 +106,10 @@ export default function ClientList() {
 
             toast.success("Excel файл загружен");
             setExcelModalOpen(false);
-            setStartDate("");
-            setEndDate("");
         } catch (error: any) {
             setExcelModalOpen(false);
             console.error(error?.response?.data?.error);
-            toast.error(error?.response?.data?.error);
+            toast.error(error?.response?.data?.error || "Ошибка при загрузке Excel файла");
         } finally {
             setDownloading(false);
         }
@@ -148,8 +170,6 @@ export default function ClientList() {
                 isOpen={excelModalOpen}
                 onClose={() => {
                     setExcelModalOpen(false);
-                    setStartDate("");
-                    setEndDate("");
                 }}
                 className="max-w-md"
             >
@@ -159,35 +179,31 @@ export default function ClientList() {
                     </h3>
 
                     <div className="space-y-4">
-                        <DatePicker
-                            id="start-date"
-                            label="Начальная дата *"
-                            placeholder="Выберите начальную дату"
-                            onChange={(selectedDates) => {
-                                if (selectedDates[0]) {
-                                    const date = new Date(selectedDates[0]);
-                                    const formattedDate = date
-                                        .toISOString()
-                                        .split("T")[0];
-                                    setStartDate(formattedDate);
-                                }
-                            }}
-                        />
+                        <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Год *
+                            </label>
+                            <Select
+                                options={yearOptions}
+                                placeholder="Выберите год"
+                                onChange={(value) => setSelectedYear(Number(value))}
+                                className="dark:bg-dark-900"
+                                defaultValue={selectedYear.toString()}
+                            />
+                        </div>
 
-                        <DatePicker
-                            id="end-date"
-                            label="Конечная дата *"
-                            placeholder="Выберите конечную дату"
-                            onChange={(selectedDates) => {
-                                if (selectedDates[0]) {
-                                    const date = new Date(selectedDates[0]);
-                                    const formattedDate = date
-                                        .toISOString()
-                                        .split("T")[0];
-                                    setEndDate(formattedDate);
-                                }
-                            }}
-                        />
+                        <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Месяц *
+                            </label>
+                            <Select
+                                options={monthOptions}
+                                placeholder="Выберите месяц"
+                                onChange={(value) => setSelectedMonth(Number(value))}
+                                className="dark:bg-dark-900"
+                                defaultValue={selectedMonth.toString()}
+                            />
+                        </div>
                     </div>
 
                     <div className="flex justify-end gap-3 mt-6">
@@ -195,8 +211,6 @@ export default function ClientList() {
                             variant="outline"
                             onClick={() => {
                                 setExcelModalOpen(false);
-                                setStartDate("");
-                                setEndDate("");
                             }}
                             disabled={downloading}
                         >
