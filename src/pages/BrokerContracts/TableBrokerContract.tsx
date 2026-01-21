@@ -36,6 +36,10 @@ export default function TableBrokerContract({
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] =
         useState<BrokerContract | null>(null);
+
+    // Get user role from localStorage
+    const userRole = parseInt(localStorage.getItem("role_id") || "0");
+    const canDelete = userRole === 1;
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
     const [loadingQr, setLoadingQr] = useState(false);
@@ -431,18 +435,20 @@ export default function TableBrokerContract({
                                             </Button>
                                         )}
 
-                                        <Button
-                                            onClick={() =>
-                                                openDeleteModal(contract)
-                                            }
-                                            size="xs"
-                                            variant="danger"
-                                            startIcon={
-                                                <TrashBinIcon className="size-4" />
-                                            }
-                                        >
-                                            {""}
-                                        </Button>
+                                        {canDelete && (
+                                            <Button
+                                                onClick={() =>
+                                                    openDeleteModal(contract)
+                                                }
+                                                size="xs"
+                                                variant="danger"
+                                                startIcon={
+                                                    <TrashBinIcon className="size-4" />
+                                                }
+                                            >
+                                                {""}
+                                            </Button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>

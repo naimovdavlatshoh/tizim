@@ -44,6 +44,10 @@ export default function TablePayment({
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
     const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
+    // Get user role from localStorage
+    const userRole = parseInt(localStorage.getItem("role_id") || "0");
+    const canDelete = userRole === 1;
+
     const handleDeleteClick = (payment: Payment) => {
         setSelectedPayment(payment);
         setDeleteModalOpen(true);
@@ -224,18 +228,20 @@ export default function TablePayment({
                                             >
                                                 <FaRegEye className="size-4" />
                                             </Button>
-                                            <Button
-                                                onClick={() =>
-                                                    handleDeleteClick(payment)
-                                                }
-                                                size="xs"
-                                                variant="danger"
-                                                startIcon={
-                                                    <TrashBinIcon className="size-4" />
-                                                }
-                                            >
-                                                {""}
-                                            </Button>
+                                            {canDelete && (
+                                                <Button
+                                                    onClick={() =>
+                                                        handleDeleteClick(payment)
+                                                    }
+                                                    size="xs"
+                                                    variant="danger"
+                                                    startIcon={
+                                                        <TrashBinIcon className="size-4" />
+                                                    }
+                                                >
+                                                    {""}
+                                                </Button>
+                                            )}
                                         </div>
                                     </TableCell>
                                 </TableRow>

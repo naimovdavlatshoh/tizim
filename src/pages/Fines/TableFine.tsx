@@ -24,6 +24,10 @@ export default function TableFine({ fines, changeStatus }: TableFineProps) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedFine, setSelectedFine] = useState<Fine | null>(null);
 
+    // Get user role from localStorage
+    const userRole = parseInt(localStorage.getItem("role_id") || "0");
+    const canDelete = userRole === 1;
+
     const openDeleteModal = (fine: Fine) => {
         setSelectedFine(fine);
         setIsDeleteModalOpen(true);
@@ -150,18 +154,20 @@ export default function TableFine({ fines, changeStatus }: TableFineProps) {
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <div className="flex items-center gap-2">
-                                        <Button
-                                            onClick={() =>
-                                                openDeleteModal(fine)
-                                            }
-                                            size="xs"
-                                            variant="danger"
-                                            disabled={
-                                                deletingId === fine.fine_id
-                                            }
-                                        >
-                                            <TrashBinIcon />
-                                        </Button>
+                                        {canDelete && (
+                                            <Button
+                                                onClick={() =>
+                                                    openDeleteModal(fine)
+                                                }
+                                                size="xs"
+                                                variant="danger"
+                                                disabled={
+                                                    deletingId === fine.fine_id
+                                                }
+                                            >
+                                                <TrashBinIcon />
+                                            </Button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>

@@ -30,6 +30,10 @@ export default function TableExpense({
         null
     );
 
+    // Get user role from localStorage
+    const userRole = parseInt(localStorage.getItem("role_id") || "0");
+    const canDelete = userRole === 1;
+
     const openDeleteModal = (expense: Expense) => {
         setSelectedExpense(expense);
         setIsDeleteModalOpen(true);
@@ -157,16 +161,18 @@ export default function TableExpense({
                                     {formatDate(expense.created_at)}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    <Button
-                                        onClick={() => openDeleteModal(expense)}
-                                        size="xs"
-                                        variant="danger"
-                                        startIcon={
-                                            <TrashBinIcon className="size-4" />
-                                        }
-                                    >
-                                        {""}
-                                    </Button>
+                                    {canDelete && (
+                                        <Button
+                                            onClick={() => openDeleteModal(expense)}
+                                            size="xs"
+                                            variant="danger"
+                                            startIcon={
+                                                <TrashBinIcon className="size-4" />
+                                            }
+                                        >
+                                            {""}
+                                        </Button>
+                                    )}
                                 </td>
                             </tr>
                         ))}

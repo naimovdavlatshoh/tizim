@@ -58,6 +58,10 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
     const [previewUserName, setPreviewUserName] = useState<string>("");
     console.log(response);
 
+    // Get user role from localStorage
+    const userRole = parseInt(localStorage.getItem("role_id") || "0");
+    const canDelete = userRole === 1;
+
     const onDeleteUser = async () => {
         setIsDeleting(true);
         try {
@@ -191,19 +195,21 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                         >
                                             {""}
                                         </Button>
-                                        <Button
-                                            onClick={() => {
-                                                setDeleteModalOpen(true);
-                                                setSelectedUser(order);
-                                            }}
-                                            size="xs"
-                                            variant="danger"
-                                            startIcon={
-                                                <TrashBinIcon className="size-4" />
-                                            }
-                                        >
-                                            {""}
-                                        </Button>
+                                        {canDelete && (
+                                            <Button
+                                                onClick={() => {
+                                                    setDeleteModalOpen(true);
+                                                    setSelectedUser(order);
+                                                }}
+                                                size="xs"
+                                                variant="danger"
+                                                startIcon={
+                                                    <TrashBinIcon className="size-4" />
+                                                }
+                                            >
+                                                {""}
+                                            </Button>
+                                        )}
                                     </div>
                                 </TableCell>
                             </TableRow>

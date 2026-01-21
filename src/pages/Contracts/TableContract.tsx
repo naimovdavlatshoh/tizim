@@ -93,6 +93,10 @@ export default function TableContract({
         null
     );
 
+    // Get user role from localStorage
+    const userRole = parseInt(localStorage.getItem("role_id") || "0");
+    const canDelete = userRole === 1;
+
     const handleRowClick = (contract: Contract) => {
         // Handle row click if needed
         console.log("Contract clicked:", contract);
@@ -290,19 +294,21 @@ export default function TableContract({
                                         >
                                             {""}
                                         </Linkto>
-                                        <Button
-                                            onClick={() => {
-                                                setDeleteModalOpen(true);
-                                                setSelectedContract(contract);
-                                            }}
-                                            size="xs"
-                                            variant="danger"
-                                            startIcon={
-                                                <FaTrash className="size-4" />
-                                            }
-                                        >
-                                            {""}
-                                        </Button>
+                                        {canDelete && (
+                                            <Button
+                                                onClick={() => {
+                                                    setDeleteModalOpen(true);
+                                                    setSelectedContract(contract);
+                                                }}
+                                                size="xs"
+                                                variant="danger"
+                                                startIcon={
+                                                    <FaTrash className="size-4" />
+                                                }
+                                            >
+                                                {""}
+                                            </Button>
+                                        )}
                                     </div>
                                 </TableCell>
                             </TableRow>

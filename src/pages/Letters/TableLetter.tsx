@@ -32,6 +32,10 @@ export default function TableLetter({
     const [deletingId, setDeletingId] = useState<number | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+
+    // Get user role from localStorage
+    const userRole = parseInt(localStorage.getItem("role_id") || "0");
+    const canDelete = userRole === 1;
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
     const [loadingQr, setLoadingQr] = useState(false);
@@ -406,18 +410,20 @@ export default function TableLetter({
                                                 </svg>
                                             </Button>
                                         )}
-                                        <Button
-                                            onClick={() =>
-                                                openDeleteModal(letter)
-                                            }
-                                            size="xs"
-                                            variant="danger"
-                                            startIcon={
-                                                <TrashBinIcon className="size-4" />
-                                            }
-                                        >
-                                            {""}
-                                        </Button>
+                                        {canDelete && (
+                                            <Button
+                                                onClick={() =>
+                                                    openDeleteModal(letter)
+                                                }
+                                                size="xs"
+                                                variant="danger"
+                                                startIcon={
+                                                    <TrashBinIcon className="size-4" />
+                                                }
+                                            >
+                                                {""}
+                                            </Button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>

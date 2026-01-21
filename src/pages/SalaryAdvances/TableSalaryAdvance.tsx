@@ -28,6 +28,10 @@ export default function TableSalaryAdvance({
     const [selectedAdvance, setSelectedAdvance] =
         useState<SalaryAdvance | null>(null);
 
+    // Get user role from localStorage
+    const userRole = parseInt(localStorage.getItem("role_id") || "0");
+    const canDelete = userRole === 1;
+
     const openDeleteModal = (advance: SalaryAdvance) => {
         setSelectedAdvance(advance);
         setIsDeleteModalOpen(true);
@@ -155,19 +159,21 @@ export default function TableSalaryAdvance({
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <div className="flex items-center gap-2">
-                                        <Button
-                                            onClick={() =>
-                                                openDeleteModal(advance)
-                                            }
-                                            size="xs"
-                                            variant="danger"
-                                            disabled={
-                                                deletingId ===
-                                                advance.advance_id
-                                            }
-                                        >
-                                            <TrashBinIcon />
-                                        </Button>
+                                        {canDelete && (
+                                            <Button
+                                                onClick={() =>
+                                                    openDeleteModal(advance)
+                                                }
+                                                size="xs"
+                                                variant="danger"
+                                                disabled={
+                                                    deletingId ===
+                                                    advance.advance_id
+                                                }
+                                            >
+                                                <TrashBinIcon />
+                                            </Button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>
