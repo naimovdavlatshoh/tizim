@@ -75,6 +75,14 @@ const AddContract = () => {
 
     // fetchClients is now handled by searchClients
 
+    // Format date to YYYY-MM-DD without timezone issues
+    const formatDateToLocal = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+
     const formatNumberWithSpaces = (value: string) => {
         // Remove all spaces first
         const cleanValue = value.replace(/\s/g, "");
@@ -308,7 +316,7 @@ const AddContract = () => {
                 paymentDate.setMonth(today.getMonth() + i + 1);
                 paymentDate.setDate(1);
                 newPlan.push({
-                    date_of_payment: paymentDate.toISOString().split("T")[0],
+                    date_of_payment: formatDateToLocal(paymentDate),
                     monthly_fee: monthlyFee,
                 });
             }
@@ -615,7 +623,7 @@ const AddContract = () => {
                                             );
                                             handleInputChange(
                                                 "contract_date",
-                                                date.toISOString().split("T")[0]
+                                                formatDateToLocal(date)
                                             );
                                         }
                                     }}
@@ -641,9 +649,7 @@ const AddContract = () => {
                                                 );
                                                 handleInputChange(
                                                     "expire_date",
-                                                    date
-                                                        .toISOString()
-                                                        .split("T")[0]
+                                                    formatDateToLocal(date)
                                                 );
                                             }
                                         }}
@@ -726,11 +732,7 @@ const AddContract = () => {
                                                             handlePlanChange(
                                                                 index,
                                                                 "date_of_payment",
-                                                                date
-                                                                    .toISOString()
-                                                                    .split(
-                                                                        "T"
-                                                                    )[0]
+                                                                formatDateToLocal(date)
                                                             );
                                                         }
                                                     }}

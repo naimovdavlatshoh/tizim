@@ -32,6 +32,7 @@ export default function SignInForm() {
                     localStorage.setItem("role_id", res.data.role_id);
                     localStorage.setItem("login", res.data.login);
                     localStorage.setItem("selectedYear", "2026");
+                    localStorage.setItem("user_id", res.data.user_id);
                     localStorage.setItem(
                         "name",
                         res.data.firstname + " " + res.data.lastname

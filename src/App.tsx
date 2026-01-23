@@ -38,6 +38,7 @@ import BonusList from "./pages/Bonuses";
 import SalaryAdvanceList from "./pages/SalaryAdvances";
 import AttendanceList from "./pages/Attendance";
 import EmployeeList from "./pages/Employees";
+import MyStatistics from "./pages/Employees/MyStatistics";
 import { SearchProvider } from "./context/SearchContext";
 import NewContracts from "./pages/Director/NewContracts/NewContracts";
 import NewContractDetail from "./pages/Director/NewContracts/Detail";
@@ -182,6 +183,10 @@ export default function App() {
                             <Route
                                 path="/employees"
                                 element={<EmployeeList />}
+                            />
+                            <Route
+                                path="/my-statistics"
+                                element={<MyStatistics />}
                             />
 
                             {/* Ui Elements */}

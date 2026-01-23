@@ -165,6 +165,12 @@ const navItems: NavItem[] = [
         path: "/employees",
         roles: [1, 2], // Admin va Director
     },
+    {
+        name: "Моя статистика",
+        icon: <UserIcon />,
+        path: "/my-statistics",
+        roles: [2, 3, 4, 5, 6], // Barcha role_id 1 dan boshqa
+    },
 
     // {
     //     icon: <CalenderIcon />,
