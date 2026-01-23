@@ -233,6 +233,9 @@ export default function TableProtocol({
                 toast.error("Ошибка при загрузке PDF файла");
             }
         } catch (error: any) {
+            closePdfUploadModal()
+            console.log(error?.response?.data?.error);
+
             console.error("Error uploading PDF:", error);
             toast.error(
                 error?.response?.data?.error ||
@@ -324,6 +327,7 @@ export default function TableProtocol({
                 toast.error("Ошибка при загрузке Word файла");
             }
         } catch (error: any) {
+            closeWordUploadModal()
             console.error("Error uploading Word:", error);
             toast.error(
                 error?.response?.data?.error ||
@@ -526,7 +530,7 @@ export default function TableProtocol({
                                         ) : (
                                             // Если is_word_added !== 1, upload и download
                                             <>
-                                                {parseInt(localStorage.getItem("role_id") || "0") == 6?<div title="Загрузить Word файл">
+                                                <div title="Загрузить Word файл">
                                                     <Button
                                                         onClick={() =>
                                                             openWordUploadModal(
@@ -550,7 +554,7 @@ export default function TableProtocol({
                                                             />
                                                         </svg>
                                                     </Button>
-                                                </div>:""}
+                                                </div>
                                                 {protocol.is_word_added == 1?
                                                 <div title="Скачать Word файл">
                                                     <Button

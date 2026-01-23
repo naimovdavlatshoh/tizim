@@ -328,6 +328,32 @@ export default function EmployeeList() {
         });
     };
 
+    const formatLateMinutes = (minutes: any) => {
+        if (!minutes && minutes !== 0) return "-";
+
+        // Convert to number if it's a string
+        const numMinutes = typeof minutes === "string"
+            ? parseInt(minutes.replace(/\D/g, ""))
+            : Number(minutes);
+
+        if (isNaN(numMinutes) || numMinutes === 0) return "0 мин";
+
+        // If less than 60, return just minutes
+        if (numMinutes < 60) {
+            return `${numMinutes} мин`;
+        }
+
+        // If 60 or more, convert to hours and minutes
+        const hours = Math.floor(numMinutes / 60);
+        const remainingMinutes = numMinutes % 60;
+
+        if (remainingMinutes === 0) {
+            return `${hours} ч`;
+        }
+
+        return `${hours} ч ${remainingMinutes} мин`;
+    };
+
     if (loading) {
         return <Loader />;
     }
@@ -632,14 +658,13 @@ export default function EmployeeList() {
                                                                                                         "-"}
                                                                                                 </span>
                                                                                             </div>
-                                                                                            {/* need change */}
-                                                                                            {(details.status?.includes("Опоздал") || color.includes("yellow") || color.includes("amber")) && details.earlyMinutes_text && (
+                                                                                            {(details.status?.includes("Опоздал") || color.includes("yellow") || color.includes("amber")) && (details.lateMinutes || details.earlyMinutes_text) && (
                                                                                                 <div className="flex justify-between">
                                                                                                     <span className="text-gray-400">
                                                                                                         Опоздание:
                                                                                                     </span>
                                                                                                     <span className="text-yellow-400 font-semibold">
-                                                                                                        {details.lateMinutes}
+                                                                                                        {formatLateMinutes(details.lateMinutes || details.earlyMinutes)}
                                                                                                     </span>
                                                                                                 </div>
                                                                                             )}
