@@ -354,6 +354,27 @@ export default function EmployeeList() {
         return `${hours} ч ${remainingMinutes} мин`;
     };
 
+    // Calculate total late minutes from daily_details
+    const calculateTotalLateMinutes = () => {
+        if (!userStats?.daily_details) return 0;
+
+        let totalLateMinutes = 0;
+
+        Object.values(userStats.daily_details).forEach((dayDetail) => {
+            if (dayDetail?.lateMinutes) {
+                const lateMinutes = typeof dayDetail.lateMinutes === "string"
+                    ? parseInt(dayDetail.lateMinutes.replace(/\D/g, ""))
+                    : Number(dayDetail.lateMinutes);
+
+                if (!isNaN(lateMinutes) && lateMinutes > 0) {
+                    totalLateMinutes += lateMinutes;
+                }
+            }
+        });
+
+        return totalLateMinutes;
+    };
+
     if (loading) {
         return <Loader />;
     }
@@ -862,9 +883,7 @@ export default function EmployeeList() {
                                                         </p>
                                                     </div>
                                                     <p className="text-md font-semibold text-gray-900">
-                                                        {userStats.work_summary
-                                                            ?.early_minutes_text ||
-                                                            "0 мин"}
+                                                        {formatLateMinutes(calculateTotalLateMinutes())}
                                                     </p>
                                                 </div>
                                                 <div className="rounded-2xl flex flex-col justify-between bg-violet-50 px-2 py-2">

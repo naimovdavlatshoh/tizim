@@ -2,7 +2,6 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { useState, useEffect } from "react";
 import { GetDataSimple } from "../../service/data";
-import Select from "../form/Select";
 
 interface MonthlyData {
     year: number;
@@ -18,11 +17,11 @@ interface StatisticsChartProps {
 
 export default function StatisticsChart({ data }: StatisticsChartProps) {
     const [chartData, setChartData] = useState<MonthlyData[]>([]);
-    const [selectedYear, setSelectedYear] = useState<number>(2025);
+    const [selectedYear, setSelectedYear] = useState<number>(() => {
+        const storedYear = localStorage.getItem("selectedYear");
+        return storedYear ? parseInt(storedYear, 10) : 2026;
+    });
     const [loading, setLoading] = useState(false);
-    const [availableYears] = useState<number[]>([
-        2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030,
-    ]);
 
     // Fetch data from API
     const fetchData = async (year: number) => {
@@ -47,20 +46,19 @@ export default function StatisticsChart({ data }: StatisticsChartProps) {
     };
 
     useEffect(() => {
+        // Get year from localStorage on mount
+        const storedYear = localStorage.getItem("selectedYear");
+        const year = storedYear ? parseInt(storedYear, 10) : 2026;
+        setSelectedYear(year);
+    }, []);
+
+    useEffect(() => {
         if (data) {
             setChartData(data);
         } else {
             fetchData(selectedYear);
         }
     }, [selectedYear, data]);
-
-    const handleYearChange = (value: string) => {
-        const year = parseInt(value);
-        setSelectedYear(year);
-        if (!data) {
-            fetchData(year);
-        }
-    };
 
     const options: ApexOptions = {
         legend: {
@@ -182,19 +180,6 @@ export default function StatisticsChart({ data }: StatisticsChartProps) {
                     <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
                         Месячная статистика по доходам и расходам
                     </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="w-48">
-                        <Select
-                            defaultValue={selectedYear.toString()}
-                            onChange={handleYearChange}
-                            options={availableYears.map((year) => ({
-                                value: year,
-                                label: year.toString(),
-                            }))}
-                            placeholder="Выберите год"
-                        />
-                    </div>
                 </div>
             </div>
 

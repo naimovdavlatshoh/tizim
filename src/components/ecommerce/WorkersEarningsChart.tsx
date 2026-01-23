@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { GetDataSimple } from "../../service/data";
-import Select from "../form/Select";
 import { formatAmount } from "../../utils/numberFormat";
 
 interface WorkerMonth {
@@ -26,9 +25,11 @@ export default function WorkersEarningsChart() {
     const [chartData, setChartData] = useState<WorkersEarningsData | null>(
         null
     );
-    const [selectedYear, setSelectedYear] = useState<number>(2025);
+    const [selectedYear, setSelectedYear] = useState<number>(() => {
+        const storedYear = localStorage.getItem("selectedYear");
+        return storedYear ? parseInt(storedYear, 10) : 2026;
+    });
     const [loading, setLoading] = useState<boolean>(true);
-    const [availableYears] = useState<number[]>([2024, 2025, 2026]);
 
     const fetchData = async (year: number) => {
         try {
@@ -49,12 +50,15 @@ export default function WorkersEarningsChart() {
     };
 
     useEffect(() => {
+        // Get year from localStorage on mount
+        const storedYear = localStorage.getItem("selectedYear");
+        const year = storedYear ? parseInt(storedYear, 10) : 2026;
+        setSelectedYear(year);
+    }, []);
+
+    useEffect(() => {
         fetchData(selectedYear);
     }, [selectedYear]);
-
-    const handleYearChange = (value: string) => {
-        setSelectedYear(parseInt(value));
-    };
 
     if (loading) {
         return (
@@ -173,20 +177,6 @@ export default function WorkersEarningsChart() {
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                             Месячная статистика по заработку работников
                         </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Год:
-                        </label>
-                        <Select
-                            defaultValue={selectedYear.toString()}
-                            onChange={handleYearChange}
-                            options={availableYears.map((year) => ({
-                                value: year,
-                                label: year.toString(),
-                            }))}
-                            placeholder="Выберите год"
-                        />
                     </div>
                 </div>
             </div>
