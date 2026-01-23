@@ -14,6 +14,12 @@ import IndividualClientTable from "./IndividualClientTable.tsx";
 import LegalEntityClientTable from "./LegalEntityClientTable.tsx";
 import Loader from "../../components/ui/loader/Loader.tsx";
 
+interface Statistic {
+    total: number;
+    fiz_litso: number;
+    yur_litso: number;
+}
+
 export default function ClientList() {
     const { searchQuery, currentPage, setIsSearching } = useSearch();
     // const [clients, setClients] = useState([]);
@@ -24,6 +30,7 @@ export default function ClientList() {
     const [response, setResponse] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
     const [loading, setLoading] = useState(false);
+    const [statistic, setStatistic] = useState<Statistic>();
     console.log(response);
 
     // Tab state
@@ -37,14 +44,21 @@ export default function ClientList() {
                 fetchClients();
             }
         }
-    }, [searchQuery, currentPage, status, page]);
+    }, [searchQuery, currentPage, status, page, activeTab]);
 
     const fetchClients = async () => {
         setLoading(true);
         try {
-            const response: any = await GetDataSimple(
-                `api/clients/list?page=${page}&limit=30`
-            );
+            // Build URL with client_type parameter based on activeTab
+            let url = `api/clients/list?page=${page}&limit=30`;
+            if (activeTab === "legal") {
+                url += `&client_type=1`; // Yuridik shaxslar
+            } else if (activeTab === "individual") {
+                url += `&client_type=2`; // Jismoniy shaxslar
+            }
+            // activeTab === "all" bo'lsa client_type parametri qo'shilmaydi
+
+            const response: any = await GetDataSimple(url);
             const clientsData =
                 response?.result || response?.data?.result || [];
             const totalPagesData =
@@ -52,11 +66,15 @@ export default function ClientList() {
 
             // setClients(clientsData);
             setFilteredClients(clientsData);
+            setStatistic(response?.statistics || response?.data?.statistics);
+            console.log(response?.data?.statistics);
+
             setTotalPages(totalPagesData);
             setLoading(false);
         } catch (error) {
             console.error("Error fetching clients:", error);
             toast.error("Что-то пошло не так при загрузке клиентов");
+            setLoading(false);
         }
     };
 
@@ -65,12 +83,19 @@ export default function ClientList() {
 
         setIsSearching(true);
         try {
+            // Build URL with client_type parameter based on activeTab
+            let url = `api/clients/search?keyword=${encodeURIComponent(
+                query
+            )}&page=${page}&limit=30`;
+            if (activeTab === "legal") {
+                url += `&client_type=1`; // Yuridik shaxslar
+            } else if (activeTab === "individual") {
+                url += `&client_type=2`; // Jismoniy shaxslar
+            }
+            // activeTab === "all" bo'lsa client_type parametri qo'shilmaydi
+
             // Search API ni chaqirish (POST request with URL params)
-            const response: any = await PostSimple(
-                `api/clients/search?keyword=${encodeURIComponent(
-                    query
-                )}&page=${page}&limit=30`
-            );
+            const response: any = await PostSimple(url);
 
             if (response?.status === 200 || response?.data?.success) {
                 const searchResults =
@@ -92,19 +117,9 @@ export default function ClientList() {
         }
     };
 
-    // Filter clients based on active tab
+    // Filter clients based on active tab (now handled by API, but kept for compatibility)
     const getFilteredClientsByTab = () => {
-        if (activeTab === "all") {
-            return filteredClients;
-        } else if (activeTab === "individual") {
-            return filteredClients.filter(
-                (client: any) => client.client_type === 2
-            );
-        } else if (activeTab === "legal") {
-            return filteredClients.filter(
-                (client: any) => client.client_type === 1
-            );
-        }
+        // API already filters by client_type, so we just return filteredClients
         return filteredClients;
     };
 
@@ -116,10 +131,6 @@ export default function ClientList() {
         setActiveTab(tab);
         setPage(1); // Reset to first page when changing tabs
     };
-
-    if (loading) {
-        return <Loader />;
-    }
 
     return (
         <>
@@ -181,7 +192,9 @@ export default function ClientList() {
                                         : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                                 }`}
                             >
-                                {filteredClients.length}
+                                {
+                                   statistic?.total
+                                }
                             </span>
                         </button>
                         <button
@@ -214,10 +227,7 @@ export default function ClientList() {
                                 }`}
                             >
                                 {
-                                    filteredClients.filter(
-                                        (client: any) =>
-                                            client.client_type === 2
-                                    ).length
+                                    statistic?.fiz_litso
                                 }
                             </span>
                         </button>
@@ -251,10 +261,7 @@ export default function ClientList() {
                                 }`}
                             >
                                 {
-                                    filteredClients.filter(
-                                        (client: any) =>
-                                            client.client_type === 1
-                                    ).length
+                                   statistic?.yur_litso
                                 }
                             </span>
                         </button>
@@ -262,21 +269,29 @@ export default function ClientList() {
                 </div>
 
                 {/* Render different tables based on active tab */}
-                {activeTab === "all" ? (
-                    <TableClient
-                        users={getFilteredClientsByTab()}
-                        changeStatus={changeStatus}
-                    />
-                ) : activeTab === "individual" ? (
-                    <IndividualClientTable
-                        users={getFilteredClientsByTab()}
-                        changeStatus={changeStatus}
-                    />
+                {loading ? (
+                    <div className="flex justify-center items-center py-12">
+                        <Loader />
+                    </div>
                 ) : (
-                    <LegalEntityClientTable
-                        users={getFilteredClientsByTab()}
-                        changeStatus={changeStatus}
-                    />
+                    <>
+                        {activeTab === "all" ? (
+                            <TableClient
+                                users={getFilteredClientsByTab()}
+                                changeStatus={changeStatus}
+                            />
+                        ) : activeTab === "individual" ? (
+                            <IndividualClientTable
+                                users={getFilteredClientsByTab()}
+                                changeStatus={changeStatus}
+                            />
+                        ) : (
+                            <LegalEntityClientTable
+                                users={getFilteredClientsByTab()}
+                                changeStatus={changeStatus}
+                            />
+                        )}
+                    </>
                 )}
 
                 <Pagination

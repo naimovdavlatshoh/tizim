@@ -96,6 +96,7 @@ interface UserStatsResponse {
             status: string;
             day_type: "past" | "future" | "weekend";
             in: string | null;
+            lateMinutes: any;
             out: string | null;
             workedMinutes: number;
             workedMinutes_text: string;
@@ -302,7 +303,7 @@ export default function EmployeeList() {
         }
 
         // Check if there's no "in" but there's "out" - show in pink
-        if (!details.in && details.out) {
+        if (!details.in && details.out || details.in && !details.out  ) {
             return { color: "bg-pink-400 text-white", details };
         }
 
@@ -631,15 +632,14 @@ export default function EmployeeList() {
                                                                                                         "-"}
                                                                                                 </span>
                                                                                             </div>
-                                                                                            {details.earlyMinutes >
-                                                                                                0 && (
+                                                                                            {/* need change */}
+                                                                                            {(details.status?.includes("Опоздал") || color.includes("yellow") || color.includes("amber")) && details.earlyMinutes_text && (
                                                                                                 <div className="flex justify-between">
                                                                                                     <span className="text-gray-400">
                                                                                                         Опоздание:
                                                                                                     </span>
-                                                                                                    <span>
-                                                                                                        {details.earlyMinutes_text ||
-                                                                                                            "-"}
+                                                                                                    <span className="text-yellow-400 font-semibold">
+                                                                                                        {details.lateMinutes}
                                                                                                     </span>
                                                                                                 </div>
                                                                                             )}

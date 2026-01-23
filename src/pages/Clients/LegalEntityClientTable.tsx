@@ -125,7 +125,7 @@ export default function LegalEntityClientTable({
                             >
                                 Банковский счет
                             </TableCell>
-                            <TableCell
+                            {/* <TableCell
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
@@ -142,7 +142,7 @@ export default function LegalEntityClientTable({
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
                                 ОКЭД
-                            </TableCell>
+                            </TableCell> */}
                             <TableCell
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -161,7 +161,7 @@ export default function LegalEntityClientTable({
                                     className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                 >
                                     <TableCell
-                                        className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        className="px-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                         onClick={() => handleRowClick(client)}
                                     >
                                         {index + 1}
@@ -173,19 +173,19 @@ export default function LegalEntityClientTable({
                                         {renderFieldValue(client.business_name)}
                                     </TableCell>
                                     <TableCell
-                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        className="py-3 pr-5 text-gray-500 text-theme-sm dark:text-gray-400"
                                         onClick={() => handleRowClick(client)}
                                     >
                                         {renderFieldValue(client.client_name)}
                                     </TableCell>
                                     <TableCell
-                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        className="py-3 pr-5 text-gray-500 text-theme-sm dark:text-gray-400"
                                         onClick={() => handleRowClick(client)}
                                     >
                                         {renderFieldValue(client.phone_number)}
                                     </TableCell>
                                     <TableCell
-                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        className="py-3 pr-5 text-gray-500 text-theme-sm dark:text-gray-400 w-[250px]"
                                         onClick={() => handleRowClick(client)}
                                     >
                                         {renderFieldValue(
@@ -193,12 +193,12 @@ export default function LegalEntityClientTable({
                                         )}
                                     </TableCell>
                                     <TableCell
-                                        className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                        className="py-3 pr-5 text-gray-500 text-theme-sm dark:text-gray-400"
                                         onClick={() => handleRowClick(client)}
                                     >
                                         {renderFieldValue(client.bank_account)}
                                     </TableCell>
-                                    <TableCell
+                                    {/* <TableCell
                                         className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                         onClick={() => handleRowClick(client)}
                                     >
@@ -215,8 +215,8 @@ export default function LegalEntityClientTable({
                                         onClick={() => handleRowClick(client)}
                                     >
                                         {renderFieldValue(client.oked)}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    </TableCell> */}
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm flex justify-end">
                                         <Button
                                             className="mr-2"
                                             onClick={() => {
