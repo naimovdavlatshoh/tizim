@@ -32,6 +32,7 @@ import ExpenseList from "./pages/Expenses";
 import FaceIdList from "./pages/FaceId";
 import LetterList from "./pages/Letters";
 import ProtocolList from "./pages/Protocols";
+import MixList from "./pages/Mix/MixList";
 import BrokerContractList from "./pages/BrokerContracts";
 import FineList from "./pages/Fines";
 import BonusList from "./pages/Bonuses";
@@ -166,6 +167,7 @@ export default function App() {
                             <Route path="/face-id" element={<FaceIdList />} />
                             <Route path="/letters" element={<LetterList />} />
                             <Route path="/protocols" element={<ProtocolList />} />
+                            <Route path="/mix" element={<MixList />} />
                             <Route
                                 path="/broker-contracts"
                                 element={<BrokerContractList />}

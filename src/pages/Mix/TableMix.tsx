@@ -10,7 +10,7 @@ import {
 import { Modal } from "../../components/ui/modal/index.tsx";
 import { TrashBinIcon } from "../../icons/index.ts";
 
-interface Protocol {
+interface Mix {
     protocol_id: number;
     protocol_number: number;
     category_name: string;
@@ -29,33 +29,33 @@ interface Protocol {
     client_full_name?: string | null;
 }
 
-interface TableProtocolProps {
-    protocols: Protocol[];
+interface TableMixProps {
+    mixes: Mix[];
     changeStatus: () => void;
 }
 
-export default function TableProtocol({
-    protocols,
+export default function TableMix({
+    mixes,
     changeStatus,
-}: TableProtocolProps) {
+}: TableMixProps) {
     const [deletingId, setDeletingId] = useState<number | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>(
+    const [selectedMix, setSelectedMix] = useState<Mix | null>(
         null
     );
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
     const [loadingQr, setLoadingQr] = useState(false);
-    const [selectedProtocolForQr, setSelectedProtocolForQr] =
-        useState<Protocol | null>(null);
+    const [selectedMixForQr, setSelectedMixForQr] =
+        useState<Mix | null>(null);
     const [isPdfUploadModalOpen, setIsPdfUploadModalOpen] = useState(false);
-    const [selectedProtocolForPdf, setSelectedProtocolForPdf] =
-        useState<Protocol | null>(null);
+    const [selectedMixForPdf, setSelectedMixForPdf] =
+        useState<Mix | null>(null);
     const [uploadingPdf, setUploadingPdf] = useState(false);
     const [downloadingPdf, setDownloadingPdf] = useState(false);
     const [isWordUploadModalOpen, setIsWordUploadModalOpen] = useState(false);
-    const [selectedProtocolForWord, setSelectedProtocolForWord] =
-        useState<Protocol | null>(null);
+    const [selectedMixForWord, setSelectedMixForWord] =
+        useState<Mix | null>(null);
     const [uploadingWord, setUploadingWord] = useState(false);
     const [downloadingWord, setDownloadingWord] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,19 +64,20 @@ export default function TableProtocol({
     // Get user role from localStorage
     const userRole = parseInt(localStorage.getItem("role_id") || "0");
     const canDelete = userRole === 1;
+    const canUploadPdf = userRole === 4 || userRole === 5; // Лаборант (4) va Эксперт (5)
 
-    const openDeleteModal = (protocol: Protocol) => {
-        setSelectedProtocol(protocol);
+    const openDeleteModal = (mix: Mix) => {
+        setSelectedMix(mix);
         setIsDeleteModalOpen(true);
     };
 
     const handleDelete = async () => {
-        if (!selectedProtocol) return;
+        if (!selectedMix) return;
 
-        setDeletingId(selectedProtocol.protocol_id);
+        setDeletingId(selectedMix.protocol_id);
         try {
             const response: any = await DeleteData(
-                `api/protocol/delete/${selectedProtocol.protocol_id}`
+                `api/mix/delete/${selectedMix.protocol_id}`
             );
 
             if (
@@ -84,23 +85,23 @@ export default function TableProtocol({
                 response?.data?.success ||
                 response?.data
             ) {
-                toast.success("Протокол успешно удален");
+                toast.success("Смесь успешно удален");
                 setIsDeleteModalOpen(false);
-                setSelectedProtocol(null);
+                setSelectedMix(null);
                 changeStatus(); // Table list ni yangilash
             } else {
-                toast.error("Ошибка при удалении протокола");
+                toast.error("Ошибка при удалении смесьа");
                 setIsDeleteModalOpen(false);
-                setSelectedProtocol(null);
+                setSelectedMix(null);
             }
         } catch (error: any) {
-            console.error("Error deleting protocol:", error);
+            console.error("Error deleting mix:", error);
             toast.error(
                 error?.response?.data?.error ||
-                    "Что-то пошло не так при удалении протокола"
+                    "Что-то пошло не так при удалении смесьа"
             );
             setIsDeleteModalOpen(false);
-            setSelectedProtocol(null);
+            setSelectedMix(null);
         } finally {
             setDeletingId(null);
         }
@@ -108,19 +109,19 @@ export default function TableProtocol({
 
     const closeDeleteModal = () => {
         setIsDeleteModalOpen(false);
-        setSelectedProtocol(null);
+        setSelectedMix(null);
         setDeletingId(null);
     };
 
-    const handleGetQrCode = async (protocol: Protocol) => {
-        setSelectedProtocolForQr(protocol);
+    const handleGetQrCode = async (mix: Mix) => {
+        setSelectedMixForQr(mix);
         setIsQrModalOpen(true);
         setLoadingQr(true);
         setQrCodeUrl("");
 
         try {
             const response: any = await GetDataSimple(
-                `api/protocol/qrcode/${protocol.protocol_id}`
+                `api/mix/qrcode/${mix.protocol_id}`
             );
 
             // Pismo pagedek response strukturani qayta ishlash
@@ -150,19 +151,19 @@ export default function TableProtocol({
     const closeQrModal = () => {
         setIsQrModalOpen(false);
         setQrCodeUrl("");
-        setSelectedProtocolForQr(null);
+        setSelectedMixForQr(null);
     };
 
     const handleDownloadQr = async () => {
-        if (!selectedProtocolForQr) {
-            toast.error("Протокол не выбран");
+        if (!selectedMixForQr) {
+            toast.error("Смесь не выбран");
             return;
         }
 
         try {
             // Используем GetDataSimplePDF для получения blob (работает и для изображений)
             const response = await GetDataSimplePDF(
-                `api/protocol/download/qrcode/${selectedProtocolForQr.protocol_id}`
+                `api/mix/download/qrcode/${selectedMixForQr.protocol_id}`
             );
 
             // Create blob and download
@@ -173,7 +174,7 @@ export default function TableProtocol({
             const link = document.createElement("a");
             link.href = url;
             link.download = `qrcode-${
-                selectedProtocolForQr?.protocol_number?.toString() || "protocol"
+                selectedMixForQr?.protocol_number?.toString() || "mix"
             }.png`;
             document.body.appendChild(link);
             link.click();
@@ -191,21 +192,21 @@ export default function TableProtocol({
         }
     };
 
-    const openPdfUploadModal = (protocol: Protocol) => {
-        setSelectedProtocolForPdf(protocol);
+    const openPdfUploadModal = (mix: Mix) => {
+        setSelectedMixForPdf(mix);
         setIsPdfUploadModalOpen(true);
     };
 
     const closePdfUploadModal = () => {
         setIsPdfUploadModalOpen(false);
-        setSelectedProtocolForPdf(null);
+        setSelectedMixForPdf(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
     };
 
     const handlePdfUpload = async () => {
-        if (!selectedProtocolForPdf || !fileInputRef.current?.files?.[0]) {
+        if (!selectedMixForPdf || !fileInputRef.current?.files?.[0]) {
             toast.error("Пожалуйста, выберите PDF файл");
             return;
         }
@@ -222,7 +223,7 @@ export default function TableProtocol({
             formData.append("file", file);
 
             const response: any = await PostSimpleFormData(
-                `api/protocol/upload-pdf/${selectedProtocolForPdf.protocol_id}`,
+                `api/mix/upload-pdf/${selectedMixForPdf.protocol_id}`,
                 formData
             );
 
@@ -247,11 +248,11 @@ export default function TableProtocol({
         }
     };
 
-    const handleDownloadPdf = async (protocol: Protocol) => {
+    const handleDownloadPdf = async (mix: Mix) => {
         setDownloadingPdf(true);
         try {
             const response = await GetDataSimplePDF(
-                `api/protocol/download-pdf/${protocol.protocol_id}`
+                `api/mix/download-pdf/${mix.protocol_id}`
             );
 
             // Create blob and download
@@ -261,8 +262,8 @@ export default function TableProtocol({
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `protocol-${
-                protocol.protocol_number?.toString() || protocol.protocol_id
+            link.download = `mix-${
+                mix.protocol_number?.toString() || mix.protocol_id
             }.pdf`;
             document.body.appendChild(link);
             link.click();
@@ -281,21 +282,21 @@ export default function TableProtocol({
         }
     };
 
-    const openWordUploadModal = (protocol: Protocol) => {
-        setSelectedProtocolForWord(protocol);
+    const openWordUploadModal = (mix: Mix) => {
+        setSelectedMixForWord(mix);
         setIsWordUploadModalOpen(true);
     };
 
     const closeWordUploadModal = () => {
         setIsWordUploadModalOpen(false);
-        setSelectedProtocolForWord(null);
+        setSelectedMixForWord(null);
         if (wordFileInputRef.current) {
             wordFileInputRef.current.value = "";
         }
     };
 
     const handleWordUpload = async () => {
-        if (!selectedProtocolForWord || !wordFileInputRef.current?.files?.[0]) {
+        if (!selectedMixForWord || !wordFileInputRef.current?.files?.[0]) {
             toast.error("Пожалуйста, выберите Word файл");
             return;
         }
@@ -316,7 +317,7 @@ export default function TableProtocol({
             formData.append("file", file);
 
             const response: any = await PostSimpleFormData(
-                `api/protocol/upload-word/${selectedProtocolForWord.protocol_id}`,
+                `api/mix/upload-word/${selectedMixForWord.protocol_id}`,
                 formData
             );
 
@@ -339,11 +340,11 @@ export default function TableProtocol({
         }
     };
 
-    const handleDownloadWord = async (protocol: Protocol) => {
+    const handleDownloadWord = async (mix: Mix) => {
         setDownloadingWord(true);
         try {
             const response = await GetDataSimplePDF(
-                `api/protocol/download-word/${protocol.protocol_id}`
+                `api/mix/download-word/${mix.protocol_id}`
             );
 
             // Create blob and download
@@ -353,8 +354,8 @@ export default function TableProtocol({
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `protocol-${
-                protocol.protocol_number?.toString() || protocol.protocol_id
+            link.download = `mix-${
+                mix.protocol_number?.toString() || mix.protocol_id
             }.docx`;
             document.body.appendChild(link);
             link.click();
@@ -391,10 +392,10 @@ export default function TableProtocol({
         }
     };
 
-    if (protocols.length === 0) {
+    if (mixes.length === 0) {
         return (
             <div className="text-center py-8 text-gray-500">
-                Протоколы не найдены
+                Смеси не найдены
             </div>
         );
     }
@@ -438,60 +439,60 @@ export default function TableProtocol({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {protocols.map((protocol, index) => (
+                        {mixes.map((mix, index) => (
                             <tr
-                                key={protocol.protocol_id}
+                                key={mix.protocol_id}
                                 className="hover:bg-gray-50 dark:hover:bg-gray-800 relative"
                             >
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {index + 1}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
-                                    {protocol.protocol_number || "-"}
+                                    {mix.protocol_number || "-"}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {protocol.category_name || "-"}
+                                    {mix.category_name || "-"}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {formatDate(protocol.application_date)}
+                                    {formatDate(mix.application_date)}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {formatDate(protocol.test_date)}
+                                    {formatDate(mix.test_date)}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                        {protocol.acceptance_status || "-"}
+                                        {mix.acceptance_status || "-"}
                                     </span>
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 overflow-visible">
                                     <div className="relative group max-w-xs">
                                         <span className="cursor-help inline-block">
-                                            {protocol.sender_comments &&
-                                            protocol.sender_comments.length > 20
-                                                ? `${protocol.sender_comments.substring(
+                                            {mix.sender_comments &&
+                                            mix.sender_comments.length > 20
+                                                ? `${mix.sender_comments.substring(
                                                       0,
                                                       20
                                                   )}...`
-                                                : protocol.sender_comments || "-"}
+                                                : mix.sender_comments || "-"}
                                         </span>
-                                        {protocol.sender_comments &&
-                                            protocol.sender_comments.length >
+                                        {mix.sender_comments &&
+                                            mix.sender_comments.length >
                                                 20 && (
                                                 <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[9999] w-80 max-w-sm break-words shadow-lg pointer-events-none whitespace-normal">
-                                                    {protocol.sender_comments}
+                                                    {mix.sender_comments}
                                                     <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                                                 </div>
                                             )}
                                     </div>
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {protocol.client_full_name || "-"}
+                                    {mix.client_full_name || "-"}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <div>
-                                        <div>{protocol.created_by || "-"}</div>
+                                        <div>{mix.created_by || "-"}</div>
                                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                                            {formatDate(protocol.created_at)}
+                                            {formatDate(mix.created_at)}
                                         </div>
                                     </div>
                                 </td>
@@ -500,7 +501,7 @@ export default function TableProtocol({
                                         <div title="QR-код">
                                             <Button
                                                 onClick={() =>
-                                                    handleGetQrCode(protocol)
+                                                    handleGetQrCode(mix)
                                                 }
                                                 size="xs"
                                                 variant="outline"
@@ -521,13 +522,13 @@ export default function TableProtocol({
                                             </Button>
                                         </div>
                                         {/* Word Upload/Download */}
-                                        {protocol.is_word_added === 1 ? (
+                                        {mix.is_word_added === 1 ? (
                                             // Если is_word_added === 1, только download
                                             <div title="Скачать Word файл">
                                                 <Button
                                                     className="bg-emerald-600 hover:bg-emerald-500"
                                                     onClick={() =>
-                                                        handleDownloadWord(protocol)
+                                                        handleDownloadWord(mix)
                                                     }
                                                     size="xs"
                                                     disabled={downloadingWord}
@@ -554,7 +555,7 @@ export default function TableProtocol({
                                                     <Button
                                                         onClick={() =>
                                                             openWordUploadModal(
-                                                                protocol
+                                                                mix
                                                             )
                                                         }
                                                         size="xs"
@@ -575,12 +576,12 @@ export default function TableProtocol({
                                                         </svg>
                                                     </Button>
                                                 </div>
-                                                {protocol.is_word_added == 1?
+                                                {mix.is_word_added == 1?
                                                 <div title="Скачать Word файл">
                                                     <Button
                                                         className="bg-emerald-600 hover:bg-emerald-500"
                                                         onClick={() =>
-                                                            handleDownloadWord(protocol)
+                                                            handleDownloadWord(mix)
                                                         }
                                                         size="xs"
                                                         disabled={downloadingWord}
@@ -604,14 +605,14 @@ export default function TableProtocol({
                                         )}
 
                                         {/* PDF Upload/Download */}
-                                        {protocol.is_pdf_added === 1 ? (
-                                            // Если is_pdf_added === 1, только download
+                                        {mix.is_pdf_added === 1 ? (
+                                            // Если is_pdf_added === 1, только download (для всех)
                                             <div title="Скачать PDF файл">
                                                 <Button
                                                     className="bg-teal-600 hover:bg-teal-500"
                                                     onClick={() =>
                                                         handleDownloadPdf(
-                                                            protocol
+                                                            mix
                                                         )
                                                     }
                                                     size="xs"
@@ -633,13 +634,13 @@ export default function TableProtocol({
                                                 </Button>
                                             </div>
                                         ) : (
-                                            // Если is_pdf_added !== 1, upload и download
-                                            <>
+                                            // Если is_pdf_added !== 1, upload только для role_id 4 и 5
+                                            canUploadPdf && (
                                                 <div title="Загрузить PDF файл">
                                                     <Button
                                                         onClick={() =>
                                                             openPdfUploadModal(
-                                                                protocol
+                                                                mix
                                                             )
                                                         }
                                                         size="xs"
@@ -660,45 +661,14 @@ export default function TableProtocol({
                                                         </svg>
                                                     </Button>
                                                 </div>
-                                                {protocol.is_pdf_added == 1?
-
-                                                <div title="Скачать PDF файл">
-                                                <Button
-                                                    className="bg-teal-600 hover:bg-teal-500"
-                                                    onClick={() =>
-                                                        handleDownloadPdf(
-                                                            protocol
-                                                        )
-                                                    }
-                                                    size="xs"
-                                                    disabled={
-                                                        downloadingPdf
-                                                    }
-                                                >
-                                                    <svg
-                                                        className="w-4 h-4"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                        />
-                                                    </svg>
-                                                </Button>
-                                            </div>:""}
-
-                                            </>
+                                            )
                                         )}
                                         {canDelete && (
-                                            <div title="Удалить протокол">
+                                            <div title="Удалить смесь">
                                                 <Button
                                                     onClick={() =>
                                                         openDeleteModal(
-                                                            protocol
+                                                            mix
                                                         )
                                                     }
                                                     size="xs"
@@ -727,11 +697,11 @@ export default function TableProtocol({
             >
                 <div className="p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        QR-код протокола
-                        {selectedProtocolForQr?.protocol_number !==
+                        QR-код смесьа
+                        {selectedMixForQr?.protocol_number !==
                             undefined && (
                             <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-1">
-                                Номер: {selectedProtocolForQr.protocol_number}
+                                Номер: {selectedMixForQr.protocol_number}
                             </span>
                         )}
                     </h3>
@@ -744,8 +714,8 @@ export default function TableProtocol({
                         <div className="flex flex-col items-center py-4">
                             <img
                                 src={qrCodeUrl}
-                                alt={`QR Code for protocol ${
-                                    selectedProtocolForQr?.protocol_number || ""
+                                alt={`QR Code for mix ${
+                                    selectedMixForQr?.protocol_number || ""
                                 }`}
                                 className="max-w-full max-h-96 rounded-lg shadow-lg mb-4"
                                 onError={() => {
@@ -779,11 +749,11 @@ export default function TableProtocol({
                 <div className="p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         Загрузить Word файл
-                        {selectedProtocolForWord?.protocol_number !==
+                        {selectedMixForWord?.protocol_number !==
                             undefined && (
                             <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-1">
-                                Номер протокола:{" "}
-                                {selectedProtocolForWord.protocol_number}
+                                Номер смеси:{" "}
+                                {selectedMixForWord.protocol_number}
                             </span>
                         )}
                     </h3>
@@ -830,11 +800,11 @@ export default function TableProtocol({
                 <div className="p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         Загрузить PDF файл
-                        {selectedProtocolForPdf?.protocol_number !==
+                        {selectedMixForPdf?.protocol_number !==
                             undefined && (
                             <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-1">
-                                Номер протокола:{" "}
-                                {selectedProtocolForPdf.protocol_number}
+                                Номер смеси:{" "}
+                                {selectedMixForPdf.protocol_number}
                             </span>
                         )}
                     </h3>
@@ -883,10 +853,10 @@ export default function TableProtocol({
                         Подтверждение удаления
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        Вы уверены, что хотите удалить этот протокол?
-                        {selectedProtocol?.protocol_number !== undefined && (
+                        Вы уверены, что хотите удалить эту смесь?
+                        {selectedMix?.protocol_number !== undefined && (
                             <span className="block mt-2 font-medium">
-                                Номер: {selectedProtocol.protocol_number}
+                                Номер: {selectedMix.protocol_number}
                             </span>
                         )}
                     </p>

@@ -207,8 +207,15 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             return;
         }
 
-        // Send request immediately
-        handleCheckSalary(numericValue);
+        // Count only digits (excluding decimal point)
+        const digitCount = numericValue.replace(/\./g, "").length;
+
+        // Send request only if at least 4 digits are entered, after 0.5 seconds delay
+        if (digitCount >= 4) {
+            salaryCheckTimeoutRef.current = setTimeout(() => {
+                handleCheckSalary(numericValue);
+            }, 500); // 0.5 seconds delay
+        }
     };
 
     // User ma'lumotlarini yuklash

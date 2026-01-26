@@ -298,6 +298,13 @@ const AddContract = () => {
             return;
         }
 
+        if (!formData.contract_date) {
+            toast.error(
+                "Пожалуйста, выберите дату договора"
+            );
+            return;
+        }
+
         if (formData.contract_type !== 5) {
             toast.error("План рассрочки доступен только для типа договора 5");
             return;
@@ -305,18 +312,32 @@ const AddContract = () => {
 
         const monthlyFee = calculateMonthlyFee();
         if (monthlyFee > 0) {
-            const today = new Date();
+            // Parse contract_date to get the day
+            const contractDateParts = formData.contract_date.split("-");
+            const contractYear = parseInt(contractDateParts[0]);
+            const contractMonth = parseInt(contractDateParts[1]) - 1; // Month is 0-indexed
+            const contractDay = parseInt(contractDateParts[2]);
+
             const newPlan: Array<{
                 date_of_payment: string;
                 monthly_fee: number;
             }> = [];
 
             for (let i = 0; i < formData.contract_plan_months; i++) {
-                const paymentDate = new Date(today);
-                paymentDate.setMonth(today.getMonth() + i + 1);
-                paymentDate.setDate(1);
+                // Calculate target year and month
+                const targetYear = contractYear + Math.floor((contractMonth + i) / 12);
+                const actualTargetMonth = (contractMonth + i) % 12;
+
+                // Get the last day of the target month
+                const lastDayOfMonth = new Date(targetYear, actualTargetMonth + 1, 0).getDate();
+
+                // Use the contract day, or the last day of month if contract day doesn't exist
+                const dayToUse = Math.min(contractDay, lastDayOfMonth);
+
+                const finalPaymentDate = new Date(targetYear, actualTargetMonth, dayToUse);
+
                 newPlan.push({
-                    date_of_payment: formatDateToLocal(paymentDate),
+                    date_of_payment: formatDateToLocal(finalPaymentDate),
                     monthly_fee: monthlyFee,
                 });
             }
@@ -717,6 +738,13 @@ const AddContract = () => {
                                                     id={`payment-date-${index}`}
                                                     label=""
                                                     placeholder="Выберите дату платежа"
+                                                    defaultDate={
+                                                        planItem.date_of_payment
+                                                            ? new Date(
+                                                                  planItem.date_of_payment
+                                                              )
+                                                            : undefined
+                                                    }
                                                     onChange={(
                                                         selectedDates
                                                     ) => {

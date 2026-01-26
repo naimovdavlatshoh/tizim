@@ -53,6 +53,8 @@ const AppHeader: React.FC = () => {
             setCurrentPage("letters");
         } else if (path.includes("/protocols")) {
             setCurrentPage("protocols");
+        } else if (path.includes("/mix")) {
+            setCurrentPage("mix");
         } else if (path.includes("/broker-contracts")) {
             setCurrentPage("broker-contracts");
         } else if (path.includes("/fines")) {

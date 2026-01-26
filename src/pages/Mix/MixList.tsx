@@ -4,19 +4,18 @@ import ComponentCard from "../../components/common/ComponentCard.tsx";
 import PageMeta from "../../components/common/PageMeta.tsx";
 import {
     GetDataSimple,
-    // PostSimple,
     PostDataTokenJson,
 } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
-import TableProtocol from "./TableProtocol.tsx";
+import TableMix from "./TableMix.tsx";
 import { useSearch } from "../../context/SearchContext";
 import { toast } from "react-hot-toast";
 import Loader from "../../components/ui/loader/Loader.tsx";
 import { useModal } from "../../hooks/useModal.ts";
-import AddProtocolModal from "./AddProtocolModal.tsx";
+import AddMixModal from "./AddMixModal.tsx";
 
-interface Protocol {
+interface Mix {
     protocol_id: number;
     protocol_number: number;
     category_name: string;
@@ -30,11 +29,12 @@ interface Protocol {
     acceptance_status: string;
     is_word_added?: number;
     is_pdf_added?: number;
+    client_full_name?: string | null;
 }
 
-export default function ProtocolList() {
+export default function MixList() {
     const { searchQuery, currentPage, setIsSearching } = useSearch();
-    const [filteredProtocols, setFilteredProtocols] = useState<Protocol[]>([]);
+    const [filteredMixes, setFilteredMixes] = useState<Mix[]>([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [status, setStatus] = useState(false);
@@ -45,25 +45,25 @@ export default function ProtocolList() {
         return stored || "2026";
     };
 
-    const fetchProtocols = useCallback(async () => {
+    const fetchMixes = useCallback(async () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/protocol/list?page=${page}&limit=30&year=${getStoredYear()}`
+                `api/mix/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
-            const protocolsData =
+            const mixesData =
                 response?.result || response?.data?.result || [];
             const totalPagesData =
                 response?.pages || response?.data?.pages || 1;
 
-            setFilteredProtocols(protocolsData);
+            setFilteredMixes(mixesData);
             setTotalPages(totalPagesData);
             setLoading(false);
         } catch (error: any) {
-            console.error("Error fetching protocols:", error);
+            console.error("Error fetching mixes:", error);
             toast.error(
                 error?.response?.data?.message ||
-                    "Что-то пошло не так при загрузке протоколов"
+                    "Что-то пошло не так при загрузке смесей"
             );
             setLoading(false);
         }
@@ -76,7 +76,7 @@ export default function ProtocolList() {
             setIsSearching(true);
             try {
                 const response: any = await PostDataTokenJson(
-                    `api/protocol/search?keyword=${encodeURIComponent(
+                    `api/mix/search?keyword=${encodeURIComponent(
                         query
                     )}&page=${page}&limit=30`,
                     {}
@@ -92,41 +92,41 @@ export default function ProtocolList() {
                     const totalPagesData =
                         response?.data?.pages || response?.pages || 1;
 
-                    setFilteredProtocols(searchResults);
+                    setFilteredMixes(searchResults);
                     setTotalPages(totalPagesData);
                 } else {
-                    fetchProtocols();
+                    fetchMixes();
                 }
             } catch (error) {
-                fetchProtocols();
+                fetchMixes();
             } finally {
                 setIsSearching(false);
             }
         },
-        [page, fetchProtocols, setIsSearching]
+        [page, fetchMixes, setIsSearching]
     );
 
     const changeStatus = useCallback(() => {
         setStatus(!status);
         // Table list ni yangilash
-        fetchProtocols();
-    }, [status, fetchProtocols]);
+        fetchMixes();
+    }, [status, fetchMixes]);
 
     // Initial fetch when component mounts
     useEffect(() => {
-        fetchProtocols();
-    }, [fetchProtocols]);
+        fetchMixes();
+    }, [fetchMixes]);
 
     // Handle search and page changes
     useEffect(() => {
-        if (currentPage === "protocols") {
+        if (currentPage === "mix") {
             if (searchQuery.trim()) {
                 performSearch(searchQuery);
             } else {
-                fetchProtocols();
+                fetchMixes();
             }
         }
-    }, [searchQuery, currentPage, status, performSearch, fetchProtocols]);
+    }, [searchQuery, currentPage, status, performSearch, fetchMixes]);
 
     if (loading) {
         return <Loader />;
@@ -134,10 +134,10 @@ export default function ProtocolList() {
 
     return (
         <>
-            <PageMeta title="BNM Tizim" description="Список Протоколов" />
-            <PageBreadcrumb pageTitle="Протоколы" />
+            <PageMeta title="BNM Tizim" description="Список Смесей" />
+            <PageBreadcrumb pageTitle="Подбор смеси" />
             <ComponentCard
-                title="Список Протоколов"
+                title="Список Смесей"
                 desc={
                     <div className="flex gap-3 items-center">
                         <button
@@ -157,13 +157,13 @@ export default function ProtocolList() {
                                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                                 />
                             </svg>
-                            Добавить протокол
+                            Добавить смесь
                         </button>
                     </div>
                 }
             >
-                <TableProtocol
-                    protocols={filteredProtocols}
+                <TableMix
+                    mixes={filteredMixes}
                     changeStatus={changeStatus}
                 />
 
@@ -174,7 +174,7 @@ export default function ProtocolList() {
                 />
             </ComponentCard>
 
-            <AddProtocolModal
+            <AddMixModal
                 isOpen={isOpen}
                 onClose={() => {
                     closeModal();
