@@ -20,6 +20,8 @@ interface Bonus {
     bonus_id: number;
     to_user_id: number;
     user_name: string;
+    to_user_name: string;
+
     bonuses_comments: string;
     amount_of_bonuses: number;
     created_at: string;

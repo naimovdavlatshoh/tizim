@@ -15,6 +15,7 @@ import AddFineModal from "./AddFineModal.tsx";
 interface Fine {
     fine_id: number;
     to_user_id: number;
+    to_user_name: string;
     user_name: string;
     fine_comments: string;
     amount_of_fine: number;
