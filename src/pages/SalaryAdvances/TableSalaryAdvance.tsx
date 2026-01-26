@@ -8,6 +8,7 @@ import { TrashBinIcon } from "../../icons/index.ts";
 interface SalaryAdvance {
     advance_id: number;
     to_user_id: number;
+    to_user_name: string;
     user_name: string;
     advance_comments: string;
     amount_of_advance: number;
@@ -145,7 +146,7 @@ export default function TableSalaryAdvance({
                                     {index + 1}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
-                                    {advance.user_name || "-"}
+                                    {advance.to_user_name || "-"}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {advance.advance_comments || "-"}

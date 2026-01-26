@@ -413,23 +413,22 @@ export default function TableMix({
                                 Номер
                             </th>
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Клиент
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Категория
                             </th>
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Дата заявки
+                                Дата заявки / испытания
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Дата испытания
-                            </th>
+
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Статус
                             </th>
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Комментарии
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Клиент
-                            </th>
+
                             <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Создано
                             </th>
@@ -451,14 +450,15 @@ export default function TableMix({
                                     {mix.protocol_number || "-"}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    {mix.client_full_name || "-"}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {mix.category_name || "-"}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {formatDate(mix.application_date)}
+                                    {formatDate(mix.application_date)} / {formatDate(mix.test_date)}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {formatDate(mix.test_date)}
-                                </td>
+                             
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                         {mix.acceptance_status || "-"}
@@ -485,9 +485,7 @@ export default function TableMix({
                                             )}
                                     </div>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {mix.client_full_name || "-"}
-                                </td>
+
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <div>
                                         <div>{mix.created_by || "-"}</div>

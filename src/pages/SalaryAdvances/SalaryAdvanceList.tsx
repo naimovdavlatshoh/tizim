@@ -19,6 +19,7 @@ import AddSalaryAdvanceModal from "./AddSalaryAdvanceModal.tsx";
 interface SalaryAdvance {
     advance_id: number;
     to_user_id: number;
+    to_user_name: string;
     user_name: string;
     advance_comments: string;
     amount_of_advance: number;

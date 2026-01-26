@@ -8,6 +8,7 @@ import { TrashBinIcon } from "../../icons/index.ts";
 interface Fine {
     fine_id: number;
     to_user_id: number;
+    to_user_name: string;
     user_name: string;
     fine_comments: string;
     amount_of_fine: number;
@@ -141,7 +142,7 @@ export default function TableFine({ fines, changeStatus }: TableFineProps) {
                                     {index + 1}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
-                                    {fine.user_name || "-"}
+                                    {fine.to_user_name || "-"}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {fine.fine_comments || "-"}
