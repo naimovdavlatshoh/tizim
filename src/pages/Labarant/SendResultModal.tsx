@@ -119,3 +119,6 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
 };
 
 export default SendResultModal;
+
+
+// salom tizim
