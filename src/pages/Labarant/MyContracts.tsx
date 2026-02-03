@@ -6,7 +6,7 @@ import { GetDataSimple, GetDataSimplePDF } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster, toast } from "react-hot-toast";
 
-import { FaRegEye, FaPaperPlane, FaQrcode } from "react-icons/fa";
+import {  FaQrcode } from "react-icons/fa";
 import {
     Table,
     TableBody,
@@ -14,7 +14,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import Linkto from "../../components/ui/link/LinkTo";
+// import Linkto from "../../components/ui/link/LinkTo";
 import Button from "../../components/ui/button/Button";
 import SendResultModal from "./SendResultModal";
 import { formatCurrency, formatDate } from "../../utils/numberFormat";
@@ -55,6 +55,12 @@ interface MyContract {
         document_id: number;
         created_at: string;
     } | null;
+    task_info?: {
+        tasks: Array<{
+            task_id: number;
+            task_item: Array<{ comments: string | null; [key: string]: unknown }>;
+        }>;
+    };
 }
 
 const MyContracts = () => {
@@ -64,7 +70,7 @@ const MyContracts = () => {
     const [loading, setLoading] = useState(false);
     const [sendResultModalOpen, setSendResultModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] = useState<MyContract | null>(
-        null
+        null,
     );
     const [downloadingQr, setDownloadingQr] = useState<string | null>(null);
     const [downloadingPdf, setDownloadingPdf] = useState<number | null>(null);
@@ -77,7 +83,7 @@ const MyContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/my/list?contract_status=5&page=${page}&limit=30`
+                `api/appointment/my/list?contract_status=5&page=${page}&limit=30`,
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -109,6 +115,19 @@ const MyContracts = () => {
         fetchMyContracts();
     };
 
+    const getLastTaskRejectInfo = (contract: MyContract) => {
+        const tasks = contract?.task_info?.tasks;
+        if (!Array.isArray(tasks) || tasks.length === 0) return null;
+        const lastTask = tasks[tasks.length - 1];
+        const taskItem = lastTask?.task_item;
+        if (!Array.isArray(taskItem) || taskItem.length === 0) return null;
+        const firstItem = taskItem[0];
+        return {
+            isRejected: true,
+            comment: firstItem?.comments ?? null,
+        };
+    };
+
     const handleDownloadQrCode = async (contract: MyContract) => {
         if (!contract?.contract_id) {
             toast.error("ID договора не найден");
@@ -118,7 +137,7 @@ const MyContracts = () => {
         setDownloadingQr(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/downloadqrcode/${contract.contract_id}`
+                `api/appointment/downloadqrcode/${contract.contract_id}`,
             );
 
             // Create blob and download
@@ -141,7 +160,7 @@ const MyContracts = () => {
             console.error("Error downloading QR code:", error);
             toast.error(
                 error?.response?.data?.error ||
-                    "Что-то пошло не так при скачивании QR-кода"
+                    "Что-то пошло не так при скачивании QR-кода",
             );
         } finally {
             setDownloadingQr(null);
@@ -157,7 +176,7 @@ const MyContracts = () => {
         setDownloadingPdf(contract.final_document.document_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/result/pdf/${contract.final_document.document_id}`
+                `api/appointment/result/pdf/${contract.final_document.document_id}`,
             );
 
             // Create blob and download
@@ -180,7 +199,7 @@ const MyContracts = () => {
             console.error("Error downloading PDF:", error);
             toast.error(
                 error?.response?.data?.error ||
-                    "Что-то пошло не так при скачивании PDF"
+                    "Что-то пошло не так при скачивании PDF",
             );
         } finally {
             setDownloadingPdf(null);
@@ -197,10 +216,10 @@ const MyContracts = () => {
                 title="BNM Tizim"
                 description="Список моих назначенных договоров"
             />
-            <PageBreadcrumb pageTitle="Мои договоры" />
+            <PageBreadcrumb pageTitle={`${localStorage.getItem("role_id") === "3" ? "Мои заключение" : "Мои договоры"}`} />
             <div className="space-y-6">
                 <ComponentCard
-                    title="Мои договоры"
+                    title={`${localStorage.getItem("role_id") === "3" ? "Мои заключение" : "Мои договоры"}`}
                     desc="Договоры, назначенные на меня"
                 >
                     {/* Loading indicator */}
@@ -250,7 +269,13 @@ const MyContracts = () => {
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
-                                            Стоимость работ
+                                            Бонус
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Статус
                                         </TableCell>
                                         <TableCell
                                             isHeader
@@ -263,10 +288,17 @@ const MyContracts = () => {
 
                                 {/* Table Body */}
                                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                    {contracts?.map((contract: MyContract) => (
+                                    {contracts?.map((contract: MyContract) => {
+                                        const rejectInfo =
+                                            getLastTaskRejectInfo(contract);
+                                        return (
                                         <TableRow
                                             key={contract.contract_id}
-                                            className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                            className={`cursor-pointer transition-colors ${
+                                                rejectInfo
+                                                    ? "bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/40"
+                                                    : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                                            }`}
                                         >
                                             <TableCell
                                                 className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
@@ -301,7 +333,7 @@ const MyContracts = () => {
                                             >
                                                 {contract.deadline_date
                                                     ? formatDate(
-                                                          contract.deadline_date
+                                                          contract.deadline_date,
                                                       )
                                                     : "-"}
                                             </TableCell>
@@ -313,8 +345,32 @@ const MyContracts = () => {
                                             >
                                                 {formatCurrency(
                                                     parseFloat(
-                                                        contract.worker_price
-                                                    )
+                                                        contract.worker_price,
+                                                    ),
+                                                )}
+                                            </TableCell>
+                                            <TableCell
+                                                className="py-3 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                {rejectInfo ? (
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                            Отказано
+                                                        </span>
+                                                        {rejectInfo.comment && (
+                                                            <span className="text-xs text-gray-600 dark:text-gray-300">
+                                                                {rejectInfo.comment}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-200 text-yellow-800  ">
+                                                    В ожидании
+                                                </span>
+
                                                 )}
                                             </TableCell>
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
@@ -325,7 +381,7 @@ const MyContracts = () => {
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleDownloadQrCode(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         disabled={
@@ -341,7 +397,7 @@ const MyContracts = () => {
                                                             ? ""
                                                             : ""}
                                                     </Button>
-                                                    <Linkto
+                                                    {/* <Linkto
                                                         to={`/my-contracts/${contract.contract_id}`}
                                                         size="xs"
                                                         variant="outline"
@@ -350,17 +406,31 @@ const MyContracts = () => {
                                                         }
                                                     >
                                                         {""}
-                                                    </Linkto>
+                                                    </Linkto> */}
                                                     <Button
                                                         size="xs"
-                                                        variant="outline"
+                                                        variant="primary"
                                                         onClick={() =>
                                                             handleSendResult(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         startIcon={
-                                                            <FaPaperPlane className="size-4" />
+                                                            <svg
+                                                                className="w-4 h-4"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                                />
+                                                            </svg>
                                                         }
                                                     >
                                                         {""}
@@ -370,7 +440,7 @@ const MyContracts = () => {
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleDownloadResultPdf(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         disabled={
@@ -395,7 +465,8 @@ const MyContracts = () => {
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                        );
+                                    })}
                                 </TableBody>
                             </Table>
                         </div>

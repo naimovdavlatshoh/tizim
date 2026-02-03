@@ -24,7 +24,7 @@ export default function AddLetterModal({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.letter_number || !formData.send_to) {
+        if (!formData.send_to) {
             toast.error("Пожалуйста, заполните все обязательные поля");
             return;
         }
@@ -47,9 +47,11 @@ export default function AddLetterModal({
             }
         } catch (error: any) {
             onClose();
+            console.log(error);
+
             toast.error(
                 error?.response?.data?.error ||
-                    "Что-то пошло не так при создании письма"
+                    "Что-то пошло не так при создании письма",
             );
         } finally {
             setLoading(false);
@@ -76,7 +78,7 @@ export default function AddLetterModal({
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 gap-6">
-                        <div>
+                        {/* <div>
                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                 <span className="text-red-500">*</span> Номер
                                 письма
@@ -94,12 +96,12 @@ export default function AddLetterModal({
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors"
                                 required
                             />
-                        </div>
+                        </div> */}
 
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                 <span className="text-red-500">*</span>{" "}
-                                Отправлено
+                                Получатель
                             </label>
                             <InputField
                                 type="text"
@@ -117,7 +119,7 @@ export default function AddLetterModal({
                         </div>
                     </div>
 
-                    <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-end space-x-4 pt-6 ">
                         <button
                             type="button"
                             onClick={handleClose}

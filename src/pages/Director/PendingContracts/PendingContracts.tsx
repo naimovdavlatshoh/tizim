@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import { GetDataSimple, getStoredYear } from "../../../service/data.ts";
+import {
+    GetDataSimple,
+    getStoredYear,
+    GetDataSimplePDF,
+    PostSimpleFormData,
+    PostDataTokenJson,
+} from "../../../service/data.ts";
 import Pagination from "../../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
-import { FaRegEye } from "react-icons/fa";
-import { FaUserEdit } from "react-icons/fa";
+import { FaQrcode } from "react-icons/fa";
+import { TbDownload } from "react-icons/tb";
 import {
     Table,
     TableBody,
@@ -15,7 +21,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../../components/ui/table";
-import Linkto from "../../../components/ui/link/LinkTo";
+// import Linkto from "../../../components/ui/link/LinkTo";
 import AssignModal from "../NewContracts/AssignModal";
 import { formatDate } from "../../../utils/numberFormat";
 import Loader from "../../../components/ui/loader/Loader.tsx";
@@ -47,6 +53,13 @@ interface PendingContract {
     worker_user_id: string | null;
     worker_name: string | null;
     comments: string | null;
+    final_document?: string | boolean | null;
+    task_info?: {
+        tasks: Array<{
+            task_id: number;
+            task_item: Array<{ comments: string | null; [key: string]: unknown }>;
+        }>;
+    };
 }
 
 interface User {
@@ -69,6 +82,26 @@ const PendingContracts = () => {
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [loadingUsers, setLoadingUsers] = useState(false);
     const [replacing, setReplacing] = useState(false);
+    const [downloadingQr, setDownloadingQr] = useState<string | null>(null);
+    const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
+    const [uploadingPdf, setUploadingPdf] = useState(false);
+    const [isPdfUploadModalOpen, setIsPdfUploadModalOpen] = useState(false);
+    const [selectedContractForPdf, setSelectedContractForPdf] =
+        useState<PendingContract | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [resultModalOpen, setResultModalOpen] = useState(false);
+    const [resultModalAction, setResultModalAction] = useState<
+        "accept" | "cancel" | null
+    >(null);
+    const [selectedContractForResult, setSelectedContractForResult] =
+        useState<PendingContract | null>(null);
+    const [resultComment, setResultComment] = useState("");
+    const [resultCommentError, setResultCommentError] = useState<string | null>(
+        null,
+    );
+    const [resultSubmitting, setResultSubmitting] = useState(false);
+    const [resultTaskId, setResultTaskId] = useState<number | null>(null);
+    const [resultInfoLoading, setResultInfoLoading] = useState(false);
 
     useEffect(() => {
         fetchPendingContracts();
@@ -80,11 +113,51 @@ const PendingContracts = () => {
         }
     }, [replaceModalOpen]);
 
+    useEffect(() => {
+        if (!resultModalOpen || !selectedContractForResult) return;
+        let cancelled = false;
+        setResultTaskId(null);
+        setResultInfoLoading(true);
+        GetDataSimple(
+            `api/appointment/info?contract_id=${selectedContractForResult.contract_id}`,
+        )
+            .then((response: any) => {
+                if (cancelled) return;
+                const raw =
+                    response?.task_info ??
+                    response?.data?.task_info ??
+                    response?.data ??
+                    response;
+                const tasks =
+                    raw?.tasks ??
+                    raw?.task_info?.tasks ??
+                    response?.tasks ??
+                    response?.data?.tasks;
+                const lastTask =
+                    Array.isArray(tasks) && tasks.length > 0
+                        ? tasks[tasks.length - 1]
+                        : null;
+                const taskId =
+                    lastTask?.task_id ?? lastTask?.id ?? null;
+                if (taskId != null) setResultTaskId(Number(taskId));
+                setResultInfoLoading(false);
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setResultTaskId(null);
+                    setResultInfoLoading(false);
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [resultModalOpen, selectedContractForResult?.contract_id]);
+
     const fetchPendingContracts = async () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=5&page=${page}&limit=30&year=${getStoredYear()}`
+                `api/appointment/all/list?contract_status=5&page=${page}&limit=30&year=${getStoredYear()}`,
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -107,18 +180,23 @@ const PendingContracts = () => {
         console.log("Contract clicked:", contract);
     };
 
-    const handleAssignWorker = (contract: PendingContract) => {
-        setSelectedContract(contract);
-        setAssignModalOpen(true);
+    const getResultBadgeStatus = (
+        contract: PendingContract,
+    ): "no_result" | "waiting" | "rejected" => {
+        if (!contract.final_document) return "no_result";
+        const tasks = contract?.task_info?.tasks;
+        if (!Array.isArray(tasks) || tasks.length === 0) return "waiting";
+        const lastTask = tasks[tasks.length - 1];
+        const taskItem = lastTask?.task_item;
+        if (!Array.isArray(taskItem) || taskItem.length === 0) return "waiting";
+        return "rejected";
     };
-
-    console.log(handleAssignWorker);
 
     const fetchUsers = async () => {
         setLoadingUsers(true);
         try {
             const response: any = await GetDataSimple(
-                "api/user/list?page=1&limit=100"
+                "api/user/list?page=1&limit=100",
             );
             const usersData = response?.result || response?.data?.result || [];
             setUsers(Array.isArray(usersData) ? usersData : []);
@@ -143,7 +221,7 @@ const PendingContracts = () => {
                 {
                     user_id: selectedUserId,
                     contract_id: Number(selectedContract.contract_id),
-                }
+                },
             );
 
             if (response?.status === 200 || response?.data?.success) {
@@ -166,8 +244,171 @@ const PendingContracts = () => {
     };
 
     const handleAssignmentSuccess = () => {
-        // Refresh the contracts list after successful assignment
         fetchPendingContracts();
+    };
+
+    const handleDownloadQr = async (contract: PendingContract) => {
+        setDownloadingQr(contract.contract_id);
+        try {
+            const response = await GetDataSimplePDF(
+                `api/contracts/qrcode/${contract.contract_id}`,
+            );
+            const blob = new Blob([response.data], { type: "image/png" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `qrcode-${contract.contract_number || contract.contract_id}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            toast.success("QR-код скачан");
+        } catch (error: any) {
+            toast.error(
+                error?.response?.data?.error || "Ошибка при скачивании QR-кода",
+            );
+        } finally {
+            setDownloadingQr(null);
+        }
+    };
+
+    const openPdfUploadModal = (contract: PendingContract) => {
+        setSelectedContractForPdf(contract);
+        setIsPdfUploadModalOpen(true);
+    };
+
+    const closePdfUploadModal = () => {
+        setIsPdfUploadModalOpen(false);
+        setSelectedContractForPdf(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const handlePdfUpload = async () => {
+        if (!selectedContractForPdf || !fileInputRef.current?.files?.[0]) {
+            toast.error("Выберите PDF файл");
+            return;
+        }
+        const file = fileInputRef.current.files[0];
+        if (file.type !== "application/pdf") {
+            toast.error("Выберите файл в формате PDF");
+            return;
+        }
+        setUploadingPdf(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+            const response: any = await PostSimpleFormData(
+                `api/contracts/upload-pdf/${selectedContractForPdf.contract_id}`,
+                formData,
+            );
+            if (response?.status === 200 || response?.data?.success) {
+                toast.success("PDF успешно загружен");
+                closePdfUploadModal();
+                fetchPendingContracts();
+            } else {
+                toast.error("Ошибка при загрузке PDF");
+            }
+        } catch (error: any) {
+            toast.error(
+                error?.response?.data?.error || "Ошибка при загрузке PDF",
+            );
+        } finally {
+            setUploadingPdf(false);
+        }
+    };
+
+    const handleDownloadPdf = async (contract: PendingContract) => {
+        if (!contract.final_document) return;
+        setDownloadingPdf(contract.contract_id);
+        try {
+            const response = await GetDataSimplePDF(
+                `api/contracts/pdf/${contract.contract_id}`,
+            );
+            const blob = new Blob([response.data], {
+                type: "application/pdf",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `contract-${contract.contract_number || contract.contract_id}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            toast.success("PDF скачан");
+        } catch (error: any) {
+            toast.error(
+                error?.response?.data?.error || "Ошибка при скачивании PDF",
+            );
+        } finally {
+            setDownloadingPdf(null);
+        }
+    };
+
+    const openResultModal = (
+        contract: PendingContract,
+        action: "accept" | "cancel",
+    ) => {
+        setSelectedContractForResult(contract);
+        setResultModalAction(action);
+        setResultComment("");
+        setResultModalOpen(true);
+    };
+
+    const closeResultModal = () => {
+        setResultModalOpen(false);
+        setResultModalAction(null);
+        setSelectedContractForResult(null);
+        setResultComment("");
+        setResultCommentError(null);
+        setResultTaskId(null);
+        setResultInfoLoading(false);
+    };
+
+    const handleResultSubmit = async () => {
+        if (!selectedContractForResult || !resultModalAction) return;
+        if (resultTaskId == null) return;
+        const commentTrimmed = resultComment.trim();
+        if (!commentTrimmed) {
+            setResultCommentError("Комментарий не может быть пустым");
+            return;
+        }
+        setResultCommentError(null);
+        setResultSubmitting(true);
+        try {
+            const url =
+                resultModalAction === "accept"
+                    ? "api/appointment/accept/result"
+                    : "api/appointment/cancel/result";
+            const response: any = await PostDataTokenJson(url, {
+                contract_id: Number(selectedContractForResult.contract_id),
+                task_id: resultTaskId,
+                comments: commentTrimmed,
+            });
+            if (response?.success || response?.data?.success) {
+                toast.success(
+                    resultModalAction === "accept"
+                        ? "Результат принят"
+                        : "Результат отклонён",
+                );
+                closeResultModal();
+                fetchPendingContracts();
+            } else {
+                toast.error(
+                    response?.message ||
+                        response?.data?.message ||
+                        "Ошибка при выполнении",
+                );
+            }
+        } catch (error: any) {
+            toast.error(
+                error?.response?.data?.message ||
+                    error?.response?.data?.error ||
+                    "Ошибка при выполнении",
+            );
+        } finally {
+            setResultSubmitting(false);
+        }
     };
 
     if (loading) {
@@ -254,6 +495,12 @@ const PendingContracts = () => {
                                         >
                                             Исполнитель
                                         </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Статус
+                                        </TableCell>
                                         {/* <TableCell
                                             isHeader
                                             className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -274,7 +521,7 @@ const PendingContracts = () => {
                                     {contracts?.map(
                                         (
                                             contract: PendingContract,
-                                            index: number
+                                            index: number,
                                         ) => (
                                             <TableRow
                                                 key={contract.contract_id}
@@ -332,7 +579,7 @@ const PendingContracts = () => {
                                                     }
                                                 >
                                                     {formatDate(
-                                                        contract.deadline_date
+                                                        contract.deadline_date,
                                                     )}
                                                 </TableCell>
                                                 <TableCell
@@ -365,6 +612,38 @@ const PendingContracts = () => {
                                                         </span>
                                                     )}
                                                 </TableCell>
+                                                <TableCell
+                                                    className="py-3 text-theme-sm dark:text-gray-400"
+                                                    onClick={() =>
+                                                        handleRowClick(contract)
+                                                    }
+                                                >
+                                                    {(() => {
+                                                        const status =
+                                                            getResultBadgeStatus(
+                                                                contract,
+                                                            );
+                                                        if (status === "no_result") {
+                                                            return (
+                                                                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                                                                    Ещё нет результата
+                                                                </span>
+                                                            );
+                                                        }
+                                                        if (status === "rejected") {
+                                                            return (
+                                                                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                                    Отказано
+                                                                </span>
+                                                            );
+                                                        }
+                                                        return (
+                                                            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-200 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
+                                                                Ждут ответ
+                                                            </span>
+                                                        );
+                                                    })()}
+                                                </TableCell>
                                                 {/* <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
@@ -376,7 +655,7 @@ const PendingContracts = () => {
                                                 </TableCell> */}
                                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                     <div className="flex items-center gap-2">
-                                                        <Linkto
+                                                        {/* <Linkto
                                                             to={`/pending-contracts/${contract.contract_id}`}
                                                             size="xs"
                                                             variant="outline"
@@ -407,11 +686,117 @@ const PendingContracts = () => {
                                                             >
                                                                 {""}
                                                             </Button>
-                                                        )}
+                                                        )} */}
+                                                        <Button
+                                                            size="xs"
+                                                            variant="outline"
+                                                            onClick={() =>
+                                                                handleDownloadQr(
+                                                                    contract,
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                downloadingQr ===
+                                                                contract.contract_id
+                                                            }
+                                                            startIcon={
+                                                                <FaQrcode className="size-4" />
+                                                            }
+                                                            aria-label="Скачать QR-код"
+                                                        >
+                                                            {downloadingQr ===
+                                                            contract.contract_id
+                                                                ? ""
+                                                                : ""}
+                                                        </Button>
+                                                        <Button
+                                                            size="xs"
+                                                            variant="primary"
+                                                            onClick={() =>
+                                                                openPdfUploadModal(
+                                                                    contract,
+                                                                )
+                                                            }
+                                                            startIcon={
+                                                                <svg
+                                                                    className="w-4 h-4"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={
+                                                                            2
+                                                                        }
+                                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                                    />
+                                                                </svg>
+                                                            }
+                                                            aria-label="Загрузить PDF"
+                                                        >
+                                                            {""}
+                                                        </Button>
+                                                        <Button
+                                                            size="xs"
+                                                            variant="outline"
+                                                            onClick={() =>
+                                                                handleDownloadPdf(
+                                                                    contract,
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                !contract.final_document ||
+                                                                downloadingPdf ===
+                                                                    contract.contract_id
+                                                            }
+                                                            startIcon={
+                                                                <TbDownload className="size-4" />
+                                                            }
+                                                            aria-label="Скачать PDF"
+                                                        >
+                                                            {downloadingPdf ===
+                                                            contract.contract_id
+                                                                ? ""
+                                                                : ""}
+                                                        </Button>
+                                                        <Button
+                                                            size="xs"
+                                                            variant="primary"
+                                                            onClick={() =>
+                                                                openResultModal(
+                                                                    contract,
+                                                                    "accept",
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                !contract.final_document
+                                                            }
+                                                            aria-label="Принять результат"
+                                                        >
+                                                            Принять
+                                                        </Button>
+                                                        <Button
+                                                            size="xs"
+                                                            variant="danger"
+                                                            onClick={() =>
+                                                                openResultModal(
+                                                                    contract,
+                                                                    "cancel",
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                !contract.final_document
+                                                            }
+                                                            aria-label="Отказать в результате"
+                                                        >
+                                                            Отказать
+                                                        </Button>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
-                                        )
+                                        ),
                                     )}
                                 </TableBody>
                             </Table>
@@ -508,6 +893,124 @@ const PendingContracts = () => {
                             disabled={!selectedUserId || replacing}
                         >
                             {replacing ? "Переназначение..." : "Переназначить"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* PDF Upload Modal */}
+            <Modal
+                isOpen={isPdfUploadModalOpen}
+                onClose={closePdfUploadModal}
+                className="max-w-md"
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                        Загрузить PDF
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Договор: {selectedContractForPdf?.contract_number}
+                    </p>
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Выберите PDF файл
+                        </label>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".pdf,application/pdf"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-brand-50 file:text-brand-700"
+                        />
+                    </div>
+                    <div className="flex justify-end gap-3">
+                        <Button
+                            onClick={closePdfUploadModal}
+                            variant="outline"
+                            size="sm"
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            onClick={handlePdfUpload}
+                            variant="primary"
+                            size="sm"
+                            disabled={uploadingPdf}
+                        >
+                            {uploadingPdf ? "Загрузка..." : "Загрузить"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Accept / Cancel Result Modal */}
+            <Modal
+                isOpen={resultModalOpen}
+                onClose={closeResultModal}
+                className="max-w-md"
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                        {resultModalAction === "accept"
+                            ? "Принять результат"
+                            : "Отказать в результате"}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Договор: {selectedContractForResult?.contract_number}
+                    </p>
+                    {resultInfoLoading && (
+                        <div className="mb-4 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent" />
+                            Загрузка...
+                        </div>
+                    )}
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Комментарий *
+                        </label>
+                        <textarea
+                            value={resultComment}
+                            onChange={(e) => {
+                                setResultComment(e.target.value);
+                                setResultCommentError(null);
+                            }}
+                            rows={3}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${
+                                resultCommentError
+                                    ? "border-red-500 dark:border-red-500"
+                                    : "border-gray-300 dark:border-gray-600"
+                            }`}
+                            placeholder="Введите комментарий..."
+                        />
+                        {resultCommentError && (
+                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                {resultCommentError}
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex justify-end gap-3">
+                        <Button
+                            onClick={closeResultModal}
+                            variant="outline"
+                            size="sm"
+                            disabled={resultSubmitting}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            onClick={handleResultSubmit}
+                            variant="primary"
+                            size="sm"
+                            disabled={
+                                resultSubmitting ||
+                                resultInfoLoading ||
+                                resultTaskId == null
+                            }
+                        >
+                            {resultSubmitting
+                                ? "..."
+                                : resultModalAction === "accept"
+                                  ? "Принять"
+                                  : "Отказать"}
                         </Button>
                     </div>
                 </div>

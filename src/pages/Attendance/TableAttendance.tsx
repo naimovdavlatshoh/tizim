@@ -157,7 +157,7 @@ TableAttendanceProps) {
                                 <TableCell className="px-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     {getStatusBadge(
                                         attendance.status,
-                                        attendance.is_day_off
+                                        attendance.is_day_off,
                                     )}
                                 </TableCell>
                             </TableRow>

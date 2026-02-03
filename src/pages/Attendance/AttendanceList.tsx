@@ -68,7 +68,7 @@ export default function AttendanceList() {
             console.error("Error fetching attendances:", error);
             toast.error(
                 error?.response?.data?.message ||
-                    "Что-то пошло не так при загрузке посещаемости"
+                    "Что-то пошло не так при загрузке посещаемости",
             );
         } finally {
             setLoading(false);

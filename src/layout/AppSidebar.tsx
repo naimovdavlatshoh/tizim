@@ -46,19 +46,19 @@ const navItems: NavItem[] = [
         name: "Письма",
         icon: <EnvelopeIcon />,
         path: "/letters",
-        roles: [1,2, 5], // Faqat Admin
+        roles: [1, 2, 5], // Faqat Admin
     },
     {
         name: "Протоколы",
         icon: <DocsIcon />,
         path: "/protocols",
-        roles: [1,2,3,4, 5, 6], // Faqat Admin
+        roles: [1, 2, 4, 6], // Faqat Admin
     },
     {
         name: "Подбор смеси",
         icon: <DocsIcon />,
         path: "/mix",
-        roles: [1,2,3,4, 5, 6], // Faqat Admin
+        roles: [1, 2, 4, 6], // Faqat Admin
     },
     {
         name: "Пользователи",
@@ -90,16 +90,16 @@ const navItems: NavItem[] = [
         ],
     },
     {
-        name: "Мои договоры",
+        name: `${localStorage.getItem("role_id") === "3" ? "Мои заключение" : "Мои договоры"}`,
         icon: <DocsIcon />,
         path: "/my-contracts",
-        roles: [2, 3, 4, 6],
+        roles: [2, 3, 6],
     },
     {
         name: "Отчеты",
         icon: <TbMessageReport />,
         path: "/reports",
-        roles: [1, 2, 3, 4, 5, 6], // Director va Labarant
+        roles: [1, 2, 3, 4, 6], // Director va Labarant
     },
     {
         name: "Платежи",
@@ -175,7 +175,7 @@ const navItems: NavItem[] = [
         name: "Моя статистика",
         icon: <UserIcon />,
         path: "/my-statistics",
-        roles: [2, 3, 4, 5, 6], // Barcha role_id 1 dan boshqa
+        roles: [2, 3, 4, 6], // Barcha role_id 1 dan boshqa
     },
 
     // {
@@ -252,7 +252,7 @@ const AppSidebar: React.FC = () => {
 
     // Filter navigation items based on user role
     const filteredNavItems = navItems.filter(
-        (item) => !item.roles || item.roles.includes(userRole)
+        (item) => !item.roles || item.roles.includes(userRole),
     );
 
     const [openSubmenu, setOpenSubmenu] = useState<{
@@ -260,14 +260,14 @@ const AppSidebar: React.FC = () => {
         index: number;
     } | null>(null);
     const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-        {}
+        {},
     );
     const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     // const isActive = (path: string) => location.pathname === path;
     const isActive = useCallback(
         (path: string) => location.pathname === path,
-        [location.pathname]
+        [location.pathname],
     );
 
     useEffect(() => {
@@ -340,7 +340,7 @@ const AppSidebar: React.FC = () => {
 
     const handleSubmenuToggle = (
         index: number,
-        menuType: "main" | "others"
+        menuType: "main" | "others",
     ) => {
         setOpenSubmenu((prevOpenSubmenu) => {
             if (
@@ -463,7 +463,7 @@ const AppSidebar: React.FC = () => {
                                                         <span
                                                             className={`ml-auto ${
                                                                 isActive(
-                                                                    subItem.path
+                                                                    subItem.path,
                                                                 )
                                                                     ? "menu-dropdown-badge-active"
                                                                     : "menu-dropdown-badge-inactive"
@@ -476,7 +476,7 @@ const AppSidebar: React.FC = () => {
                                                         <span
                                                             className={`ml-auto ${
                                                                 isActive(
-                                                                    subItem.path
+                                                                    subItem.path,
                                                                 )
                                                                     ? "menu-dropdown-badge-active"
                                                                     : "menu-dropdown-badge-inactive"
@@ -504,8 +504,8 @@ const AppSidebar: React.FC = () => {
             isExpanded || isMobileOpen
                 ? "w-[290px]"
                 : isHovered
-                ? "w-[290px]"
-                : "w-[90px]"
+                  ? "w-[290px]"
+                  : "w-[90px]"
         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
