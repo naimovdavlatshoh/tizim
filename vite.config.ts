@@ -4,6 +4,10 @@ import svgr from "vite-plugin-svgr";
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    // Esbuild Tailwind :is() + ::-webkit-scrollbar-thumb kombinatsiyasida ogohlantirish beradi; minifyni o‘chirish buildni muvaffaqiyatli qiladi
+    cssMinify: false,
+  },
   plugins: [
     react(),
     svgr({
