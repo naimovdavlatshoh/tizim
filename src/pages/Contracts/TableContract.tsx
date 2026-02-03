@@ -90,7 +90,7 @@ export default function TableContract({
     // );
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] = useState<Contract | null>(
-        null
+        null,
     );
 
     // Get user role from localStorage
@@ -124,6 +124,12 @@ export default function TableContract({
                                 className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
                                 Н/договора
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Компания
                             </TableCell>
                             <TableCell
                                 isHeader
@@ -167,12 +173,7 @@ export default function TableContract({
                             >
                                 Телефон
                             </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Компания
-                            </TableCell>
+
                             <TableCell
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -201,7 +202,12 @@ export default function TableContract({
                                 >
                                     {contract.contract_number}
                                 </TableCell>
-
+                                <TableCell
+                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 w-[200px] pr-2 text-start"
+                                    onClick={() => handleRowClick(contract)}
+                                >
+                                    {contract.business_name}
+                                </TableCell>
                                 <TableCell
                                     className="py-3 text-gray-500 w-[150px] pr-5 text-theme-sm dark:text-gray-400"
                                     onClick={() => handleRowClick(contract)}
@@ -222,8 +228,8 @@ export default function TableContract({
                                         {contract.client_type === 1
                                             ? "Юр. лицо"
                                             : contract.client_type === 2
-                                            ? "Физ. лицо"
-                                            : "-"}
+                                              ? "Физ. лицо"
+                                              : "-"}
                                     </span>
                                 </TableCell>
                                 <TableCell
@@ -262,9 +268,9 @@ export default function TableContract({
                                             1
                                                 ? "bg-blue-100 text-blue-800 "
                                                 : contract.contract_payment_status ===
-                                                  2
-                                                ? "bg-green-100 text-green-800 "
-                                                : "bg-gray-100 text-gray-800 "
+                                                    2
+                                                  ? "bg-green-100 text-green-800 "
+                                                  : "bg-gray-100 text-gray-800 "
                                         }`}
                                     >
                                         {contract.contract_payment_status_text}
@@ -276,12 +282,7 @@ export default function TableContract({
                                 >
                                     {contract.phone_number}
                                 </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 w-[200px] pr-2 text-start"
-                                    onClick={() => handleRowClick(contract)}
-                                >
-                                    {contract.business_name}
-                                </TableCell>
+
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <div className="flex items-center gap-2">
                                         <Linkto
@@ -298,7 +299,9 @@ export default function TableContract({
                                             <Button
                                                 onClick={() => {
                                                     setDeleteModalOpen(true);
-                                                    setSelectedContract(contract);
+                                                    setSelectedContract(
+                                                        contract,
+                                                    );
                                                 }}
                                                 size="xs"
                                                 variant="danger"
