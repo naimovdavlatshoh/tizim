@@ -57,7 +57,10 @@ interface PendingContract {
     task_info?: {
         tasks: Array<{
             task_id: number;
-            task_item: Array<{ comments: string | null; [key: string]: unknown }>;
+            task_item: Array<{
+                comments: string | null;
+                [key: string]: unknown;
+            }>;
         }>;
     };
 }
@@ -137,8 +140,7 @@ const PendingContracts = () => {
                     Array.isArray(tasks) && tasks.length > 0
                         ? tasks[tasks.length - 1]
                         : null;
-                const taskId =
-                    lastTask?.task_id ?? lastTask?.id ?? null;
+                const taskId = lastTask?.task_id ?? lastTask?.id ?? null;
                 if (taskId != null) setResultTaskId(Number(taskId));
                 setResultInfoLoading(false);
             })
@@ -623,14 +625,21 @@ const PendingContracts = () => {
                                                             getResultBadgeStatus(
                                                                 contract,
                                                             );
-                                                        if (status === "no_result") {
+                                                        if (
+                                                            status ===
+                                                            "no_result"
+                                                        ) {
                                                             return (
                                                                 <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                                                                    Ещё нет результата
+                                                                    Ещё нет
+                                                                    результата
                                                                 </span>
                                                             );
                                                         }
-                                                        if (status === "rejected") {
+                                                        if (
+                                                            status ===
+                                                            "rejected"
+                                                        ) {
                                                             return (
                                                                 <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200">
                                                                     Отказано
@@ -771,7 +780,10 @@ const PendingContracts = () => {
                                                                 )
                                                             }
                                                             disabled={
-                                                                !contract.final_document
+                                                                !contract.final_document ||
+                                                                getResultBadgeStatus(
+                                                                    contract,
+                                                                ) === "rejected"
                                                             }
                                                             aria-label="Принять результат"
                                                         >
@@ -787,7 +799,10 @@ const PendingContracts = () => {
                                                                 )
                                                             }
                                                             disabled={
-                                                                !contract.final_document
+                                                                !contract.final_document ||
+                                                                getResultBadgeStatus(
+                                                                    contract,
+                                                                ) === "rejected"
                                                             }
                                                             aria-label="Отказать в результате"
                                                         >
@@ -963,30 +978,32 @@ const PendingContracts = () => {
                             Загрузка...
                         </div>
                     )}
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Комментарий *
-                        </label>
-                        <textarea
-                            value={resultComment}
-                            onChange={(e) => {
-                                setResultComment(e.target.value);
-                                setResultCommentError(null);
-                            }}
-                            rows={3}
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${
-                                resultCommentError
-                                    ? "border-red-500 dark:border-red-500"
-                                    : "border-gray-300 dark:border-gray-600"
-                            }`}
-                            placeholder="Введите комментарий..."
-                        />
-                        {resultCommentError && (
-                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                                {resultCommentError}
-                            </p>
-                        )}
-                    </div>
+                    {resultModalAction === "cancel" && (
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Комментарий *
+                            </label>
+                            <textarea
+                                value={resultComment}
+                                onChange={(e) => {
+                                    setResultComment(e.target.value);
+                                    setResultCommentError(null);
+                                }}
+                                rows={3}
+                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white ${
+                                    resultCommentError
+                                        ? "border-red-500 dark:border-red-500"
+                                        : "border-gray-300 dark:border-gray-600"
+                                }`}
+                                placeholder="Введите комментарий..."
+                            />
+                            {resultCommentError && (
+                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                    {resultCommentError}
+                                </p>
+                            )}
+                        </div>
+                    )}
                     <div className="flex justify-end gap-3">
                         <Button
                             onClick={closeResultModal}
@@ -1004,6 +1021,11 @@ const PendingContracts = () => {
                                 resultSubmitting ||
                                 resultInfoLoading ||
                                 resultTaskId == null
+                            }
+                            className={
+                                resultModalAction === "cancel"
+                                    ? "!bg-red-600 hover:!bg-red-700 dark:!bg-red-600 dark:hover:!bg-red-700"
+                                    : undefined
                             }
                         >
                             {resultSubmitting

@@ -203,10 +203,12 @@ export default function TableContract({
                                     {contract.contract_number}
                                 </TableCell>
                                 <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 w-[200px] pr-2 text-start"
+                                    className="py-3 text-gray-500 text-theme-sm  w-[200px] pr-2 text-start"
                                     onClick={() => handleRowClick(contract)}
                                 >
-                                    {contract.business_name}
+                                    {contract.business_name
+                                        ? contract.business_name
+                                        : <span className="text-end">-</span>}
                                 </TableCell>
                                 <TableCell
                                     className="py-3 text-gray-500 w-[150px] pr-5 text-theme-sm dark:text-gray-400"
