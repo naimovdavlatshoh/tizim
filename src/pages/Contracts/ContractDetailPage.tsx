@@ -19,6 +19,7 @@ interface MonthlyPayment {
     given_amount: number;
     payment_status: number;
     created_at: string;
+    date_of_payment_text: string;
 }
 
 interface Payment {
@@ -70,8 +71,6 @@ const ContractDetailPage: React.FC = () => {
     const [contract, setContract] = useState<ContractDetail | null>(null);
     const [loading, setLoading] = useState(true);
 
-
-
     useEffect(() => {
         if (id) {
             fetchContractDetails();
@@ -79,7 +78,6 @@ const ContractDetailPage: React.FC = () => {
     }, [id]);
 
     console.log(contract?.contract_type);
-
 
     const fetchContractDetails = async () => {
         setLoading(true);
@@ -180,14 +178,14 @@ const ContractDetailPage: React.FC = () => {
                         <div className="flex items-center gap-3">
                             <span
                                 className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                                    contract.contract_status
+                                    contract.contract_status,
                                 )}`}
                             >
                                 {contract.contract_status_text}
                             </span>
                             <span
                                 className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                                    contract.contract_payment_status
+                                    contract.contract_payment_status,
                                 )}`}
                             >
                                 {contract.contract_payment_status_text}
@@ -260,7 +258,7 @@ const ContractDetailPage: React.FC = () => {
                                     </label>
                                     <p className="text-gray-900 dark:text-white">
                                         {formatDate(
-                                            contract.contract_effective_from
+                                            contract.contract_effective_from,
                                         )}
                                     </p>
                                 </div>
@@ -418,81 +416,18 @@ const ContractDetailPage: React.FC = () => {
                                                     <p className="text-gray-900 dark:text-white font-medium">
                                                         {test.tests_name}
                                                     </p>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                    {/* <p className="text-sm text-gray-500 dark:text-gray-400">
                                                         ID: {test.lab_test_id}
-                                                    </p>
+                                                    </p> */}
                                                 </div>
-                                                <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 rounded-full text-xs">
+                                                {/* <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 rounded-full text-xs">
                                                     Тип {test.test_type}
-                                                </span>
+                                                </span> */}
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             )}
-                    </div>
-
-                    {/* Sidebar */}
-                    <div className="space-y-6">
-                        {/* Monthly Payments */}
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                                Ежемесячные платежи
-                            </h2>
-                            <div className="space-y-3">
-                                {contract.monthlypayments.map((payment) => (
-                                    <div
-                                        key={payment.monthly_id}
-                                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
-                                    >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                                Месяц {payment.month_of_payment}
-                                            </span>
-                                            <span
-                                                className={`px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(
-                                                    payment.payment_status
-                                                )}`}
-                                            >
-                                                {getPaymentStatusText(
-                                                    payment.payment_status
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2 text-sm">
-                                            <div>
-                                                <span className="text-gray-500 dark:text-gray-400">
-                                                    Сумма:
-                                                </span>
-                                                <p className="text-gray-900 dark:text-white font-medium">
-                                                    {formatAmount(
-                                                        payment.monthly_fee
-                                                    )}{" "}
-                                                    сум
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span className="text-gray-500 dark:text-gray-400">
-                                                    Оплачено:
-                                                </span>
-                                                <p className="text-gray-900 dark:text-white font-medium">
-                                                    {formatAmount(
-                                                        payment.given_amount
-                                                    )}{" "}
-                                                    сум
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                            Дата платежа:{" "}
-                                            {formatDate(
-                                                payment.date_of_payment
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
 
                         {/* Payments History */}
                         {contract.payments && contract.payments.length > 0 && (
@@ -512,14 +447,14 @@ const ContractDetailPage: React.FC = () => {
                                                 </span>
                                                 <span className="text-sm text-gray-500 dark:text-gray-400">
                                                     {formatDate(
-                                                        payment.created_at
+                                                        payment.created_at,
                                                     )}
                                                 </span>
                                             </div>
                                             <div className="text-sm">
                                                 <p className="text-gray-900 dark:text-white font-medium">
                                                     {formatAmount(
-                                                        payment.amount
+                                                        payment.amount,
                                                     )}{" "}
                                                     сум
                                                 </p>
@@ -563,7 +498,7 @@ const ContractDetailPage: React.FC = () => {
                                                 ? formatAmount(
                                                       contract
                                                           .monthlypayments[0]
-                                                          .monthly_fee
+                                                          .monthly_fee,
                                                   )
                                                 : "0"}{" "}
                                             сум
@@ -571,14 +506,79 @@ const ContractDetailPage: React.FC = () => {
                                     </div>
                                 )}
 
-                                {contract.contract_type === 5 && <div className="flex justify-between">
-                                    <span className="text-gray-600 dark:text-gray-400">
-                                        Количество месяцев:
-                                    </span>
-                                    <span className="font-medium text-gray-900 dark:text-white">
-                                        {contract.contract_months}
-                                    </span>
-                                </div>}
+                                {contract.contract_type === 5 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                            Количество месяцев:
+                                        </span>
+                                        <span className="font-medium text-gray-900 dark:text-white">
+                                            {contract.contract_months}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sidebar */}
+                    <div className="space-y-6">
+                        {/* Monthly Payments */}
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                                Ежемесячные платежи
+                            </h2>
+                            <div className="space-y-3">
+                                {contract.monthlypayments.map((payment) => (
+                                    <div
+                                        key={payment.monthly_id}
+                                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                    >
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                                {payment?.date_of_payment_text}
+                                            </span>
+                                            <span
+                                                className={`px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(
+                                                    payment.payment_status,
+                                                )}`}
+                                            >
+                                                {getPaymentStatusText(
+                                                    payment.payment_status,
+                                                )}
+                                            </span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                                            <div>
+                                                <span className="text-gray-500 dark:text-gray-400">
+                                                    Сумма:
+                                                </span>
+                                                <p className="text-gray-900 dark:text-white font-medium">
+                                                    {formatAmount(
+                                                        payment.monthly_fee,
+                                                    )}{" "}
+                                                    сум
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500 dark:text-gray-400">
+                                                    Оплачено:
+                                                </span>
+                                                <p className="text-gray-900 dark:text-white font-medium">
+                                                    {formatAmount(
+                                                        payment.given_amount,
+                                                    )}{" "}
+                                                    сум
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                            Дата платежа:{" "}
+                                            {formatDate(
+                                                payment.date_of_payment,
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

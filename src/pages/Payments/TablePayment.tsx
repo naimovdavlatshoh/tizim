@@ -19,12 +19,14 @@ interface Payment {
     payment_id: number;
     contract_id: number;
     contract_number?: string;
+    business_name?: string;
     client_name?: string;
     is_advance: number;
     amount: number;
     payment_type: string;
     comments?: string;
     created_at?: string;
+    operator_name?: string;
     payment_type_text: string;
 }
 
@@ -39,7 +41,7 @@ export default function TablePayment({
 }: TablePaymentProps) {
     const navigate = useNavigate();
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(
-        null
+        null,
     );
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
     const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -60,7 +62,7 @@ export default function TablePayment({
         try {
             await PostDataTokenJson(
                 `api/payments/delete/${selectedPayment.payment_id}`,
-                {}
+                {},
             );
             toast.success("Платеж успешно удален");
             changeStatus();
@@ -69,7 +71,7 @@ export default function TablePayment({
         } catch (error: any) {
             setDeleteModalOpen(false);
             toast.error(
-                error?.response?.data?.error || "Ошибка при удалении платежа"
+                error?.response?.data?.error || "Ошибка при удалении платежа",
             );
         } finally {
             setIsDeleting(false);
@@ -108,7 +110,13 @@ export default function TablePayment({
                                 isHeader
                                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
-                                Номер договора
+                                Н/договора
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Название компании
                             </TableCell>
                             <TableCell
                                 isHeader
@@ -172,11 +180,17 @@ export default function TablePayment({
                                     <TableCell className="pl-5 py-3 text-sm text-gray-800 dark:text-gray-200">
                                         {index + 1}
                                     </TableCell>
-                                    <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
+                                    <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200 text-center">
                                         {payment.contract_number || "-"}
                                     </TableCell>
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
+                                        {payment.business_name || "-"}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         {payment.client_name || "-"}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
+                                        {payment.operator_name || "-"}
                                     </TableCell>
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         <span
@@ -206,8 +220,25 @@ export default function TablePayment({
                                             {payment.payment_type_text}
                                         </span>
                                     </TableCell>
-                                    <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200 max-w-xs truncate">
-                                        {payment.comments || "-"}
+                                    <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200 max-w-xs">
+                                        {payment.comments ? (
+                                            <div className="relative group">
+                                                <span className="block truncate">
+                                                    {payment.comments.length >
+                                                    10
+                                                        ? `${payment.comments.slice(
+                                                              0,
+                                                              10,
+                                                          )}...`
+                                                        : payment.comments}
+                                                </span>
+                                                <div className="pointer-events-none absolute z-10 hidden max-w-xs rounded-md bg-gray-900 px-2 py-1 text-xs text-white shadow-lg group-hover:block top-full mt-1">
+                                                    {payment.comments}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            "-"
+                                        )}
                                     </TableCell>
                                     <TableCell className="py-3 text-sm text-gray-800 dark:text-gray-200">
                                         {payment.created_at
@@ -222,7 +253,7 @@ export default function TablePayment({
                                                 className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                                                 onClick={() =>
                                                     handleViewContractDetail(
-                                                        payment.contract_id
+                                                        payment.contract_id,
                                                     )
                                                 }
                                             >
@@ -231,7 +262,9 @@ export default function TablePayment({
                                             {canDelete && (
                                                 <Button
                                                     onClick={() =>
-                                                        handleDeleteClick(payment)
+                                                        handleDeleteClick(
+                                                            payment,
+                                                        )
                                                     }
                                                     size="xs"
                                                     variant="danger"
