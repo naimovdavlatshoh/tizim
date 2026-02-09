@@ -234,7 +234,7 @@ export default function TableProtocol({
                 toast.error("Ошибка при загрузке PDF файла");
             }
         } catch (error: any) {
-            closePdfUploadModal()
+            closePdfUploadModal();
             console.log(error?.response?.data?.error);
 
             console.error("Error uploading PDF:", error);
@@ -328,7 +328,7 @@ export default function TableProtocol({
                 toast.error("Ошибка при загрузке Word файла");
             }
         } catch (error: any) {
-            closeWordUploadModal()
+            closeWordUploadModal();
             console.error("Error uploading Word:", error);
             toast.error(
                 error?.response?.data?.error ||
@@ -401,37 +401,35 @@ export default function TableProtocol({
 
     return (
         <>
-            <div className="overflow-x-auto overflow-y-visible">
-                <table className="w-full table-auto">
+            <div className="overflow-x-auto overflow-y-visible rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <table className="w-full table-auto min-w-[900px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800">
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 #
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Номер
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Клиент
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Категория
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Дата заявки / испытания
                             </th>
-                          
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Статус
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Комментарии
                             </th>
-
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Создано
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Действия
                             </th>
                         </tr>
@@ -442,28 +440,29 @@ export default function TableProtocol({
                                 key={protocol.protocol_id}
                                 className="hover:bg-gray-50 dark:hover:bg-gray-800 relative"
                             >
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {index + 1}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
                                     {protocol.protocol_number || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {protocol.client_full_name || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {protocol.category_name || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {formatDate(protocol.application_date)} / {formatDate(protocol.test_date)}
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    {formatDate(protocol.application_date)} /{" "}
+                                    {formatDate(protocol.test_date)}
                                 </td>
 
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                         {protocol.acceptance_status || "-"}
                                     </span>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 overflow-visible">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 overflow-visible">
                                     <div className="relative group max-w-xs">
                                         <span className="cursor-help inline-block">
                                             {protocol.sender_comments &&
@@ -472,7 +471,8 @@ export default function TableProtocol({
                                                       0,
                                                       20
                                                   )}...`
-                                                : protocol.sender_comments || "-"}
+                                                : protocol.sender_comments ||
+                                                  "-"}
                                         </span>
                                         {protocol.sender_comments &&
                                             protocol.sender_comments.length >
@@ -485,7 +485,7 @@ export default function TableProtocol({
                                     </div>
                                 </td>
 
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <div>
                                         <div>{protocol.created_by || "-"}</div>
                                         <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -493,8 +493,8 @@ export default function TableProtocol({
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    <div className="flex items-center gap-2">
+                                <td className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    <div className="flex flex-row items-center gap-2 flex-nowrap">
                                         <div title="QR-код">
                                             <Button
                                                 onClick={() =>
@@ -525,7 +525,9 @@ export default function TableProtocol({
                                                 <Button
                                                     className="bg-emerald-600 hover:bg-emerald-500"
                                                     onClick={() =>
-                                                        handleDownloadWord(protocol)
+                                                        handleDownloadWord(
+                                                            protocol
+                                                        )
                                                     }
                                                     size="xs"
                                                     disabled={downloadingWord}
@@ -573,124 +575,96 @@ export default function TableProtocol({
                                                         </svg>
                                                     </Button>
                                                 </div>
-                                                {protocol.is_word_added == 1?
-                                                <div title="Скачать Word файл">
-                                                    <Button
-                                                        className="bg-emerald-600 hover:bg-emerald-500"
-                                                        onClick={() =>
-                                                            handleDownloadWord(protocol)
-                                                        }
-                                                        size="xs"
-                                                        disabled={downloadingWord}
-                                                    >
-                                                        <svg
-                                                            className="w-4 h-4"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
+                                                {protocol.is_word_added == 1 ? (
+                                                    <div title="Скачать Word файл">
+                                                        <Button
+                                                            className="bg-emerald-600 hover:bg-emerald-500"
+                                                            onClick={() =>
+                                                                handleDownloadWord(
+                                                                    protocol
+                                                                )
+                                                            }
+                                                            size="xs"
+                                                            disabled={
+                                                                downloadingWord
+                                                            }
                                                         >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                            />
-                                                        </svg>
-                                                    </Button>
-                                                </div>:""}
+                                                            <svg
+                                                                className="w-4 h-4"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                />
+                                                            </svg>
+                                                        </Button>
+                                                    </div>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </>
                                         )}
 
-                                        {/* PDF Upload/Download */}
-                                        {protocol.is_pdf_added === 1 ? (
-                                            // Если is_pdf_added === 1, только download
-                                            <div title="Скачать PDF файл">
-                                                <Button
-                                                    className="bg-teal-600 hover:bg-teal-500"
-                                                    onClick={() =>
-                                                        handleDownloadPdf(
-                                                            protocol
-                                                        )
-                                                    }
-                                                    size="xs"
-                                                    disabled={downloadingPdf}
+                                        {/* PDF: Upload всегда, Download — если PDF уже загружен */}
+                                        <div title="Загрузить PDF файл">
+                                            <Button
+                                                onClick={() =>
+                                                    openPdfUploadModal(protocol)
+                                                }
+                                                size="xs"
+                                                className="bg-purple-600 hover:bg-purple-500 text-white"
+                                            >
+                                                <svg
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
                                                 >
-                                                    <svg
-                                                        className="w-4 h-4"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                        />
-                                                    </svg>
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            // Если is_pdf_added !== 1, upload и download
-                                            <>
-                                                <div title="Загрузить PDF файл">
-                                                    <Button
-                                                        onClick={() =>
-                                                            openPdfUploadModal(
-                                                                protocol
-                                                            )
-                                                        }
-                                                        size="xs"
-                                                        className="bg-purple-600 hover:bg-purple-500 text-white"
-                                                    >
-                                                        <svg
-                                                            className="w-4 h-4"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                            />
-                                                        </svg>
-                                                    </Button>
-                                                </div>
-                                                {protocol.is_pdf_added == 1?
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                    />
+                                                </svg>
+                                            </Button>
+                                        </div>
 
-                                                <div title="Скачать PDF файл">
-                                                <Button
-                                                    className="bg-teal-600 hover:bg-teal-500"
-                                                    onClick={() =>
-                                                        handleDownloadPdf(
-                                                            protocol
-                                                        )
-                                                    }
-                                                    size="xs"
-                                                    disabled={
-                                                        downloadingPdf
-                                                    }
+                                        <div title="Скачать PDF файл">
+                                            <Button
+                                                className="bg-teal-600 hover:bg-teal-500"
+                                                onClick={() =>
+                                                    handleDownloadPdf(protocol)
+                                                }
+                                                size="xs"
+                                                disabled={
+                                                    downloadingPdf ||
+                                                    protocol.is_pdf_added !== 1
+                                                }
+                                            >
+                                                <svg
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
                                                 >
-                                                    <svg
-                                                        className="w-4 h-4"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                        />
-                                                    </svg>
-                                                </Button>
-                                            </div>:""}
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                    />
+                                                </svg>
+                                            </Button>
+                                        </div>
 
-                                            </>
-                                        )}
                                         {canDelete && (
                                             <div title="Удалить протокол">
                                                 <Button

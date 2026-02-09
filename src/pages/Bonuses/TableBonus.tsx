@@ -108,26 +108,26 @@ export default function TableBonus({ bonuses, changeStatus }: TableBonusProps) {
 
     return (
         <>
-            <div className="overflow-x-auto">
-                <table className="w-full table-auto">
+            <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+                <table className="w-full table-auto min-w-[640px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800">
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 #
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Пользователь
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Комментарий
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Сумма бонуса
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Дата
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Действия
                             </th>
                         </tr>
@@ -138,23 +138,23 @@ export default function TableBonus({ bonuses, changeStatus }: TableBonusProps) {
                                 key={bonus.bonus_id}
                                 className="hover:bg-gray-50 dark:hover:bg-gray-800"
                             >
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {index + 1}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
                                     {bonus.to_user_name || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {bonus.bonuses_comments || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {formatAmount(bonus.amount_of_bonuses)} сум
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {formatDate(bonus.created_at)}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    <div className="flex items-center gap-2">
+                                <td className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    <div className="flex flex-row items-center gap-2 flex-nowrap">
                                         {canDelete && (
                                             <Button
                                                 onClick={() =>
@@ -163,7 +163,8 @@ export default function TableBonus({ bonuses, changeStatus }: TableBonusProps) {
                                                 size="xs"
                                                 variant="danger"
                                                 disabled={
-                                                    deletingId === bonus.bonus_id
+                                                    deletingId ===
+                                                    bonus.bonus_id
                                                 }
                                             >
                                                 <TrashBinIcon />

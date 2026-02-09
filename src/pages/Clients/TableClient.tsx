@@ -140,8 +140,8 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
             );
             const contractsData = response || response?.data || [];
             setContracts(contractsData);
-        } catch (error:any) {
-            setContractListModalOpen(false)
+        } catch (error: any) {
+            setContractListModalOpen(false);
             toast.error(error?.response?.data?.error);
         } finally {
             setLoadingContracts(false);

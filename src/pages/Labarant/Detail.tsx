@@ -10,7 +10,9 @@ import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 import SendResultModal from "./SendResultModal";
 
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
+import { FaUser, FaPhone, FaBuilding, FaMapMarkerAlt } from "react-icons/fa";
+import { HiDocumentText } from "react-icons/hi";
 
 interface MyContract {
     contract_id: string;
@@ -51,7 +53,9 @@ const MyContractDetail = () => {
     const [loading, setLoading] = useState(true);
     const [sendResultModalOpen, setSendResultModalOpen] = useState(false);
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    // @ts-ignore
     const [appointmentInfo, setAppointmentInfo] = useState<any>(null);
+    // @ts-ignore
     const [loadingInfo, setLoadingInfo] = useState(false);
 
     useEffect(() => {
@@ -72,7 +76,6 @@ const MyContractDetail = () => {
                 (contract: MyContract) => contract.contract_id == id
             );
             console.log(foundContract);
-
 
             if (foundContract) {
                 setContract(foundContract);
@@ -136,33 +139,33 @@ const MyContractDetail = () => {
 
     // formatCurrency function is now imported from utils
 
-    const handleGetAppointmentInfo = async () => {
-        if (!id) return;
+    // const handleGetAppointmentInfo = async () => {
+    //     if (!id) return;
 
-        setLoadingInfo(true);
-        try {
-            const response = await GetDataSimple(
-                `api/appointment/info?contract_id=${id}`
-            );
-            setAppointmentInfo(response);
+    //     setLoadingInfo(true);
+    //     try {
+    //         const response = await GetDataSimple(
+    //             `api/appointment/info?contract_id=${id}`
+    //         );
+    //         setAppointmentInfo(response);
 
-            // Проверяем, пустой ли массив tasks
-            const tasks = response?.tasks || [];
-            if (tasks.length === 0) {
-                // Если tasks пустой, сразу открываем модал отправки результатов
-                setIsInfoModalOpen(false);
-                setSendResultModalOpen(true);
-            } else {
-                // Если tasks не пустой, показываем информацию
-                setIsInfoModalOpen(true);
-            }
-        } catch (error) {
-            console.error("Error fetching appointment info:", error);
-            toast.error("Ошибка при загрузке информации");
-        } finally {
-            setLoadingInfo(false);
-        }
-    };
+    //         // Проверяем, пустой ли массив tasks
+    //         const tasks = response?.tasks || [];
+    //         if (tasks.length === 0) {
+    //             // Если tasks пустой, сразу открываем модал отправки результатов
+    //             setIsInfoModalOpen(false);
+    //             setSendResultModalOpen(true);
+    //         } else {
+    //             // Если tasks не пустой, показываем информацию
+    //             setIsInfoModalOpen(true);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching appointment info:", error);
+    //         toast.error("Ошибка при загрузке информации");
+    //     } finally {
+    //         setLoadingInfo(false);
+    //     }
+    // };
 
     if (loading) {
         return (
@@ -192,8 +195,10 @@ const MyContractDetail = () => {
 
             <div className="space-y-6">
                 {/* Contract Header */}
-                <ComponentCard
-                    title={`Договор №${contract.contract_number}, Создано  ${formatDate(contract?.created_at || "")}`}
+                {/* <ComponentCard
+                    title={`Договор №${
+                        contract.contract_number
+                    }, Создано  ${formatDate(contract?.created_at || "")}`}
                     desc={
                         <div className="flex gap-3">
                             <Button
@@ -203,17 +208,17 @@ const MyContractDetail = () => {
                             >
                                 {loadingInfo ? "Загрузка..." : "Информация"}
                             </Button>
-                            {/* <Button
+                            <Button
                                 onClick={() => setSendResultModalOpen(true)}
                                 className="px-6 py-3"
                             >
                                 Отправить результаты директору
-                            </Button> */}
+                            </Button>
                         </div>
                     }
                 >
                     <div className="f">
-                        {/* <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4">
                             <Badge
                                 color={getStatusColor(contract.contract_status)}
                             >
@@ -228,9 +233,9 @@ const MyContractDetail = () => {
                             <p className="text-2xl font-bold text-brand-500">
                                 {formatCurrency(contract.worker_price)}
                             </p>
-                        </div> */}
+                        </div>
                     </div>
-                </ComponentCard>
+                </ComponentCard> */}
 
                 {/* Essential Information Only */}
                 <ComponentCard title="Основная информация">
@@ -271,6 +276,129 @@ const MyContractDetail = () => {
                         </div>
                     </div>
                 </ComponentCard>
+
+                {/* Информация о клиенте & Банковская информация — как на макете */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                            Информация о клиенте
+                        </h3>
+                        <div className="p-6 space-y-5">
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                    <FaUser className="text-green-600 dark:text-green-400 size-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Имя клиента
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
+                                        {contract.client_name || "-"}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                    <FaPhone className="text-blue-600 dark:text-blue-400 size-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Телефон
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
+                                        {contract.phone_number || "-"}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                    <FaBuilding className="text-purple-600 dark:text-purple-400 size-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Название компании
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
+                                        {contract.business_name || "-"}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                                    <FaMapMarkerAlt className="text-orange-600 dark:text-orange-400 size-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Адрес компании
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5 break-words">
+                                        {contract.business_address || "-"}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        ИНН
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
+                                        {contract.inn || "-"}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        МФО
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
+                                        {contract.mfo || "-"}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        ОКЭД
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
+                                        {contract.oked || "-"}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                            Банковская информация
+                        </h3>
+                        <div className="p-6 space-y-5">
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                    <HiDocumentText className="text-purple-600 dark:text-purple-400 size-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Номер счета
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5 break-all">
+                                        {contract.bank_account || "-"}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                                    <FaMapMarkerAlt className="text-orange-600 dark:text-orange-400 size-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        Адрес банка
+                                    </p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5 break-words">
+                                        {contract.bank_address || "-"}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Send Result Modal */}

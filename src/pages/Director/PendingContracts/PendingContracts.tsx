@@ -100,7 +100,7 @@ const PendingContracts = () => {
         useState<PendingContract | null>(null);
     const [resultComment, setResultComment] = useState("");
     const [resultCommentError, setResultCommentError] = useState<string | null>(
-        null,
+        null
     );
     const [resultSubmitting, setResultSubmitting] = useState(false);
     const [resultTaskId, setResultTaskId] = useState<number | null>(null);
@@ -122,7 +122,7 @@ const PendingContracts = () => {
         setResultTaskId(null);
         setResultInfoLoading(true);
         GetDataSimple(
-            `api/appointment/info?contract_id=${selectedContractForResult.contract_id}`,
+            `api/appointment/info?contract_id=${selectedContractForResult.contract_id}`
         )
             .then((response: any) => {
                 if (cancelled) return;
@@ -159,7 +159,7 @@ const PendingContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=5&page=${page}&limit=30&year=${getStoredYear()}`,
+                `api/appointment/all/list?contract_status=5&page=${page}&limit=30&year=${getStoredYear()}`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -183,7 +183,7 @@ const PendingContracts = () => {
     };
 
     const getResultBadgeStatus = (
-        contract: PendingContract,
+        contract: PendingContract
     ): "no_result" | "waiting" | "rejected" => {
         if (!contract.final_document) return "no_result";
         const tasks = contract?.task_info?.tasks;
@@ -198,7 +198,7 @@ const PendingContracts = () => {
         setLoadingUsers(true);
         try {
             const response: any = await GetDataSimple(
-                "api/user/list?page=1&limit=100",
+                "api/user/list?page=1&limit=100"
             );
             const usersData = response?.result || response?.data?.result || [];
             setUsers(Array.isArray(usersData) ? usersData : []);
@@ -223,7 +223,7 @@ const PendingContracts = () => {
                 {
                     user_id: selectedUserId,
                     contract_id: Number(selectedContract.contract_id),
-                },
+                }
             );
 
             if (response?.status === 200 || response?.data?.success) {
@@ -253,13 +253,15 @@ const PendingContracts = () => {
         setDownloadingQr(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/contracts/qrcode/${contract.contract_id}`,
+                `api/contracts/qrcode/${contract.contract_id}`
             );
             const blob = new Blob([response.data], { type: "image/png" });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `qrcode-${contract.contract_number || contract.contract_id}.png`;
+            link.download = `qrcode-${
+                contract.contract_number || contract.contract_id
+            }.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -267,7 +269,7 @@ const PendingContracts = () => {
             toast.success("QR-код скачан");
         } catch (error: any) {
             toast.error(
-                error?.response?.data?.error || "Ошибка при скачивании QR-кода",
+                error?.response?.data?.error || "Ошибка при скачивании QR-кода"
             );
         } finally {
             setDownloadingQr(null);
@@ -301,7 +303,7 @@ const PendingContracts = () => {
             formData.append("file", file);
             const response: any = await PostSimpleFormData(
                 `api/contracts/upload-pdf/${selectedContractForPdf.contract_id}`,
-                formData,
+                formData
             );
             if (response?.status === 200 || response?.data?.success) {
                 toast.success("PDF успешно загружен");
@@ -312,7 +314,7 @@ const PendingContracts = () => {
             }
         } catch (error: any) {
             toast.error(
-                error?.response?.data?.error || "Ошибка при загрузке PDF",
+                error?.response?.data?.error || "Ошибка при загрузке PDF"
             );
         } finally {
             setUploadingPdf(false);
@@ -324,7 +326,7 @@ const PendingContracts = () => {
         setDownloadingPdf(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/contracts/pdf/${contract.contract_id}`,
+                `api/contracts/pdf/${contract.contract_id}`
             );
             const blob = new Blob([response.data], {
                 type: "application/pdf",
@@ -332,7 +334,9 @@ const PendingContracts = () => {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `contract-${contract.contract_number || contract.contract_id}.pdf`;
+            link.download = `contract-${
+                contract.contract_number || contract.contract_id
+            }.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -340,7 +344,7 @@ const PendingContracts = () => {
             toast.success("PDF скачан");
         } catch (error: any) {
             toast.error(
-                error?.response?.data?.error || "Ошибка при скачивании PDF",
+                error?.response?.data?.error || "Ошибка при скачивании PDF"
             );
         } finally {
             setDownloadingPdf(null);
@@ -349,7 +353,7 @@ const PendingContracts = () => {
 
     const openResultModal = (
         contract: PendingContract,
-        action: "accept" | "cancel",
+        action: "accept" | "cancel"
     ) => {
         setSelectedContractForResult(contract);
         setResultModalAction(action);
@@ -391,7 +395,7 @@ const PendingContracts = () => {
                 toast.success(
                     resultModalAction === "accept"
                         ? "Результат принят"
-                        : "Результат отклонён",
+                        : "Результат отклонён"
                 );
                 closeResultModal();
                 fetchPendingContracts();
@@ -399,14 +403,14 @@ const PendingContracts = () => {
                 toast.error(
                     response?.message ||
                         response?.data?.message ||
-                        "Ошибка при выполнении",
+                        "Ошибка при выполнении"
                 );
             }
         } catch (error: any) {
             toast.error(
                 error?.response?.data?.message ||
                     error?.response?.data?.error ||
-                    "Ошибка при выполнении",
+                    "Ошибка при выполнении"
             );
         } finally {
             setResultSubmitting(false);
@@ -432,7 +436,7 @@ const PendingContracts = () => {
                     {/* Loading indicator */}
                     {loading && (
                         <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-row items-center gap-2 flex-nowrap">
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600"></div>
                                 <span className="text-yellow-800 dark:text-yellow-200">
                                     Загрузка...
@@ -442,119 +446,118 @@ const PendingContracts = () => {
                     )}
 
                     {/* Table */}
-                    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                        <div className="max-w-full overflow-x-auto">
-                            <Table>
-                                {/* Table Header */}
-                                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                                    <TableRow>
-                                        <TableCell
-                                            isHeader
-                                            className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            #
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Н/договора
-                                        </TableCell>
+                    <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+                        <Table className="min-w-[800px]">
+                            {/* Table Header */}
+                            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                                <TableRow>
+                                    <TableCell
+                                        isHeader
+                                        className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 whitespace-nowrap text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        #
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Н/договора
+                                    </TableCell>
 
-                                        <TableCell
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Клиент
+                                    </TableCell>
+                                    {/* <TableCell
                                             isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Клиент
-                                        </TableCell>
-                                        {/* <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
                                         >
                                             Стоимость работ
                                         </TableCell>
                                         <TableCell
                                             isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
                                         >
                                             Адрес объекта
                                         </TableCell> */}
-                                        <TableCell
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Срок выполнения
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Осталось дней
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Исполнитель
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Статус
+                                    </TableCell>
+                                    {/* <TableCell
                                             isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Срок выполнения
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Осталось дней
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Исполнитель
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Статус
-                                        </TableCell>
-                                        {/* <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
                                         >
                                             Комментарии
                                         </TableCell> */}
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Действия
+                                    </TableCell>
+                                </TableRow>
+                            </TableHeader>
+
+                            {/* Table Body */}
+                            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                {contracts?.map(
+                                    (
+                                        contract: PendingContract,
+                                        index: number
+                                    ) => (
+                                        <TableRow
+                                            key={contract.contract_id}
+                                            className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                         >
-                                            Действия
-                                        </TableCell>
-                                    </TableRow>
-                                </TableHeader>
-
-                                {/* Table Body */}
-                                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                    {contracts?.map(
-                                        (
-                                            contract: PendingContract,
-                                            index: number,
-                                        ) => (
-                                            <TableRow
-                                                key={contract.contract_id}
-                                                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                            <TableCell
+                                                className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
                                             >
-                                                <TableCell
-                                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                    onClick={() =>
-                                                        handleRowClick(contract)
-                                                    }
-                                                >
-                                                    {index + 1}
-                                                </TableCell>
-                                                <TableCell
-                                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                    onClick={() =>
-                                                        handleRowClick(contract)
-                                                    }
-                                                >
-                                                    {contract.contract_number}
-                                                </TableCell>
+                                                {index + 1}
+                                            </TableCell>
+                                            <TableCell
+                                                className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                {contract.contract_number}
+                                            </TableCell>
 
-                                                <TableCell
-                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                    onClick={() =>
-                                                        handleRowClick(contract)
-                                                    }
-                                                >
-                                                    {contract.client_name}
-                                                </TableCell>
-                                                {/* <TableCell
+                                            <TableCell
+                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                {contract.client_name}
+                                            </TableCell>
+                                            {/* <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
                                                         handleRowClick(contract)
@@ -574,86 +577,78 @@ const PendingContracts = () => {
                                                 >
                                                     {contract.object_address}
                                                 </TableCell> */}
-                                                <TableCell
-                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                    onClick={() =>
-                                                        handleRowClick(contract)
-                                                    }
-                                                >
-                                                    {formatDate(
-                                                        contract.deadline_date,
-                                                    )}
-                                                </TableCell>
-                                                <TableCell
-                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                    onClick={() =>
-                                                        handleRowClick(contract)
-                                                    }
-                                                >
-                                                    <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                        {
-                                                            contract.days_diff_text
-                                                        }
+                                            <TableCell
+                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                {formatDate(
+                                                    contract.deadline_date
+                                                )}
+                                            </TableCell>
+                                            <TableCell
+                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                    {contract.days_diff_text}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell
+                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                {contract.worker_name ? (
+                                                    <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                                        {contract.worker_name}
                                                     </span>
-                                                </TableCell>
-                                                <TableCell
-                                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                                    onClick={() =>
-                                                        handleRowClick(contract)
-                                                    }
-                                                >
-                                                    {contract.worker_name ? (
-                                                        <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                            {
-                                                                contract.worker_name
-                                                            }
-                                                        </span>
-                                                    ) : (
-                                                        <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
-                                                            Не назначен
-                                                        </span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell
-                                                    className="py-3 text-theme-sm dark:text-gray-400"
-                                                    onClick={() =>
-                                                        handleRowClick(contract)
-                                                    }
-                                                >
-                                                    {(() => {
-                                                        const status =
-                                                            getResultBadgeStatus(
-                                                                contract,
-                                                            );
-                                                        if (
-                                                            status ===
-                                                            "no_result"
-                                                        ) {
-                                                            return (
-                                                                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                                                                    Ещё нет
-                                                                    результата
-                                                                </span>
-                                                            );
-                                                        }
-                                                        if (
-                                                            status ===
-                                                            "rejected"
-                                                        ) {
-                                                            return (
-                                                                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                                    Отказано
-                                                                </span>
-                                                            );
-                                                        }
+                                                ) : (
+                                                    <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                                        Не назначен
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell
+                                                className="py-3 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                {(() => {
+                                                    const status =
+                                                        getResultBadgeStatus(
+                                                            contract
+                                                        );
+                                                    if (
+                                                        status === "no_result"
+                                                    ) {
                                                         return (
-                                                            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-200 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
-                                                                Ждут ответ
+                                                            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                                                                Ещё нет
+                                                                результата
                                                             </span>
                                                         );
-                                                    })()}
-                                                </TableCell>
-                                                {/* <TableCell
+                                                    }
+                                                    if (status === "rejected") {
+                                                        return (
+                                                            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                                Отказано
+                                                            </span>
+                                                        );
+                                                    }
+                                                    return (
+                                                        <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-200 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
+                                                            Ждут ответ
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </TableCell>
+                                            {/* <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                     onClick={() =>
                                                         handleRowClick(contract)
@@ -662,9 +657,9 @@ const PendingContracts = () => {
                                                     {contract.comments ||
                                                         "Нет комментариев"}
                                                 </TableCell> */}
-                                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                    <div className="flex items-center gap-2">
-                                                        {/* <Linkto
+                                            <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                <div className="flex flex-row items-center gap-2 flex-nowrap">
+                                                    {/* <Linkto
                                                             to={`/pending-contracts/${contract.contract_id}`}
                                                             size="xs"
                                                             variant="outline"
@@ -696,126 +691,125 @@ const PendingContracts = () => {
                                                                 {""}
                                                             </Button>
                                                         )} */}
-                                                        <Button
-                                                            size="xs"
-                                                            variant="outline"
-                                                            onClick={() =>
-                                                                handleDownloadQr(
-                                                                    contract,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                downloadingQr ===
+                                                    <Button
+                                                        size="xs"
+                                                        variant="outline"
+                                                        onClick={() =>
+                                                            handleDownloadQr(
+                                                                contract
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            downloadingQr ===
+                                                            contract.contract_id
+                                                        }
+                                                        startIcon={
+                                                            <FaQrcode className="size-4" />
+                                                        }
+                                                        aria-label="Скачать QR-код"
+                                                    >
+                                                        {downloadingQr ===
+                                                        contract.contract_id
+                                                            ? ""
+                                                            : ""}
+                                                    </Button>
+                                                    <Button
+                                                        size="xs"
+                                                        variant="primary"
+                                                        onClick={() =>
+                                                            openPdfUploadModal(
+                                                                contract
+                                                            )
+                                                        }
+                                                        startIcon={
+                                                            <svg
+                                                                className="w-4 h-4"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                                />
+                                                            </svg>
+                                                        }
+                                                        aria-label="Загрузить PDF"
+                                                    >
+                                                        {""}
+                                                    </Button>
+                                                    <Button
+                                                        size="xs"
+                                                        variant="outline"
+                                                        onClick={() =>
+                                                            handleDownloadPdf(
+                                                                contract
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            !contract.final_document ||
+                                                            downloadingPdf ===
                                                                 contract.contract_id
-                                                            }
-                                                            startIcon={
-                                                                <FaQrcode className="size-4" />
-                                                            }
-                                                            aria-label="Скачать QR-код"
-                                                        >
-                                                            {downloadingQr ===
-                                                            contract.contract_id
-                                                                ? ""
-                                                                : ""}
-                                                        </Button>
-                                                        <Button
-                                                            size="xs"
-                                                            variant="primary"
-                                                            onClick={() =>
-                                                                openPdfUploadModal(
-                                                                    contract,
-                                                                )
-                                                            }
-                                                            startIcon={
-                                                                <svg
-                                                                    className="w-4 h-4"
-                                                                    fill="none"
-                                                                    stroke="currentColor"
-                                                                    viewBox="0 0 24 24"
-                                                                >
-                                                                    <path
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                        strokeWidth={
-                                                                            2
-                                                                        }
-                                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                                    />
-                                                                </svg>
-                                                            }
-                                                            aria-label="Загрузить PDF"
-                                                        >
-                                                            {""}
-                                                        </Button>
-                                                        <Button
-                                                            size="xs"
-                                                            variant="outline"
-                                                            onClick={() =>
-                                                                handleDownloadPdf(
-                                                                    contract,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                !contract.final_document ||
-                                                                downloadingPdf ===
-                                                                    contract.contract_id
-                                                            }
-                                                            startIcon={
-                                                                <TbDownload className="size-4" />
-                                                            }
-                                                            aria-label="Скачать PDF"
-                                                        >
-                                                            {downloadingPdf ===
-                                                            contract.contract_id
-                                                                ? ""
-                                                                : ""}
-                                                        </Button>
-                                                        <Button
-                                                            size="xs"
-                                                            variant="primary"
-                                                            onClick={() =>
-                                                                openResultModal(
-                                                                    contract,
-                                                                    "accept",
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                !contract.final_document ||
-                                                                getResultBadgeStatus(
-                                                                    contract,
-                                                                ) === "rejected"
-                                                            }
-                                                            aria-label="Принять результат"
-                                                        >
-                                                            Принять
-                                                        </Button>
-                                                        <Button
-                                                            size="xs"
-                                                            variant="danger"
-                                                            onClick={() =>
-                                                                openResultModal(
-                                                                    contract,
-                                                                    "cancel",
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                !contract.final_document ||
-                                                                getResultBadgeStatus(
-                                                                    contract,
-                                                                ) === "rejected"
-                                                            }
-                                                            aria-label="Отказать в результате"
-                                                        >
-                                                            Отказать
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ),
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                                        }
+                                                        startIcon={
+                                                            <TbDownload className="size-4" />
+                                                        }
+                                                        aria-label="Скачать PDF"
+                                                    >
+                                                        {downloadingPdf ===
+                                                        contract.contract_id
+                                                            ? ""
+                                                            : ""}
+                                                    </Button>
+                                                    <Button
+                                                        size="xs"
+                                                        variant="primary"
+                                                        onClick={() =>
+                                                            openResultModal(
+                                                                contract,
+                                                                "accept"
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            !contract.final_document ||
+                                                            getResultBadgeStatus(
+                                                                contract
+                                                            ) === "rejected"
+                                                        }
+                                                        aria-label="Принять результат"
+                                                    >
+                                                        Принять
+                                                    </Button>
+                                                    <Button
+                                                        size="xs"
+                                                        variant="danger"
+                                                        onClick={() =>
+                                                            openResultModal(
+                                                                contract,
+                                                                "cancel"
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            !contract.final_document ||
+                                                            getResultBadgeStatus(
+                                                                contract
+                                                            ) === "rejected"
+                                                        }
+                                                        aria-label="Отказать в результате"
+                                                    >
+                                                        Отказать
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                )}
+                            </TableBody>
+                        </Table>
                     </div>
 
                     {/* Pagination */}
@@ -1031,8 +1025,8 @@ const PendingContracts = () => {
                             {resultSubmitting
                                 ? "..."
                                 : resultModalAction === "accept"
-                                  ? "Принять"
-                                  : "Отказать"}
+                                ? "Принять"
+                                : "Отказать"}
                         </Button>
                     </div>
                 </div>

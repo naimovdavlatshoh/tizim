@@ -34,28 +34,24 @@ interface TableMixProps {
     changeStatus: () => void;
 }
 
-export default function TableMix({
-    mixes,
-    changeStatus,
-}: TableMixProps) {
+export default function TableMix({ mixes, changeStatus }: TableMixProps) {
     const [deletingId, setDeletingId] = useState<number | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedMix, setSelectedMix] = useState<Mix | null>(
-        null
-    );
+    const [selectedMix, setSelectedMix] = useState<Mix | null>(null);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
     const [loadingQr, setLoadingQr] = useState(false);
-    const [selectedMixForQr, setSelectedMixForQr] =
-        useState<Mix | null>(null);
+    const [selectedMixForQr, setSelectedMixForQr] = useState<Mix | null>(null);
     const [isPdfUploadModalOpen, setIsPdfUploadModalOpen] = useState(false);
-    const [selectedMixForPdf, setSelectedMixForPdf] =
-        useState<Mix | null>(null);
+    const [selectedMixForPdf, setSelectedMixForPdf] = useState<Mix | null>(
+        null
+    );
     const [uploadingPdf, setUploadingPdf] = useState(false);
     const [downloadingPdf, setDownloadingPdf] = useState(false);
     const [isWordUploadModalOpen, setIsWordUploadModalOpen] = useState(false);
-    const [selectedMixForWord, setSelectedMixForWord] =
-        useState<Mix | null>(null);
+    const [selectedMixForWord, setSelectedMixForWord] = useState<Mix | null>(
+        null
+    );
     const [uploadingWord, setUploadingWord] = useState(false);
     const [downloadingWord, setDownloadingWord] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,8 +60,6 @@ export default function TableMix({
     // Get user role from localStorage
     const userRole = parseInt(localStorage.getItem("role_id") || "0");
     const canDelete = userRole === 1;
-    const canUploadPdf = userRole === 4 || userRole === 5; // Лаборант (4) va Эксперт (5)
-
     const openDeleteModal = (mix: Mix) => {
         setSelectedMix(mix);
         setIsDeleteModalOpen(true);
@@ -235,7 +229,7 @@ export default function TableMix({
                 toast.error("Ошибка при загрузке PDF файла");
             }
         } catch (error: any) {
-            closePdfUploadModal()
+            closePdfUploadModal();
             console.log(error?.response?.data?.error);
 
             console.error("Error uploading PDF:", error);
@@ -329,7 +323,7 @@ export default function TableMix({
                 toast.error("Ошибка при загрузке Word файла");
             }
         } catch (error: any) {
-            closeWordUploadModal()
+            closeWordUploadModal();
             console.error("Error uploading Word:", error);
             toast.error(
                 error?.response?.data?.error ||
@@ -402,37 +396,35 @@ export default function TableMix({
 
     return (
         <>
-            <div className="overflow-x-auto overflow-y-visible">
-                <table className="w-full table-auto">
+            <div className="overflow-x-auto overflow-y-visible rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <table className="w-full table-auto min-w-[900px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800">
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 #
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Номер
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Клиент
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Категория
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Дата заявки / испытания
                             </th>
-
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Статус
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Комментарии
                             </th>
-
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Создано
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Действия
                             </th>
                         </tr>
@@ -443,28 +435,29 @@ export default function TableMix({
                                 key={mix.protocol_id}
                                 className="hover:bg-gray-50 dark:hover:bg-gray-800 relative"
                             >
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {index + 1}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
                                     {mix.protocol_number || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {mix.client_full_name || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {mix.category_name || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {formatDate(mix.application_date)} / {formatDate(mix.test_date)}
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    {formatDate(mix.application_date)} /{" "}
+                                    {formatDate(mix.test_date)}
                                 </td>
-                             
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                         {mix.acceptance_status || "-"}
                                     </span>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 overflow-visible">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 overflow-visible">
                                     <div className="relative group max-w-xs">
                                         <span className="cursor-help inline-block">
                                             {mix.sender_comments &&
@@ -476,8 +469,7 @@ export default function TableMix({
                                                 : mix.sender_comments || "-"}
                                         </span>
                                         {mix.sender_comments &&
-                                            mix.sender_comments.length >
-                                                20 && (
+                                            mix.sender_comments.length > 20 && (
                                                 <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[9999] w-80 max-w-sm break-words shadow-lg pointer-events-none whitespace-normal">
                                                     {mix.sender_comments}
                                                     <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
@@ -486,7 +478,7 @@ export default function TableMix({
                                     </div>
                                 </td>
 
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <div>
                                         <div>{mix.created_by || "-"}</div>
                                         <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -494,8 +486,8 @@ export default function TableMix({
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    <div className="flex items-center gap-2">
+                                <td className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    <div className="flex flex-row items-center gap-2 flex-nowrap">
                                         <div title="QR-код">
                                             <Button
                                                 onClick={() =>
@@ -574,100 +566,101 @@ export default function TableMix({
                                                         </svg>
                                                     </Button>
                                                 </div>
-                                                {mix.is_word_added == 1?
-                                                <div title="Скачать Word файл">
-                                                    <Button
-                                                        className="bg-emerald-600 hover:bg-emerald-500"
-                                                        onClick={() =>
-                                                            handleDownloadWord(mix)
-                                                        }
-                                                        size="xs"
-                                                        disabled={downloadingWord}
-                                                    >
-                                                        <svg
-                                                            className="w-4 h-4"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
+                                                {mix.is_word_added == 1 ? (
+                                                    <div title="Скачать Word файл">
+                                                        <Button
+                                                            className="bg-emerald-600 hover:bg-emerald-500"
+                                                            onClick={() =>
+                                                                handleDownloadWord(
+                                                                    mix
+                                                                )
+                                                            }
+                                                            size="xs"
+                                                            disabled={
+                                                                downloadingWord
+                                                            }
                                                         >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                            />
-                                                        </svg>
-                                                    </Button>
-                                                </div>:""}
+                                                            <svg
+                                                                className="w-4 h-4"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                />
+                                                            </svg>
+                                                        </Button>
+                                                    </div>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </>
                                         )}
 
-                                        {/* PDF Upload/Download */}
-                                        {mix.is_pdf_added === 1 ? (
-                                            // Если is_pdf_added === 1, только download (для всех)
-                                            <div title="Скачать PDF файл">
-                                                <Button
-                                                    className="bg-teal-600 hover:bg-teal-500"
-                                                    onClick={() =>
-                                                        handleDownloadPdf(
-                                                            mix
-                                                        )
-                                                    }
-                                                    size="xs"
-                                                    disabled={downloadingPdf}
+                                        {/* PDF: Upload всегда, Download — если PDF загружен */}
+                                        <div title="Загрузить PDF файл">
+                                            <Button
+                                                onClick={() =>
+                                                    openPdfUploadModal(mix)
+                                                }
+                                                size="xs"
+                                                className="bg-purple-600 hover:bg-purple-500 text-white"
+                                            >
+                                                <svg
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
                                                 >
-                                                    <svg
-                                                        className="w-4 h-4"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                        />
-                                                    </svg>
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            // Если is_pdf_added !== 1, upload только для role_id 4 и 5
-                                            canUploadPdf && (
-                                                <div title="Загрузить PDF файл">
-                                                    <Button
-                                                        onClick={() =>
-                                                            openPdfUploadModal(
-                                                                mix
-                                                            )
-                                                        }
-                                                        size="xs"
-                                                        className="bg-purple-600 hover:bg-purple-500 text-white"
-                                                    >
-                                                        <svg
-                                                            className="w-4 h-4"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                            />
-                                                        </svg>
-                                                    </Button>
-                                                </div>
-                                            )
-                                        )}
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                    />
+                                                </svg>
+                                            </Button>
+                                        </div>
+
+                                        <div title="Скачать PDF файл">
+                                            <Button
+                                                className="bg-teal-600 hover:bg-teal-500"
+                                                onClick={() =>
+                                                    handleDownloadPdf(mix)
+                                                }
+                                                size="xs"
+                                                disabled={
+                                                    downloadingPdf ||
+                                                    mix.is_pdf_added !== 1
+                                                }
+                                            >
+                                                <svg
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                    />
+                                                </svg>
+                                            </Button>
+                                        </div>
+
                                         {canDelete && (
                                             <div title="Удалить смесь">
                                                 <Button
                                                     onClick={() =>
-                                                        openDeleteModal(
-                                                            mix
-                                                        )
+                                                        openDeleteModal(mix)
                                                     }
                                                     size="xs"
                                                     variant="danger"
@@ -696,8 +689,7 @@ export default function TableMix({
                 <div className="p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         QR-код смесьа
-                        {selectedMixForQr?.protocol_number !==
-                            undefined && (
+                        {selectedMixForQr?.protocol_number !== undefined && (
                             <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-1">
                                 Номер: {selectedMixForQr.protocol_number}
                             </span>
@@ -747,8 +739,7 @@ export default function TableMix({
                 <div className="p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         Загрузить Word файл
-                        {selectedMixForWord?.protocol_number !==
-                            undefined && (
+                        {selectedMixForWord?.protocol_number !== undefined && (
                             <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-1">
                                 Номер смеси:{" "}
                                 {selectedMixForWord.protocol_number}
@@ -798,11 +789,9 @@ export default function TableMix({
                 <div className="p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         Загрузить PDF файл
-                        {selectedMixForPdf?.protocol_number !==
-                            undefined && (
+                        {selectedMixForPdf?.protocol_number !== undefined && (
                             <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-1">
-                                Номер смеси:{" "}
-                                {selectedMixForPdf.protocol_number}
+                                Номер смеси: {selectedMixForPdf.protocol_number}
                             </span>
                         )}
                     </h3>

@@ -127,7 +127,9 @@ export default function MyStatistics() {
         setLoadingStats(true);
         try {
             const response: any = await GetDataSimple(
-                `api/user/stats?user_id=${localStorage.getItem("user_id")}&month=${currentMonth}&year=${currentYear}`
+                `api/user/stats?user_id=${localStorage.getItem(
+                    "user_id"
+                )}&month=${currentMonth}&year=${currentYear}`
             );
             setUserStats(
                 response?.result || response?.data || response || null
@@ -234,7 +236,7 @@ export default function MyStatistics() {
         }
 
         // Check if there's no "in" but there's "out" - show in pink
-        if (!details.in && details.out || details.in && !details.out  ) {
+        if ((!details.in && details.out) || (details.in && !details.out)) {
             return { color: "bg-pink-400 text-white", details };
         }
 
@@ -263,9 +265,10 @@ export default function MyStatistics() {
         if (!minutes && minutes !== 0) return "-";
 
         // Convert to number if it's a string
-        const numMinutes = typeof minutes === "string"
-            ? parseInt(minutes.replace(/\D/g, ""))
-            : Number(minutes);
+        const numMinutes =
+            typeof minutes === "string"
+                ? parseInt(minutes.replace(/\D/g, ""))
+                : Number(minutes);
 
         if (isNaN(numMinutes) || numMinutes === 0) return "0 мин";
 
@@ -293,9 +296,10 @@ export default function MyStatistics() {
 
         Object.values(userStats.daily_details).forEach((dayDetail) => {
             if (dayDetail?.lateMinutes) {
-                const lateMinutes = typeof dayDetail.lateMinutes === "string"
-                    ? parseInt(dayDetail.lateMinutes.replace(/\D/g, ""))
-                    : Number(dayDetail.lateMinutes);
+                const lateMinutes =
+                    typeof dayDetail.lateMinutes === "string"
+                        ? parseInt(dayDetail.lateMinutes.replace(/\D/g, ""))
+                        : Number(dayDetail.lateMinutes);
 
                 if (!isNaN(lateMinutes) && lateMinutes > 0) {
                     totalLateMinutes += lateMinutes;
@@ -317,56 +321,41 @@ export default function MyStatistics() {
                     ) : userStats ? (
                         <div className="space-y-6">
                             {/* Calendar + legend & selectors */}
-                            <div className="rounded-2xl bg-white dark:bg-gray-900 border px-6 py-5 relative z-10">
+                            <div className="rounded-2xl bg-white dark:bg-gray-900 border px-3 sm:px-6 py-4 sm:py-5 relative z-10 overflow-hidden">
                                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.4fr)] gap-6">
                                     {/* Calendar */}
-                                    <div>
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div>
-                                                <p className="text-xs uppercase tracking-wide text-gray-400">
-                                                    Календарь
-                                                    посещаемости
+                                    <div className="min-w-0">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
+                                            <div className="flex-shrink-0">
+                                                <p className="text-xs uppercase tracking-wide text-gray-400 whitespace-nowrap">
+                                                    Календарь посещаемости
                                                 </p>
-                                                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
-                                                    {userStats
-                                                        .period
-                                                        ?.display ||
-                                                        "-"}
+                                                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-0.5">
+                                                    {userStats.period
+                                                        ?.display || "-"}
                                                 </p>
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-40">
+                                            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                                                <div className="w-28 sm:w-40">
                                                     <Select
-                                                        options={
-                                                            monthOptions
-                                                        }
+                                                        options={monthOptions}
                                                         placeholder="Месяц"
-                                                        onChange={(
-                                                            value
-                                                        ) =>
+                                                        onChange={(value) =>
                                                             setCurrentMonth(
-                                                                Number(
-                                                                    value
-                                                                )
+                                                                Number(value)
                                                             )
                                                         }
                                                         className="dark:bg-dark-900"
                                                         defaultValue={currentMonth.toString()}
                                                     />
                                                 </div>
-                                                <div className="w-32">
+                                                <div className="w-20 sm:w-32">
                                                     <Select
-                                                        options={
-                                                            yearOptions
-                                                        }
+                                                        options={yearOptions}
                                                         placeholder="Год"
-                                                        onChange={(
-                                                            value
-                                                        ) =>
+                                                        onChange={(value) =>
                                                             setCurrentYear(
-                                                                Number(
-                                                                    value
-                                                                )
+                                                                Number(value)
                                                             )
                                                         }
                                                         className="dark:bg-dark-900"
@@ -376,146 +365,150 @@ export default function MyStatistics() {
                                             </div>
                                         </div>
 
-                                        <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 px-4 pt-4 pb-3">
-                                            <div className="grid grid-cols-7 gap-2 text-center text-[11px] font-medium text-slate-400 mb-3">
-                                                {[
-                                                    "Du",
-                                                    "Se",
-                                                    "Ch",
-                                                    "Pa",
-                                                    "Ju",
-                                                    "Sh",
-                                                    "Ya",
-                                                ].map((w) => (
-                                                    <span key={w}>
-                                                        {w}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                            <div className="grid grid-cols-7 gap-2">
-                                                {getMonthCalendarDays().map(
-                                                    (
-                                                        day,
-                                                        index
-                                                    ) => {
-                                                        const {
-                                                            color,
-                                                            details,
-                                                        } =
-                                                            getCalendarDayStatus(
-                                                                day
-                                                            );
-                                                        // Calculate row number (1-based)
-                                                        const rowNumber =
-                                                            Math.floor(
-                                                                index /
-                                                                    7
-                                                            ) + 1;
-                                                        // Show tooltip below for first 2 rows, above for others
-                                                        const showBelow =
-                                                            rowNumber <=
-                                                            2;
-
-                                                        return (
-                                                            <div
-                                                                key={
+                                        <div className="overflow-x-auto -mx-1 px-1">
+                                            <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 px-3 sm:px-4 pt-4 pb-3 min-w-[280px]">
+                                                <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-[11px] font-medium text-slate-400 mb-3">
+                                                    {[
+                                                        "Du",
+                                                        "Se",
+                                                        "Ch",
+                                                        "Pa",
+                                                        "Ju",
+                                                        "Sh",
+                                                        "Ya",
+                                                    ].map((w) => (
+                                                        <span key={w}>{w}</span>
+                                                    ))}
+                                                </div>
+                                                <div className="grid grid-cols-7 gap-1 sm:gap-2">
+                                                    {getMonthCalendarDays().map(
+                                                        (day, index) => {
+                                                            const {
+                                                                color,
+                                                                details,
+                                                            } =
+                                                                getCalendarDayStatus(
                                                                     day
-                                                                }
-                                                                className="flex items-center justify-center relative group"
-                                                            >
+                                                                );
+                                                            // Calculate row number (1-based)
+                                                            const rowNumber =
+                                                                Math.floor(
+                                                                    index / 7
+                                                                ) + 1;
+                                                            // Show tooltip below for first 2 rows, above for others
+                                                            const showBelow =
+                                                                rowNumber <= 2;
+
+                                                            return (
                                                                 <div
-                                                                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold cursor-pointer transition-all ${color}`}
+                                                                    key={day}
+                                                                    className="flex items-center justify-center relative group"
                                                                 >
-                                                                    {
-                                                                        day
-                                                                    }
-                                                                </div>
-                                                                {details && (
                                                                     <div
-                                                                        className={`absolute z-50 left-3/4 -translate-x-1/2 hidden group-hover:block w-44 ${
-                                                                            showBelow
-                                                                                ? "top-full mt-2"
-                                                                                : "bottom-full mb-2"
-                                                                        }`}
+                                                                        className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[11px] sm:text-xs font-semibold cursor-pointer transition-all ${color}`}
                                                                     >
-                                                                        <div className="bg-black text-white text-xs rounded-lg shadow-lg px-2 py-1">
-                                                                            <div className="font-semibold mb-2 pb-2 border-b border-gray-700">
-                                                                                {details.status ||
-                                                                                    "-"}
-                                                                            </div>
-                                                                            <div className="space-y-1.5">
-                                                                                <div className="flex justify-between">
-                                                                                    <span className="text-gray-400">
-                                                                                        Вход:
-                                                                                    </span>
-                                                                                    <span>
-                                                                                        {details.in
-                                                                                            ? formatTime(
-                                                                                                  details.in
-                                                                                              )
-                                                                                            : "-"}
-                                                                                    </span>
+                                                                        {day}
+                                                                    </div>
+                                                                    {details && (
+                                                                        <div
+                                                                            className={`absolute z-50 left-3/4 -translate-x-1/2 hidden group-hover:block w-44 ${
+                                                                                showBelow
+                                                                                    ? "top-full mt-2"
+                                                                                    : "bottom-full mb-2"
+                                                                            }`}
+                                                                        >
+                                                                            <div className="bg-black text-white text-xs rounded-lg shadow-lg px-2 py-1">
+                                                                                <div className="font-semibold mb-2 pb-2 border-b border-gray-700">
+                                                                                    {details.status ||
+                                                                                        "-"}
                                                                                 </div>
-                                                                                <div className="flex justify-between">
-                                                                                    <span className="text-gray-400">
-                                                                                        Выход:
-                                                                                    </span>
-                                                                                    <span>
-                                                                                        {details.out
-                                                                                            ? formatTime(
-                                                                                                  details.out
-                                                                                              )
-                                                                                            : "-"}
-                                                                                    </span>
-                                                                                </div>
-                                                                                <div className="flex justify-between pt-1 border-t border-gray-700 mt-1">
-                                                                                    <span className="text-gray-400">
-                                                                                        Отработано:
-                                                                                    </span>
-                                                                                    <span className="font-semibold">
-                                                                                        {details.workedMinutes_text ||
-                                                                                            "-"}
-                                                                                    </span>
-                                                                                </div>
-                                                                                <div className="flex justify-between">
-                                                                                    <span className="text-gray-400">
-                                                                                        Смена:
-                                                                                    </span>
-                                                                                    <span>
-                                                                                        {details.shiftMinutes_text ||
-                                                                                            "-"}
-                                                                                    </span>
-                                                                                </div>
-                                                                                {(details.status?.includes("Опоздал") || color.includes("yellow") || color.includes("amber")) && (details.lateMinutes || details.earlyMinutes_text) && (
+                                                                                <div className="space-y-1.5">
                                                                                     <div className="flex justify-between">
                                                                                         <span className="text-gray-400">
-                                                                                            Опоздание:
-                                                                                        </span>
-                                                                                        <span className="text-yellow-400 font-semibold">
-                                                                                            {formatLateMinutes(details.lateMinutes || details.earlyMinutes)}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                )}
-                                                                                {details.overtimeMinutes >
-                                                                                    0 && (
-                                                                                    <div className="flex justify-between">
-                                                                                        <span className="text-gray-400">
-                                                                                            Сверхурочные:
+                                                                                            Вход:
                                                                                         </span>
                                                                                         <span>
-                                                                                            {details.overtimeMinutes_text ||
+                                                                                            {details.in
+                                                                                                ? formatTime(
+                                                                                                      details.in
+                                                                                                  )
+                                                                                                : "-"}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between">
+                                                                                        <span className="text-gray-400">
+                                                                                            Выход:
+                                                                                        </span>
+                                                                                        <span>
+                                                                                            {details.out
+                                                                                                ? formatTime(
+                                                                                                      details.out
+                                                                                                  )
+                                                                                                : "-"}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between pt-1 border-t border-gray-700 mt-1">
+                                                                                        <span className="text-gray-400">
+                                                                                            Отработано:
+                                                                                        </span>
+                                                                                        <span className="font-semibold">
+                                                                                            {details.workedMinutes_text ||
                                                                                                 "-"}
                                                                                         </span>
                                                                                     </div>
-                                                                                )}
+                                                                                    <div className="flex justify-between">
+                                                                                        <span className="text-gray-400">
+                                                                                            Смена:
+                                                                                        </span>
+                                                                                        <span>
+                                                                                            {details.shiftMinutes_text ||
+                                                                                                "-"}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    {(details.status?.includes(
+                                                                                        "Опоздал"
+                                                                                    ) ||
+                                                                                        color.includes(
+                                                                                            "yellow"
+                                                                                        ) ||
+                                                                                        color.includes(
+                                                                                            "amber"
+                                                                                        )) &&
+                                                                                        (details.lateMinutes ||
+                                                                                            details.earlyMinutes_text) && (
+                                                                                            <div className="flex justify-between">
+                                                                                                <span className="text-gray-400">
+                                                                                                    Опоздание:
+                                                                                                </span>
+                                                                                                <span className="text-yellow-400 font-semibold">
+                                                                                                    {formatLateMinutes(
+                                                                                                        details.lateMinutes ||
+                                                                                                            details.earlyMinutes
+                                                                                                    )}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    {details.overtimeMinutes >
+                                                                                        0 && (
+                                                                                        <div className="flex justify-between">
+                                                                                            <span className="text-gray-400">
+                                                                                                Сверхурочные:
+                                                                                            </span>
+                                                                                            <span>
+                                                                                                {details.overtimeMinutes_text ||
+                                                                                                    "-"}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        );
-                                                    }
-                                                )}
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        }
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -524,8 +517,7 @@ export default function MyStatistics() {
                                     <div className="flex flex-col justify-between gap-2">
                                         <div>
                                             <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">
-                                                Ежедневные
-                                                результаты
+                                                Ежедневные результаты
                                             </p>
                                             <div className="space-y-1 text-[11px]">
                                                 <div className="flex items-center justify-between">
@@ -583,8 +575,7 @@ export default function MyStatistics() {
                                             <div className="grid grid-cols-2 gap-2 text-[10px]">
                                                 <div className="rounded-lg bg-sky-50 px-2 py-1.5">
                                                     <p className="text-gray-500 text-[10px] leading-tight">
-                                                        Базовая
-                                                        зарплата
+                                                        Базовая зарплата
                                                     </p>
                                                     <p className="mt-0.5 text-lg font-semibold text-gray-900">
                                                         {formatNumberWithSpaces(
@@ -596,8 +587,7 @@ export default function MyStatistics() {
                                                 </div>
                                                 <div className="rounded-lg bg-emerald-50 px-2 py-1.5">
                                                     <p className="text-gray-500 text-[10px] leading-tight">
-                                                        Зарплата за
-                                                        часы
+                                                        Зарплата за часы
                                                     </p>
                                                     <p className="mt-0.5 text-lg font-semibold text-gray-900">
                                                         {formatNumberWithSpaces(
@@ -621,8 +611,7 @@ export default function MyStatistics() {
                                                 </div>
                                                 <div className="rounded-lg bg-amber-50 px-2 py-1.5 ">
                                                     <p className="text-gray-500 text-[10px] leading-tight">
-                                                        Общая
-                                                        зарплата
+                                                        Общая зарплата
                                                     </p>
                                                     <p className="mt-0.5 text-lg font-semibold text-gray-900">
                                                         {formatNumberWithSpaces(
@@ -690,7 +679,9 @@ export default function MyStatistics() {
                                             </p>
                                         </div>
                                         <p className="text-md font-semibold text-gray-900">
-                                            {formatLateMinutes(calculateTotalLateMinutes())}
+                                            {formatLateMinutes(
+                                                calculateTotalLateMinutes()
+                                            )}
                                         </p>
                                     </div>
                                     <div className="rounded-2xl flex flex-col justify-between bg-violet-50 px-2 py-2">
@@ -716,13 +707,11 @@ export default function MyStatistics() {
                                         <p className="text-md font-semibold text-emerald-600">
                                             +{" "}
                                             {formatNumberWithSpaces(
-                                                userStats
-                                                    .financial_summary
-                                                    ?.bonuses_total ||
-                                                    0
+                                                userStats.financial_summary
+                                                    ?.bonuses_total || 0
                                             )}{" "}
-                                            {userStats.salary_info
-                                                ?.currency || "UZS"}
+                                            {userStats.salary_info?.currency ||
+                                                "UZS"}
                                         </p>
                                     </div>
                                     <div className="rounded-2xl flex flex-col justify-between bg-orange-50 px-2 py-2">
@@ -748,13 +737,11 @@ export default function MyStatistics() {
                                         <p className="text-md font-semibold text-red-400">
                                             -{" "}
                                             {formatNumberWithSpaces(
-                                                userStats
-                                                    .financial_summary
-                                                    ?.advances_total ||
-                                                    0
+                                                userStats.financial_summary
+                                                    ?.advances_total || 0
                                             )}{" "}
-                                            {userStats.salary_info
-                                                ?.currency || "UZS"}
+                                            {userStats.salary_info?.currency ||
+                                                "UZS"}
                                         </p>
                                     </div>
                                     <div className="rounded-2xl flex flex-col justify-between bg-red-50 px-2 py-2">
@@ -779,13 +766,11 @@ export default function MyStatistics() {
                                         <p className="text-md font-semibold text-red-400">
                                             -{" "}
                                             {formatNumberWithSpaces(
-                                                userStats
-                                                    .financial_summary
-                                                    ?.late_fines_total ||
-                                                    0
+                                                userStats.financial_summary
+                                                    ?.late_fines_total || 0
                                             )}{" "}
-                                            {userStats.salary_info
-                                                ?.currency || "UZS"}
+                                            {userStats.salary_info?.currency ||
+                                                "UZS"}
                                         </p>
                                     </div>
                                     <div className="rounded-2xl flex flex-col justify-between bg-emerald-50 px-2 py-2">
@@ -809,13 +794,12 @@ export default function MyStatistics() {
                                         </div>
                                         <p className="text-md font-semibold text-gray-900">
                                             {formatNumberWithSpaces(
-                                                userStats
-                                                    .financial_summary
+                                                userStats.financial_summary
                                                     ?.salary_for_worked_hours ||
                                                     0
                                             )}{" "}
-                                            {userStats.salary_info
-                                                ?.currency || "UZS"}
+                                            {userStats.salary_info?.currency ||
+                                                "UZS"}
                                         </p>
                                     </div>
                                 </div>
@@ -826,50 +810,39 @@ export default function MyStatistics() {
                                 {/* Fines */}
                                 <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
                                     <h5 className="text-lg font-semibold mb-3 text-red-400 dark:text-red-400">
-                                        Штрафы (
-                                        {userStats.fines?.count ||
-                                            0}
-                                        )
+                                        Штрафы ({userStats.fines?.count || 0})
                                     </h5>
                                     <p className="text-2xl font-bold text-red-400 dark:text-red-400 mb-4">
                                         {formatNumberWithSpaces(
                                             userStats.fines?.total
                                         )}{" "}
-                                        {userStats.salary_info
-                                            ?.currency || "UZS"}
+                                        {userStats.salary_info?.currency ||
+                                            "UZS"}
                                     </p>
                                     <div className="space-y-2 max-h-48 overflow-y-auto">
-                                        {userStats.fines?.items?.map(
-                                            (fine) => (
-                                                <div
-                                                    key={fine.id}
-                                                    className="p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm"
-                                                >
-                                                    <p className="font-medium dark:text-gray-100">
-                                                        {formatNumberWithSpaces(
-                                                            fine.amount
-                                                        )}{" "}
-                                                        {userStats
-                                                            .salary_info
-                                                            ?.currency ||
-                                                            "UZS"}
-                                                    </p>
-                                                    <p className="text-gray-600 dark:text-gray-400 text-xs">
-                                                        {
-                                                            fine.comment
-                                                        }
-                                                    </p>
-                                                    <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
-                                                        {formatDate(
-                                                            fine.date
-                                                        )}
-                                                    </p>
-                                                </div>
-                                            )
-                                        )}
+                                        {userStats.fines?.items?.map((fine) => (
+                                            <div
+                                                key={fine.id}
+                                                className="p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm"
+                                            >
+                                                <p className="font-medium dark:text-gray-100">
+                                                    {formatNumberWithSpaces(
+                                                        fine.amount
+                                                    )}{" "}
+                                                    {userStats.salary_info
+                                                        ?.currency || "UZS"}
+                                                </p>
+                                                <p className="text-gray-600 dark:text-gray-400 text-xs">
+                                                    {fine.comment}
+                                                </p>
+                                                <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
+                                                    {formatDate(fine.date)}
+                                                </p>
+                                            </div>
+                                        ))}
                                         {(!userStats.fines?.items ||
-                                            userStats.fines.items
-                                                .length === 0) && (
+                                            userStats.fines.items.length ===
+                                                0) && (
                                             <p className="text-sm text-gray-400 dark:text-gray-500">
                                                 Нет штрафов
                                             </p>
@@ -880,17 +853,14 @@ export default function MyStatistics() {
                                 {/* Bonuses */}
                                 <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
                                     <h5 className="text-lg font-semibold mb-3 text-green-600 dark:text-green-400">
-                                        Бонусы (
-                                        {userStats.bonuses?.count ||
-                                            0}
-                                        )
+                                        Бонусы ({userStats.bonuses?.count || 0})
                                     </h5>
                                     <p className="text-2xl font-bold text-green-600 dark:text-green-400 mb-4">
                                         {formatNumberWithSpaces(
                                             userStats.bonuses?.total
                                         )}{" "}
-                                        {userStats.salary_info
-                                            ?.currency || "UZS"}
+                                        {userStats.salary_info?.currency ||
+                                            "UZS"}
                                     </p>
                                     <div className="space-y-2 max-h-48 overflow-y-auto">
                                         {userStats.bonuses?.items?.map(
@@ -903,28 +873,21 @@ export default function MyStatistics() {
                                                         {formatNumberWithSpaces(
                                                             bonus.amount
                                                         )}{" "}
-                                                        {userStats
-                                                            .salary_info
-                                                            ?.currency ||
-                                                            "UZS"}
+                                                        {userStats.salary_info
+                                                            ?.currency || "UZS"}
                                                     </p>
                                                     <p className="text-gray-600 dark:text-gray-400 text-xs">
-                                                        {
-                                                            bonus.comment
-                                                        }
+                                                        {bonus.comment}
                                                     </p>
                                                     <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
-                                                        {formatDate(
-                                                            bonus.date
-                                                        )}
+                                                        {formatDate(bonus.date)}
                                                     </p>
                                                 </div>
                                             )
                                         )}
-                                        {(!userStats.bonuses
-                                            ?.items ||
-                                            userStats.bonuses.items
-                                                .length === 0) && (
+                                        {(!userStats.bonuses?.items ||
+                                            userStats.bonuses.items.length ===
+                                                0) && (
                                             <p className="text-sm text-gray-400 dark:text-gray-500">
                                                 Нет бонусов
                                             </p>
@@ -935,18 +898,15 @@ export default function MyStatistics() {
                                 {/* Advances */}
                                 <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
                                     <h5 className="text-lg font-semibold mb-3 text-blue-600 dark:text-blue-400">
-                                        Авансы (
-                                        {userStats.advances
-                                            ?.count || 0}
+                                        Авансы ({userStats.advances?.count || 0}
                                         )
                                     </h5>
                                     <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-4">
                                         {formatNumberWithSpaces(
-                                            userStats.advances
-                                                ?.total
+                                            userStats.advances?.total
                                         )}{" "}
-                                        {userStats.salary_info
-                                            ?.currency || "UZS"}
+                                        {userStats.salary_info?.currency ||
+                                            "UZS"}
                                     </p>
                                     <div className="space-y-2 max-h-48 overflow-y-auto">
                                         {userStats.advances?.items?.map(
@@ -959,15 +919,11 @@ export default function MyStatistics() {
                                                         {formatNumberWithSpaces(
                                                             advance.amount
                                                         )}{" "}
-                                                        {userStats
-                                                            .salary_info
-                                                            ?.currency ||
-                                                            "UZS"}
+                                                        {userStats.salary_info
+                                                            ?.currency || "UZS"}
                                                     </p>
                                                     <p className="text-gray-600 dark:text-gray-400 text-xs">
-                                                        {
-                                                            advance.comment
-                                                        }
+                                                        {advance.comment}
                                                     </p>
                                                     <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
                                                         {formatDate(
@@ -977,10 +933,9 @@ export default function MyStatistics() {
                                                 </div>
                                             )
                                         )}
-                                        {(!userStats.advances
-                                            ?.items ||
-                                            userStats.advances.items
-                                                .length === 0) && (
+                                        {(!userStats.advances?.items ||
+                                            userStats.advances.items.length ===
+                                                0) && (
                                             <p className="text-sm text-gray-400 dark:text-gray-500">
                                                 Нет авансов
                                             </p>

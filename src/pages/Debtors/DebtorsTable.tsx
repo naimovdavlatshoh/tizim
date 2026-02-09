@@ -130,123 +130,115 @@ export default function DebtorsTable({
 
     return (
         <>
-            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div className="max-w-full overflow-x-auto">
-                    <Table>
-                        {/* Table Header */}
-                        <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                            <TableRow>
-                                <TableCell
-                                    isHeader
-                                    className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    #
+            <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+                <Table className="min-w-[800px]">
+                    {/* Table Header */}
+                    <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                        <TableRow>
+                            <TableCell
+                                isHeader
+                                className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                #
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Номер договора
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Клиент
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Сумма договора
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Оплачено
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Остаток
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Статус
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
+                            >
+                                Действия
+                            </TableCell>
+                        </TableRow>
+                    </TableHeader>
+
+                    {/* Table Body */}
+                    <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                        {debtors?.map((debtor: Debtor, index: number) => (
+                            <TableRow
+                                key={debtor.contract_id}
+                                className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            >
+                                <TableCell className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {index + 1}
                                 </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Номер договора
+                                <TableCell className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {renderFieldValue(debtor.contract_number)}
                                 </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Клиент
+                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {renderFieldValue(debtor.client_name)}
                                 </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Сумма договора
+                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {formatCurrency(debtor.contract_price)}
                                 </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Оплачено
+                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {formatCurrency(debtor.total_paid)}
                                 </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Остаток
+                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {formatCurrency(debtor.remaining_amount)}
                                 </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Статус
+                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {getStatusBadge(debtor.remaining_amount)}
                                 </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                                >
-                                    Действия
+                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    <div className="flex flex-row items-center gap-2 justify-center flex-nowrap">
+                                        <button
+                                            onClick={() =>
+                                                handleViewPayments(debtor)
+                                            }
+                                            className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors"
+                                        >
+                                            История (
+                                            {debtor.payments?.length || 0})
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                handleAddPayment(debtor)
+                                            }
+                                            className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 transition-colors"
+                                        >
+                                            Оплатить
+                                        </button>
+                                    </div>
                                 </TableCell>
                             </TableRow>
-                        </TableHeader>
-
-                        {/* Table Body */}
-                        <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                            {debtors?.map((debtor: Debtor, index: number) => (
-                                <TableRow
-                                    key={debtor.contract_id}
-                                    className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                >
-                                    <TableCell className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {index + 1}
-                                    </TableCell>
-                                    <TableCell className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {renderFieldValue(
-                                            debtor.contract_number
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {renderFieldValue(debtor.client_name)}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {formatCurrency(debtor.contract_price)}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {formatCurrency(debtor.total_paid)}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {formatCurrency(
-                                            debtor.remaining_amount
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {getStatusBadge(
-                                            debtor.remaining_amount
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        <div className="flex items-center gap-2 justify-center">
-                                            <button
-                                                onClick={() =>
-                                                    handleViewPayments(debtor)
-                                                }
-                                                className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors"
-                                            >
-                                                История (
-                                                {debtor.payments?.length || 0})
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleAddPayment(debtor)
-                                                }
-                                                className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 transition-colors"
-                                            >
-                                                Оплатить
-                                            </button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
 
             {/* Payment Modal */}
@@ -271,108 +263,103 @@ export default function DebtorsTable({
 
                     {selectedDebtor?.payments &&
                     selectedDebtor.payments.length > 0 ? (
-                        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-white/[0.05]">
-                            <div className="max-w-full overflow-x-auto">
-                                <Table>
-                                    <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                                        <TableRow>
-                                            <TableCell
-                                                isHeader
-                                                className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                        <div className="rounded-xl border border-gray-200 dark:border-white/[0.05] overflow-x-auto">
+                            <Table className="min-w-[600px]">
+                                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                                    <TableRow>
+                                        <TableCell
+                                            isHeader
+                                            className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            #
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Сумма
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Тип платежа
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Комментарий
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Адрес объекта
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Оператор
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Дата создания
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                    {selectedDebtor.payments.map(
+                                        (payment: Payment, index: number) => (
+                                            <TableRow
+                                                key={payment.payment_id}
+                                                className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                             >
-                                                #
-                                            </TableCell>
-                                            <TableCell
-                                                isHeader
-                                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                            >
-                                                Сумма
-                                            </TableCell>
-                                            <TableCell
-                                                isHeader
-                                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                            >
-                                                Тип платежа
-                                            </TableCell>
-                                            <TableCell
-                                                isHeader
-                                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                            >
-                                                Комментарий
-                                            </TableCell>
-                                            <TableCell
-                                                isHeader
-                                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                            >
-                                                Адрес объекта
-                                            </TableCell>
-                                            <TableCell
-                                                isHeader
-                                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                            >
-                                                Оператор
-                                            </TableCell>
-                                            <TableCell
-                                                isHeader
-                                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                            >
-                                                Дата создания
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                        {selectedDebtor.payments.map(
-                                            (
-                                                payment: Payment,
-                                                index: number
-                                            ) => (
-                                                <TableRow
-                                                    key={payment.payment_id}
-                                                    className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                                >
-                                                    <TableCell className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                        {index + 1}
-                                                    </TableCell>
-                                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                        {formatCurrency(
-                                                            payment.amount
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                <TableCell className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    {formatCurrency(
+                                                        payment.amount
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    {renderFieldValue(
+                                                        payment.payment_type_text
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    <div className="max-w-[400px] break-words">
                                                         {renderFieldValue(
-                                                            payment.payment_type_text
+                                                            payment.comments
                                                         )}
-                                                    </TableCell>
-                                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                        <div className="max-w-[400px] break-words">
-                                                            {renderFieldValue(
-                                                                payment.comments
-                                                            )}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                        <div className="max-w-[400px] break-words">
-                                                            {renderFieldValue(
-                                                                payment.object_address
-                                                            )}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    <div className="max-w-[400px] break-words">
                                                         {renderFieldValue(
-                                                            payment.operator_name
+                                                            payment.object_address
                                                         )}
-                                                    </TableCell>
-                                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                        {formatDate(
-                                                            payment.created_at
-                                                        )}
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    {renderFieldValue(
+                                                        payment.operator_name
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    {formatDate(
+                                                        payment.created_at
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    )}
+                                </TableBody>
+                            </Table>
                         </div>
                     ) : (
                         <div className="text-center py-8">

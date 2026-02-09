@@ -90,7 +90,11 @@ const navItems: NavItem[] = [
         ],
     },
     {
-        name: `${localStorage.getItem("role_id") === "3" ? "Мои заключение" : "Мои договоры"}`,
+        name: `${
+            localStorage.getItem("role_id") === "3"
+                ? "Мои заключение"
+                : "Мои договоры"
+        }`,
         icon: <DocsIcon />,
         path: "/my-contracts",
         roles: [2, 3, 6],
@@ -252,7 +256,7 @@ const AppSidebar: React.FC = () => {
 
     // Filter navigation items based on user role
     const filteredNavItems = navItems.filter(
-        (item) => !item.roles || item.roles.includes(userRole),
+        (item) => !item.roles || item.roles.includes(userRole)
     );
 
     const [openSubmenu, setOpenSubmenu] = useState<{
@@ -260,14 +264,14 @@ const AppSidebar: React.FC = () => {
         index: number;
     } | null>(null);
     const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-        {},
+        {}
     );
     const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     // const isActive = (path: string) => location.pathname === path;
     const isActive = useCallback(
         (path: string) => location.pathname === path,
-        [location.pathname],
+        [location.pathname]
     );
 
     useEffect(() => {
@@ -340,7 +344,7 @@ const AppSidebar: React.FC = () => {
 
     const handleSubmenuToggle = (
         index: number,
-        menuType: "main" | "others",
+        menuType: "main" | "others"
     ) => {
         setOpenSubmenu((prevOpenSubmenu) => {
             if (
@@ -463,7 +467,7 @@ const AppSidebar: React.FC = () => {
                                                         <span
                                                             className={`ml-auto ${
                                                                 isActive(
-                                                                    subItem.path,
+                                                                    subItem.path
                                                                 )
                                                                     ? "menu-dropdown-badge-active"
                                                                     : "menu-dropdown-badge-inactive"
@@ -476,7 +480,7 @@ const AppSidebar: React.FC = () => {
                                                         <span
                                                             className={`ml-auto ${
                                                                 isActive(
-                                                                    subItem.path,
+                                                                    subItem.path
                                                                 )
                                                                     ? "menu-dropdown-badge-active"
                                                                     : "menu-dropdown-badge-inactive"
@@ -504,8 +508,8 @@ const AppSidebar: React.FC = () => {
             isExpanded || isMobileOpen
                 ? "w-[290px]"
                 : isHovered
-                  ? "w-[290px]"
-                  : "w-[90px]"
+                ? "w-[290px]"
+                : "w-[90px]"
         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
@@ -513,7 +517,11 @@ const AppSidebar: React.FC = () => {
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className="px-0 pt-5">
-                <img src="logo.jpg" alt="logo" className="w-1/3" />
+                <img
+                    src="/logo.jpg"
+                    alt="logo"
+                    className="w-1/3 max-w-[100px] sm:max-w-[120px]"
+                />
             </div>
 
             <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">

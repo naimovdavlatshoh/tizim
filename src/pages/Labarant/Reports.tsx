@@ -43,6 +43,7 @@ interface Contract {
     contract_id: string;
     contract_number: string;
     client_name: string;
+    business_name?: string;
 }
 
 const Reports = () => {
@@ -200,20 +201,132 @@ const Reports = () => {
         }
     };
 
+    /** Extension dan MIME type */
+    const getMimeFromExt = (ext: string): string => {
+        const e = ext.toLowerCase();
+        if (e === "pdf") return "application/pdf";
+        if (e === "jpg" || e === "jpeg") return "image/jpeg";
+        if (e === "png") return "image/png";
+        if (e === "docx")
+            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        if (e === "doc") return "application/msword";
+        return "application/octet-stream";
+    };
+
+    /** Content-Disposition dan kengaytma (CORS da expose qilinmasa ishlamaydi) */
+    const getExtFromContentDisposition = (
+        contentDisposition: string | undefined
+    ): string | null => {
+        if (!contentDisposition) return null;
+        const match =
+            contentDisposition.match(
+                /filename\*?=(?:UTF-8'')?["']?([^"'\s;]+)["']?/i
+            ) || contentDisposition.match(/filename=["']?([^"'\s;]+)["']?/i);
+        const filename = match?.[1]?.trim();
+        if (!filename) return null;
+        const lastDot = filename.lastIndexOf(".");
+        if (lastDot === -1) return null;
+        return filename.slice(lastDot + 1).toLowerCase();
+    };
+
+    /** Content-Type dan ext (application/json bo‘lsa e‘tiborsiz) */
+    const getExtFromContentType = (
+        contentType: string | undefined
+    ): string | null => {
+        if (
+            !contentType ||
+            contentType.toLowerCase().includes("application/json")
+        )
+            return null;
+        const normalized = contentType.split(";")[0].trim().toLowerCase();
+        if (normalized === "application/pdf" || normalized.includes("pdf"))
+            return "pdf";
+        if (
+            normalized === "image/jpeg" ||
+            normalized === "image/jpg" ||
+            normalized.includes("jpeg") ||
+            normalized.includes("jpg")
+        )
+            return "jpg";
+        if (normalized === "image/png" || normalized.includes("png"))
+            return "png";
+        if (
+            normalized.includes("wordprocessingml") ||
+            normalized.includes("docx")
+        )
+            return "docx";
+        if (normalized.includes("msword") || normalized.includes("doc"))
+            return "doc";
+        return null;
+    };
+
+    /** Blob ning magic bytes dan fayl turini aniqlash (CORS header ko‘rinmasa ham ishlaydi) */
+    const getExtFromBlob = (blob: Blob): Promise<string> => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const arr = new Uint8Array(
+                    (reader.result as ArrayBuffer)?.slice(0, 8) || []
+                );
+                if (arr[0] === 0xff && arr[1] === 0xd8) {
+                    resolve("jpg");
+                    return;
+                }
+                if (
+                    arr[0] === 0x89 &&
+                    arr[1] === 0x50 &&
+                    arr[2] === 0x4e &&
+                    arr[3] === 0x47
+                ) {
+                    resolve("png");
+                    return;
+                }
+                if (
+                    arr[0] === 0x25 &&
+                    arr[1] === 0x50 &&
+                    arr[2] === 0x44 &&
+                    arr[3] === 0x46
+                ) {
+                    resolve("pdf");
+                    return;
+                }
+                if (arr[0] === 0x50 && arr[1] === 0x4b) {
+                    resolve("docx");
+                    return;
+                }
+                resolve("pdf");
+            };
+            reader.readAsArrayBuffer(blob.slice(0, 12));
+        });
+    };
+
     const handleDownloadReport = async (reportId: string) => {
         try {
             const response = await GetDataSimplePDF(
                 `api/reports/file/${reportId}`
             );
+            const raw = response.data;
+            const headers = response.headers || {};
+            const contentDisposition = (headers["content-disposition"] ??
+                headers["Content-Disposition"]) as string | undefined;
+            const contentType = (headers["content-type"] ??
+                headers["Content-Type"]) as string | undefined;
 
-            // Create blob and download
-            const blob = new Blob([response.data], {
-                type: "application/pdf",
-            });
+            let ext =
+                getExtFromContentDisposition(contentDisposition) ??
+                getExtFromContentType(contentType);
+            if (!ext) {
+                const blobForDetect =
+                    raw instanceof Blob ? raw : new Blob([raw]);
+                ext = await getExtFromBlob(blobForDetect);
+            }
+
+            const mime = getMimeFromExt(ext);
+            const blob = new Blob([raw], { type: mime });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `report-${reportId}.pdf`;
+            link.download = `report-${reportId}.${ext}`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -265,9 +378,11 @@ const Reports = () => {
                         searchTerm
                     )}`
                 );
-                const searchResults =
-                    response?.result || response?.data?.result || [];
-                setFilteredContracts(searchResults);
+                const data = response?.data ?? response;
+                const searchResults = data?.result ?? [];
+                setFilteredContracts(
+                    Array.isArray(searchResults) ? searchResults : []
+                );
             } else {
                 // If less than 3 characters, show all contracts
                 setFilteredContracts(contracts);
@@ -292,9 +407,11 @@ const Reports = () => {
                 const response: any = await PostSimple(
                     `api/user/search?keyword=${encodeURIComponent(searchTerm)}`
                 );
-                const searchResults =
-                    response?.result || response?.data?.result || [];
-                setFilteredUsers(searchResults);
+                const data = response?.data ?? response;
+                const searchResults = data?.result ?? [];
+                setFilteredUsers(
+                    Array.isArray(searchResults) ? searchResults : []
+                );
             } else {
                 // If less than 3 characters, show all users
                 setFilteredUsers(users);
@@ -309,7 +426,9 @@ const Reports = () => {
 
     const contractOptions = filteredContracts.map((contract) => ({
         value: parseInt(contract.contract_id),
-        label: `${contract.contract_number} - ${contract.client_name}`,
+        label: `${contract.contract_number} - ${
+            contract.business_name ?? contract.client_name ?? ""
+        }`,
     }));
 
     const userOptions = filteredUsers.map((user) => ({
@@ -350,8 +469,8 @@ const Reports = () => {
             >
                 {/* Filters for Director */}
                 {isDirector && (
-                    <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Договор
@@ -404,147 +523,144 @@ const Reports = () => {
                 )}
 
                 {/* Table */}
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                    <div className="max-w-full overflow-x-auto">
-                        <Table>
-                            {/* Table Header */}
-                            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                                <TableRow>
-                                    <TableCell
-                                        isHeader
-                                        className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                    >
-                                        #
-                                    </TableCell>
-                                    <TableCell
-                                        isHeader
-                                        className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                    >
-                                        Отправитель
-                                    </TableCell>
-                                    <TableCell
-                                        isHeader
-                                        className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                    >
-                                        Текст отчета
-                                    </TableCell>
-                                    <TableCell
-                                        isHeader
-                                        className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-theme-xs dark:text-gray-400"
-                                    >
-                                        Номер договора
-                                    </TableCell>
-                                    <TableCell
-                                        isHeader
-                                        className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                    >
-                                        Клиент
-                                    </TableCell>
-                                    <TableCell
-                                        isHeader
-                                        className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                    >
-                                        Дата создания
-                                    </TableCell>
-                                    <TableCell
-                                        isHeader
-                                        className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                    >
-                                        Действия
-                                    </TableCell>
-                                </TableRow>
-                            </TableHeader>
+                <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+                    <Table className="min-w-[800px]">
+                        {/* Table Header */}
+                        <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                            <TableRow>
+                                <TableCell
+                                    isHeader
+                                    className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                >
+                                    #
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                >
+                                    Отправитель
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    Текст отчета
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                >
+                                    Номер договора
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                >
+                                    Клиент
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                >
+                                    Дата создания
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                >
+                                    Действия
+                                </TableCell>
+                            </TableRow>
+                        </TableHeader>
 
-                            {/* Table Body */}
-                            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                {reports.length > 0 ? (
-                                    reports.map((report, index) => (
-                                        <TableRow
-                                            key={report.report_id}
-                                            className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                        >
-                                            <TableCell className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                {index + 1}
-                                            </TableCell>
-                                            <TableCell className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                {report.user_name}
-                                            </TableCell>
-                                            <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 max-w-xs">
-                                                <div className="relative group">
-                                                    <span className="cursor-help">
-                                                        {report.report_text
-                                                            .length > 20
-                                                            ? `${report.report_text.substring(
-                                                                  0,
-                                                                  20
-                                                              )}...`
-                                                            : report.report_text}
-                                                    </span>
+                        {/* Table Body */}
+                        <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                            {reports.length > 0 ? (
+                                reports.map((report, index) => (
+                                    <TableRow
+                                        key={report.report_id}
+                                        className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                    >
+                                        <TableCell className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                            {index + 1}
+                                        </TableCell>
+                                        <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                            {report.user_name}
+                                        </TableCell>
+                                        <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 max-w-[150px] sm:max-w-xs">
+                                            <div className="relative group">
+                                                <span className="cursor-help">
                                                     {report.report_text.length >
-                                                        20 && (
-                                                        <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 max-w-xs break-words shadow-lg">
-                                                            {report.report_text}
-                                                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                {report.contract_number ||
-                                                    report.contract_id}
-                                            </TableCell>
-                                            <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                {report.client_name ||
-                                                    "Не указан"}
-                                            </TableCell>
-                                            <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                {formatDate(report.created_at)}
-                                            </TableCell>
-                                            <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                <div className="flex gap-2">
+                                                    20
+                                                        ? `${report.report_text.substring(
+                                                              0,
+                                                              20
+                                                          )}...`
+                                                        : report.report_text}
+                                                </span>
+                                                {report.report_text.length >
+                                                    20 && (
+                                                    <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 max-w-xs break-words shadow-lg">
+                                                        {report.report_text}
+                                                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                            {report.contract_number ||
+                                                report.contract_id}
+                                        </TableCell>
+                                        <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                            {report.client_name || "Не указан"}
+                                        </TableCell>
+                                        <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap">
+                                            {formatDate(report.created_at)}
+                                        </TableCell>
+                                        <TableCell className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                            <div className="flex flex-row items-center gap-1 sm:gap-2 flex-nowrap">
+                                                <button
+                                                    className="cursor-pointer border border-gray-300 w-7 h-7 sm:w-[30px] sm:h-[30px] flex items-center justify-center rounded-md disabled:opacity-50 transition-colors"
+                                                    onClick={() =>
+                                                        handleDownloadReport(
+                                                            report.report_id
+                                                        )
+                                                    }
+                                                >
+                                                    <DownloadIcon
+                                                        fontSize={20}
+                                                    />
+                                                </button>
+                                                {isLabarant && (
                                                     <button
-                                                        className="mr-2 cursor-pointer border border-gray-300 w-[30px] h-[30px] flex items-center justify-center rounded-md disabled:opacity-50 transition-colors"
+                                                        className="cursor-pointer bg-red-500 text-white px-1.5 py-1.5 sm:px-2 sm:py-2 rounded-md disabled:opacity-50 transition-colors"
                                                         onClick={() =>
-                                                            handleDownloadReport(
-                                                                report.report_id
+                                                            openDeleteModal(
+                                                                report
                                                             )
                                                         }
                                                     >
-                                                        <DownloadIcon
-                                                            fontSize={20}
-                                                        />
+                                                        <FaTrash />
                                                     </button>
-                                                    {isLabarant && (
-                                                        <button
-                                                            className="mr-2 cursor-pointer bg-red-500 text-white px-2 py-2 rounded-md disabled:opacity-50 transition-colors"
-                                                            onClick={() =>
-                                                                openDeleteModal(
-                                                                    report
-                                                                )
-                                                            }
-                                                        >
-                                                            <FaTrash />
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={6}
-                                            className="py-8 text-center text-gray-500 dark:text-gray-400"
-                                        >
-                                            {loading
-                                                ? "Загрузка..."
-                                                : "Отчеты не найдены"}
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={6}
+                                        className="py-8 text-center text-gray-500 dark:text-gray-400"
+                                    >
+                                        {loading
+                                            ? "Загрузка..."
+                                            : "Отчеты не найдены"}
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </div>
 
                 {totalPages > 1 && (
@@ -562,9 +678,8 @@ const Reports = () => {
             <Modal
                 isOpen={createModalOpen}
                 onClose={() => setCreateModalOpen(false)}
-                className="max-w-2xl"
             >
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                         Создать новый отчет
                     </h3>
@@ -599,7 +714,7 @@ const Reports = () => {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Файл (необязательно)
+                                Файл лимит не больше 10мб (.docx , .pdf , .jpg)
                             </label>
                             <FileInput
                                 onChange={handleFileChange}
@@ -638,9 +753,8 @@ const Reports = () => {
                     setDeleteModalOpen(false);
                     setReportToDelete(null);
                 }}
-                className="max-w-md"
             >
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                         Удалить отчет
                     </h3>

@@ -293,35 +293,32 @@ export default function TableBrokerContract({
 
     return (
         <>
-            <div className="overflow-x-auto">
-                <table className="w-full table-auto">
+            <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+                <table className="w-full table-auto min-w-[900px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800">
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 #
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Номер контракта
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Адрес объекта
                             </th>
-                            {/* <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Тип контракта
-                            </th> */}
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Цена
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Дата контракта
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Статус
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Дата создания
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Действия
                             </th>
                         </tr>
@@ -332,38 +329,35 @@ export default function TableBrokerContract({
                                 key={contract.contract_id}
                                 className="hover:bg-gray-50 dark:hover:bg-gray-800"
                             >
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {index + 1}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
                                     {contract.contract_number || "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {contract.object_address || "-"}
                                 </td>
-                                {/* <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {contract.contract_type || "-"}
-                                </td> */}
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
                                     {contract.contract_price
                                         ? formatAmount(
                                               contract.contract_price
                                           ) + " сум"
                                         : "-"}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {formatDate(contract.contract_date)}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                         {contract.contract_status_text || "-"}
                                     </span>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                     {formatDate(contract.created_at)}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    <div className="flex items-center gap-2">
+                                <td className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    <div className="flex flex-row items-center gap-2 flex-nowrap">
                                         <Button
                                             onClick={() =>
                                                 handleGetQrCode(contract)

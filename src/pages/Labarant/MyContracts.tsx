@@ -6,7 +6,7 @@ import { GetDataSimple, GetDataSimplePDF } from "../../service/data.ts";
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster, toast } from "react-hot-toast";
 
-import {  FaQrcode } from "react-icons/fa";
+import { FaQrcode, FaRegEye } from "react-icons/fa";
 import {
     Table,
     TableBody,
@@ -21,6 +21,8 @@ import { formatCurrency, formatDate } from "../../utils/numberFormat";
 import Loader from "../../components/ui/loader/Loader.tsx";
 
 import { TbDownload } from "react-icons/tb";
+import Linkto from "../../components/ui/link/LinkTo.tsx";
+import Badge from "../../components/ui/badge/Badge.tsx";
 
 interface MyContract {
     contract_id: string;
@@ -33,7 +35,7 @@ interface MyContract {
     days_diff_text: string;
     client_id: string;
     client_name: string;
-    client_type: string;
+    client_type: string | number;
     business_name: string;
     phone_number: string;
     bank_account: string;
@@ -58,7 +60,10 @@ interface MyContract {
     task_info?: {
         tasks: Array<{
             task_id: number;
-            task_item: Array<{ comments: string | null; [key: string]: unknown }>;
+            task_item: Array<{
+                comments: string | null;
+                [key: string]: unknown;
+            }>;
         }>;
     };
 }
@@ -70,7 +75,7 @@ const MyContracts = () => {
     const [loading, setLoading] = useState(false);
     const [sendResultModalOpen, setSendResultModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] = useState<MyContract | null>(
-        null,
+        null
     );
     const [downloadingQr, setDownloadingQr] = useState<string | null>(null);
     const [downloadingPdf, setDownloadingPdf] = useState<number | null>(null);
@@ -83,7 +88,7 @@ const MyContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/my/list?contract_status=5&page=${page}&limit=30`,
+                `api/appointment/my/list?contract_status=5&page=${page}&limit=30`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -137,7 +142,7 @@ const MyContracts = () => {
         setDownloadingQr(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/downloadqrcode/${contract.contract_id}`,
+                `api/appointment/downloadqrcode/${contract.contract_id}`
             );
 
             // Create blob and download
@@ -160,7 +165,7 @@ const MyContracts = () => {
             console.error("Error downloading QR code:", error);
             toast.error(
                 error?.response?.data?.error ||
-                    "Что-то пошло не так при скачивании QR-кода",
+                    "Что-то пошло не так при скачивании QR-кода"
             );
         } finally {
             setDownloadingQr(null);
@@ -176,7 +181,7 @@ const MyContracts = () => {
         setDownloadingPdf(contract.final_document.document_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/result/pdf/${contract.final_document.document_id}`,
+                `api/appointment/result/pdf/${contract.final_document.document_id}`
             );
 
             // Create blob and download
@@ -199,7 +204,7 @@ const MyContracts = () => {
             console.error("Error downloading PDF:", error);
             toast.error(
                 error?.response?.data?.error ||
-                    "Что-то пошло не так при скачивании PDF",
+                    "Что-то пошло не так при скачивании PDF"
             );
         } finally {
             setDownloadingPdf(null);
@@ -216,10 +221,20 @@ const MyContracts = () => {
                 title="BNM Tizim"
                 description="Список моих назначенных договоров"
             />
-            <PageBreadcrumb pageTitle={`${localStorage.getItem("role_id") === "3" ? "Мои заключение" : "Мои договоры"}`} />
+            <PageBreadcrumb
+                pageTitle={`${
+                    localStorage.getItem("role_id") === "3"
+                        ? "Мои заключение"
+                        : "Мои договоры"
+                }`}
+            />
             <div className="space-y-6">
                 <ComponentCard
-                    title={`${localStorage.getItem("role_id") === "3" ? "Мои заключение" : "Мои договоры"}`}
+                    title={`${
+                        localStorage.getItem("role_id") === "3"
+                            ? "Мои заключение"
+                            : "Мои договоры"
+                    }`}
                     desc="Договоры, назначенные на меня"
                 >
                     {/* Loading indicator */}
@@ -235,63 +250,68 @@ const MyContracts = () => {
                     )}
 
                     {/* Table */}
-                    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                        <div className="max-w-full overflow-x-auto">
-                            <Table>
-                                {/* Table Header */}
-                                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                                    <TableRow>
-                                        <TableCell
-                                            isHeader
-                                            className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            #
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Н/договора
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Клиент
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Срок выполнения
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Бонус
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Статус
-                                        </TableCell>
-                                        <TableCell
-                                            isHeader
-                                            className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                        >
-                                            Действия
-                                        </TableCell>
-                                    </TableRow>
-                                </TableHeader>
+                    <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+                        <Table className="min-w-[720px]">
+                            {/* Table Header */}
+                            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                                <TableRow>
+                                    <TableCell
+                                        isHeader
+                                        className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        #
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Н/договора
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 min-w-[100px]"
+                                    >
+                                        Клиент
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Тип клиента
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Срок выполнения
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Бонус
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Статус
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
+                                        Действия
+                                    </TableCell>
+                                </TableRow>
+                            </TableHeader>
 
-                                {/* Table Body */}
-                                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                    {contracts?.map((contract: MyContract) => {
-                                        const rejectInfo =
-                                            getLastTaskRejectInfo(contract);
-                                        return (
+                            {/* Table Body */}
+                            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                {contracts?.map((contract: MyContract) => {
+                                    const rejectInfo =
+                                        getLastTaskRejectInfo(contract);
+                                    return (
                                         <TableRow
                                             key={contract.contract_id}
                                             className={`cursor-pointer transition-colors ${
@@ -301,7 +321,7 @@ const MyContracts = () => {
                                             }`}
                                         >
                                             <TableCell
-                                                className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
                                                 }
@@ -310,7 +330,7 @@ const MyContracts = () => {
                                                     1}
                                             </TableCell>
                                             <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
                                                 }
@@ -318,7 +338,7 @@ const MyContracts = () => {
                                                 {contract.contract_number}
                                             </TableCell>
                                             <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 max-w-[120px] sm:max-w-none truncate"
                                                 onClick={() =>
                                                     handleRowClick(contract)
                                                 }
@@ -326,31 +346,63 @@ const MyContracts = () => {
                                                 {contract.client_name}
                                             </TableCell>
                                             <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                className="px-2 sm:px-4 py-2 sm:py-3 text-theme-sm dark:text-gray-400"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                {contract.client_type === "1" ||
+                                                contract.client_type === 1 ? (
+                                                    <Badge
+                                                        color="info"
+                                                        variant="light"
+                                                        size="sm"
+                                                    >
+                                                        Юридическое лицо
+                                                    </Badge>
+                                                ) : contract.client_type ===
+                                                      "2" ||
+                                                  contract.client_type === 2 ? (
+                                                    <Badge
+                                                        color="success"
+                                                        variant="light"
+                                                        size="sm"
+                                                    >
+                                                        Физическое лицо
+                                                    </Badge>
+                                                ) : (
+                                                    <span className="text-gray-500 dark:text-gray-400">
+                                                        {contract.client_type ||
+                                                            "—"}
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell
+                                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap"
                                                 onClick={() =>
                                                     handleRowClick(contract)
                                                 }
                                             >
                                                 {contract.deadline_date
                                                     ? formatDate(
-                                                          contract.deadline_date,
+                                                          contract.deadline_date
                                                       )
                                                     : "-"}
                                             </TableCell>
                                             <TableCell
-                                                className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap"
                                                 onClick={() =>
                                                     handleRowClick(contract)
                                                 }
                                             >
                                                 {formatCurrency(
                                                     parseFloat(
-                                                        contract.worker_price,
-                                                    ),
+                                                        contract.worker_price
+                                                    )
                                                 )}
                                             </TableCell>
                                             <TableCell
-                                                className="py-3 text-theme-sm dark:text-gray-400"
+                                                className="px-2 sm:px-4 py-2 sm:py-3 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
                                                     handleRowClick(contract)
                                                 }
@@ -362,26 +414,27 @@ const MyContracts = () => {
                                                         </span>
                                                         {rejectInfo.comment && (
                                                             <span className="text-xs text-gray-600 dark:text-gray-300">
-                                                                {rejectInfo.comment}
+                                                                {
+                                                                    rejectInfo.comment
+                                                                }
                                                             </span>
                                                         )}
                                                     </div>
                                                 ) : (
                                                     <span className="inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-200 text-yellow-800  ">
-                                                    В ожидании
-                                                </span>
-
+                                                        В ожидании
+                                                    </span>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                <div className="flex items-center gap-2">
+                                            <TableCell className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                <div className="flex flex-row items-center gap-2 flex-nowrap">
                                                     {" "}
                                                     <Button
                                                         size="xs"
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleDownloadQrCode(
-                                                                contract,
+                                                                contract
                                                             )
                                                         }
                                                         disabled={
@@ -397,7 +450,7 @@ const MyContracts = () => {
                                                             ? ""
                                                             : ""}
                                                     </Button>
-                                                    {/* <Linkto
+                                                    <Linkto
                                                         to={`/my-contracts/${contract.contract_id}`}
                                                         size="xs"
                                                         variant="outline"
@@ -406,13 +459,13 @@ const MyContracts = () => {
                                                         }
                                                     >
                                                         {""}
-                                                    </Linkto> */}
+                                                    </Linkto>
                                                     <Button
                                                         size="xs"
                                                         variant="primary"
                                                         onClick={() =>
                                                             handleSendResult(
-                                                                contract,
+                                                                contract
                                                             )
                                                         }
                                                         startIcon={
@@ -440,7 +493,7 @@ const MyContracts = () => {
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleDownloadResultPdf(
-                                                                contract,
+                                                                contract
                                                             )
                                                         }
                                                         disabled={
@@ -465,11 +518,10 @@ const MyContracts = () => {
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
                     </div>
 
                     {/* Pagination */}

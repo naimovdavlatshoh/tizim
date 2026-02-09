@@ -20,6 +20,7 @@ interface Client {
     client_id: number;
     client_name: string;
     business_name?: string;
+    last_contract_number?: string;
 }
 
 export default function AddProtocolModal({
@@ -160,12 +161,19 @@ export default function AddProtocolModal({
                                 <span className="text-red-500">*</span> Клиент
                             </label>
                             <Select
-                                options={filteredClients.map((client) => ({
-                                    value: client.client_id,
-                                    label: client?.business_name
-                                        ? `${client.business_name} ${client.client_name}`
-                                        : client.client_name,
-                                }))}
+                                options={filteredClients.map((client) => {
+                                    const clientLabel = client?.business_name
+                                        ? `${client?.business_name} ${client?.client_name}`
+                                        : client?.client_name;
+                                    const contractNumber =
+                                        client?.last_contract_number
+                                            ? ` (Номер договора: ${client?.last_contract_number})`
+                                            : "";
+                                    return {
+                                        value: client?.client_id,
+                                        label: `${clientLabel}${contractNumber}`,
+                                    };
+                                })}
                                 placeholder="Выберите клиента"
                                 onChange={(value) =>
                                     setFormData({

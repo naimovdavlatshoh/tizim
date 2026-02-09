@@ -42,8 +42,11 @@ const Select: React.FC<SelectProps> = ({
     }, [defaultValue]);
 
     // Update filtered options when options change
+    // When onSearch is used, server already filtered — show all options; otherwise filter by label
     useEffect(() => {
-        if (searchTerm.trim() === "") {
+        if (onSearch) {
+            setFilteredOptions(options);
+        } else if (searchTerm.trim() === "") {
             setFilteredOptions(options);
         } else {
             const filtered = options.filter((option) =>
@@ -51,7 +54,7 @@ const Select: React.FC<SelectProps> = ({
             );
             setFilteredOptions(filtered);
         }
-    }, [options, searchTerm]);
+    }, [options, searchTerm, onSearch]);
 
     // Close dropdown when clicking outside
     useEffect(() => {

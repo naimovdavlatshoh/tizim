@@ -90,7 +90,7 @@ export default function TableContract({
     // );
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] = useState<Contract | null>(
-        null,
+        null
     );
 
     // Get user role from localStorage
@@ -107,220 +107,215 @@ export default function TableContract({
     };
 
     return (
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-            <div className="max-w-full overflow-x-auto">
-                <Table>
-                    {/* Table Header */}
-                    <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                        <TableRow>
-                            <TableCell
-                                isHeader
-                                className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                #
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="pl-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Н/договора
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Компания
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Клиент
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Тип клиента
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Сумма договора
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Дата договора
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Статус договора
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Статус оплаты
-                            </TableCell>
-                            <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                            >
-                                Телефон
-                            </TableCell>
+        <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+            <Table className="min-w-[900px]">
+                {/* Table Header */}
+                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                    <TableRow>
+                        <TableCell
+                            isHeader
+                            className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            #
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            Н/договора
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                        >
+                            Компания
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                        >
+                            Клиент
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            Тип клиента
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            Сумма договора
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            Дата договора
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            Статус договора
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            Статус оплаты
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            Телефон
+                        </TableCell>
+                        <TableCell
+                            isHeader
+                            className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                        >
+                            Действия
+                        </TableCell>
+                    </TableRow>
+                </TableHeader>
 
+                {/* Table Body */}
+                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                    {contracts?.map((contract: Contract, index: number) => (
+                        <TableRow
+                            key={contract.contract_id}
+                            className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        >
                             <TableCell
-                                isHeader
-                                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
                             >
-                                Действия
+                                {index + 1}
                             </TableCell>
-                        </TableRow>
-                    </TableHeader>
-
-                    {/* Table Body */}
-                    <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                        {contracts?.map((contract: Contract, index: number) => (
-                            <TableRow
-                                key={contract.contract_id}
-                                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
                             >
-                                <TableCell
-                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
+                                {contract.contract_number}
+                            </TableCell>
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm w-[200px] text-start"
+                                onClick={() => handleRowClick(contract)}
+                            >
+                                {contract.business_name ? (
+                                    contract.business_name
+                                ) : (
+                                    <span className="text-end">-</span>
+                                )}
+                            </TableCell>
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 w-[150px] text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
+                            >
+                                {contract.client_name}
+                            </TableCell>
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
+                            >
+                                <span
+                                    className={`px-2 py-1 rounded-full text-xs ${
+                                        contract.client_type === 1
+                                            ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                                            : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                    }`}
                                 >
-                                    {index + 1}
-                                </TableCell>
-                                <TableCell
-                                    className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
+                                    {contract.client_type === 1
+                                        ? "Юр. лицо"
+                                        : contract.client_type === 2
+                                        ? "Физ. лицо"
+                                        : "-"}
+                                </span>
+                            </TableCell>
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
+                            >
+                                {formatCurrency(contract.contract_price)}
+                            </TableCell>
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
+                            >
+                                {formatDate(contract.contract_date)}
+                            </TableCell>
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
+                            >
+                                <span
+                                    className={`px-2 py-1 rounded-full text-xs ${
+                                        contract.contract_status === 2
+                                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                    }`}
                                 >
-                                    {contract.contract_number}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm  w-[200px] pr-2 text-start"
-                                    onClick={() => handleRowClick(contract)}
+                                    {contract.contract_status_text}
+                                </span>
+                            </TableCell>
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
+                            >
+                                <span
+                                    className={`px-2 py-1 rounded-full text-xs ${
+                                        contract.contract_payment_status === 1
+                                            ? "bg-blue-100 text-blue-800 "
+                                            : contract.contract_payment_status ===
+                                              2
+                                            ? "bg-green-100 text-green-800 "
+                                            : "bg-gray-100 text-gray-800 "
+                                    }`}
                                 >
-                                    {contract.business_name
-                                        ? contract.business_name
-                                        : <span className="text-end">-</span>}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 w-[150px] pr-5 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
-                                >
-                                    {contract.client_name}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
-                                >
-                                    <span
-                                        className={`px-2 py-1 rounded-full text-xs ${
-                                            contract.client_type === 1
-                                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                                                : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                        }`}
+                                    {contract.contract_payment_status_text}
+                                </span>
+                            </TableCell>
+                            <TableCell
+                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
+                                onClick={() => handleRowClick(contract)}
+                            >
+                                {contract.phone_number}
+                            </TableCell>
+                            <TableCell className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                <div className="flex flex-row items-center gap-2 flex-nowrap">
+                                    <Linkto
+                                        to={`/contract-details/${contract.contract_id}`}
+                                        size="xs"
+                                        variant="outline"
+                                        startIcon={
+                                            <FaRegEye className="size-4" />
+                                        }
                                     >
-                                        {contract.client_type === 1
-                                            ? "Юр. лицо"
-                                            : contract.client_type === 2
-                                              ? "Физ. лицо"
-                                              : "-"}
-                                    </span>
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
-                                >
-                                    {formatCurrency(contract.contract_price)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
-                                >
-                                    {formatDate(contract.contract_date)}
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
-                                >
-                                    <span
-                                        className={`px-2 py-1 rounded-full text-xs ${
-                                            contract.contract_status === 2
-                                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                        }`}
-                                    >
-                                        {contract.contract_status_text}
-                                    </span>
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
-                                >
-                                    <span
-                                        className={`px-2 py-1 rounded-full text-xs ${
-                                            contract.contract_payment_status ===
-                                            1
-                                                ? "bg-blue-100 text-blue-800 "
-                                                : contract.contract_payment_status ===
-                                                    2
-                                                  ? "bg-green-100 text-green-800 "
-                                                  : "bg-gray-100 text-gray-800 "
-                                        }`}
-                                    >
-                                        {contract.contract_payment_status_text}
-                                    </span>
-                                </TableCell>
-                                <TableCell
-                                    className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                    onClick={() => handleRowClick(contract)}
-                                >
-                                    {contract.phone_number}
-                                </TableCell>
-
-                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                    <div className="flex items-center gap-2">
-                                        <Linkto
-                                            to={`/contract-details/${contract.contract_id}`}
+                                        {""}
+                                    </Linkto>
+                                    {canDelete && (
+                                        <Button
+                                            onClick={() => {
+                                                setDeleteModalOpen(true);
+                                                setSelectedContract(contract);
+                                            }}
                                             size="xs"
-                                            variant="outline"
+                                            variant="danger"
                                             startIcon={
-                                                <FaRegEye className="size-4" />
+                                                <FaTrash className="size-4" />
                                             }
                                         >
                                             {""}
-                                        </Linkto>
-                                        {canDelete && (
-                                            <Button
-                                                onClick={() => {
-                                                    setDeleteModalOpen(true);
-                                                    setSelectedContract(
-                                                        contract,
-                                                    );
-                                                }}
-                                                size="xs"
-                                                variant="danger"
-                                                startIcon={
-                                                    <FaTrash className="size-4" />
-                                                }
-                                            >
-                                                {""}
-                                            </Button>
-                                        )}
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+                                        </Button>
+                                    )}
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
 
             {/* Delete Contract Modal */}
             <DeleteContractModal

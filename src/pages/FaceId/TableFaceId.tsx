@@ -68,7 +68,9 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
             setSelectedFaceId(null);
             setFaceImage("");
             console.error("Error fetching face image:", error);
-            toast.error(error?.response?.data?.error || "Ошибка: Файл не существует.!");
+            toast.error(
+                error?.response?.data?.error || "Ошибка: Файл не существует.!"
+            );
         } finally {
             setLoadingImage(false);
         }
@@ -85,26 +87,26 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
 
     return (
         <>
-            <div className="overflow-x-auto">
-                <table className="w-full table-auto">
+            <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+                <table className="w-full table-auto min-w-[640px]">
                     <thead>
-                        <tr className="border-b border-gray-200 dark:border-gray-700">
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
+                        <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                            <th className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                 #
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                 Имя
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                 Дата работы
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                 Время входа
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                 Время выхода
                             </th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">
+                            <th className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                 Действия
                             </th>
                         </tr>
@@ -113,7 +115,7 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
                         {faceIds.length === 0 ? (
                             <tr>
                                 <td
-                                    colSpan={4}
+                                    colSpan={6}
                                     className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
                                 >
                                     Face ID не найдены
@@ -125,28 +127,28 @@ const TableFaceId: React.FC<TableFaceIdProps> = ({ faceIds }) => {
                                     key={faceId.face_id}
                                     className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                                 >
-                                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                                    <td className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-white">
                                         {index + 1}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                                    <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-white">
                                         {faceId?.name}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-600 dark:text-gray-400">
                                         {faceId?.work_date
                                             ? formatDate(faceId.work_date)
                                             : "-"}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-600 dark:text-gray-400">
                                         {faceId?.arrival_time
                                             ? formatTime(faceId.arrival_time)
                                             : "-"}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-600 dark:text-gray-400">
                                         {faceId?.leave_time
                                             ? formatTime(faceId.leave_time)
                                             : "Нет данных"}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3">
                                         <button
                                             onClick={() =>
                                                 openImageModal(faceId)
