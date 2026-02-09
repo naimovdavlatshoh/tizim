@@ -37,6 +37,7 @@ interface Report {
     created_at: string;
     files?: string[];
     user_name?: string;
+    file_id: number | string;
 }
 
 interface Contract {
@@ -74,7 +75,11 @@ const Reports = () => {
     const userRole = parseInt(localStorage.getItem("role_id") || "0");
     const isDirector = userRole === 1;
     const isLabarant =
-        userRole === 4 || userRole === 2 || userRole === 3 || userRole === 5;
+        userRole === 4 ||
+        userRole === 2 ||
+        userRole === 3 ||
+        userRole === 5 ||
+        userRole === 6;
 
     useEffect(() => {
         fetchReports();
@@ -625,6 +630,9 @@ const Reports = () => {
                                                         handleDownloadReport(
                                                             report.report_id
                                                         )
+                                                    }
+                                                    disabled={
+                                                        report.file_id == null
                                                     }
                                                 >
                                                     <DownloadIcon
