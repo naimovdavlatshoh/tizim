@@ -12,7 +12,7 @@ import {
 import Pagination from "../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaComment } from "react-icons/fa";
 import {
     Table,
     TableBody,
@@ -61,6 +61,8 @@ const Reports = () => {
     const [submitting, setSubmitting] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
+    const [textModalOpen, setTextModalOpen] = useState(false);
+    const [selectedReportText, setSelectedReportText] = useState<string>("");
 
     // Contract search states
     const [filteredContracts, setFilteredContracts] = useState<Contract[]>([]);
@@ -592,25 +594,17 @@ const Reports = () => {
                                         <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                             {report.user_name}
                                         </TableCell>
-                                        <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 max-w-[150px] sm:max-w-xs">
-                                            <div className="relative group">
-                                                <span className="cursor-help">
-                                                    {report.report_text.length >
-                                                    20
-                                                        ? `${report.report_text.substring(
-                                                              0,
-                                                              20
-                                                          )}...`
-                                                        : report.report_text}
-                                                </span>
-                                                {report.report_text.length >
-                                                    20 && (
-                                                    <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 max-w-xs break-words shadow-lg">
-                                                        {report.report_text}
-                                                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                                                    </div>
-                                                )}
-                                            </div>
+                                        <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedReportText(report.report_text);
+                                                    setTextModalOpen(true);
+                                                }}
+                                                className="text-green-800 hover:text-green-900  transition-colors"
+                                                title="Просмотреть текст отчета"
+                                            >
+                                                <FaComment className="w-5 h-5" />
+                                            </button>
                                         </TableCell>
                                         <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                             {report.contract_number ||
@@ -749,6 +743,37 @@ const Reports = () => {
                             disabled={submitting}
                         >
                             {submitting ? "Создание..." : "Создать отчет"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Text View Modal */}
+            <Modal
+                isOpen={textModalOpen}
+                onClose={() => {
+                    setTextModalOpen(false);
+                    setSelectedReportText("");
+                }}
+            >
+                <div className="p-4 sm:p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Текст отчета
+                    </h3>
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 max-h-[400px] overflow-y-auto">
+                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                            {selectedReportText}
+                        </p>
+                    </div>
+                    <div className="flex justify-end mt-6">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setTextModalOpen(false);
+                                setSelectedReportText("");
+                            }}
+                        >
+                            Закрыть
                         </Button>
                     </div>
                 </div>

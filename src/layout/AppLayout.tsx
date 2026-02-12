@@ -19,7 +19,7 @@ const LayoutContent: React.FC = () => {
                 } ${isMobileOpen ? "ml-0" : ""}`}
             >
                 <AppHeader />
-                <div className="p-3 sm:p-4 md:p-6 mx-auto max-w-[1536px] w-full">
+                <div className="p-3 sm:p-4 md:p-6 mx-auto  w-full">
                     <Outlet />
                 </div>
             </div>
