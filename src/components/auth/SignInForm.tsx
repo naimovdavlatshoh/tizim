@@ -49,8 +49,8 @@ export default function SignInForm() {
                             window.location.href = "/clients";
                         } else if (roleId == "5") {
                             window.location.href = "/broker-contracts";
-                        } else if (roleId == "6") {
-                            window.location.href = "/letters";
+                        } else if (roleId == "6" || roleId == "3" || roleId == "4") {
+                            window.location.href = "/my-statistics";
                         } else {
                             window.location.href = "/my-contracts";
                         }
