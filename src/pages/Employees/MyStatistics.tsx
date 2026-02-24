@@ -592,8 +592,8 @@ export default function MyStatistics() {
                                                     <p className="mt-0.5 text-lg font-semibold text-gray-900">
                                                         {formatNumberWithSpaces(
                                                             userStats
-                                                                .financial_summary
-                                                                ?.salary_for_worked_hours
+                                                            .salary_info
+                                                            ?.hourly_rate
                                                         )}{" "}
                                                     </p>
                                                 </div>

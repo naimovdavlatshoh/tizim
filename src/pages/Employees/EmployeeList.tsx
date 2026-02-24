@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { GetDataSimple } from "../../service/data";
+import { GetDataSimple, GetDataSimpleBlobExel } from "../../service/data";
 import { toast } from "react-hot-toast";
 import Loader from "../../components/ui/loader/Loader";
 import ComponentCard from "../../components/common/ComponentCard";
 import Select from "../../components/form/Select";
 import { useSearchParams } from "react-router";
+import { Modal } from "../../components/ui/modal";
+import Button from "../../components/ui/button/Button";
+import { FaDownload } from "react-icons/fa";
 
 interface User {
     user_id: number;
@@ -119,6 +122,14 @@ export default function EmployeeList() {
     const [loadingStats, setLoadingStats] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [downloading, setDownloading] = useState(false);
+    const [excelModalOpen, setExcelModalOpen] = useState(false);
+    const [selectedYear, setSelectedYear] = useState<number>(
+        new Date().getFullYear()
+    );
+    const [selectedMonth, setSelectedMonth] = useState<number>(
+        new Date().getMonth() + 1
+    );
 
     useEffect(() => {
         fetchUsers();
@@ -244,6 +255,45 @@ export default function EmployeeList() {
         value: year,
         label: year.toString(),
     }));
+
+    const handleDownloadExcel = async (): Promise<void> => {
+        if (!selectedYear || !selectedMonth) {
+            setExcelModalOpen(false);
+            toast.error("Пожалуйста, выберите год и месяц");
+            return;
+        }
+
+        setDownloading(true);
+        try {
+            const response = await GetDataSimpleBlobExel(
+                `api/excel/attendance?year=${selectedYear}&month=${selectedMonth}`
+            );
+
+            const blob = new Blob([response], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `attendance-${selectedYear}-${selectedMonth}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("Excel файл загружен");
+            setExcelModalOpen(false);
+        } catch (error: any) {
+            setExcelModalOpen(false);
+            console.error("Error downloading Excel:", error);
+            toast.error(
+                error?.response?.data?.error ||
+                    "Ошибка при загрузке Excel файла"
+            );
+        } finally {
+            setDownloading(false);
+        }
+    };
 
     const formatDate = (dateString: string) => {
         if (!dateString) return "-";
@@ -386,7 +436,18 @@ export default function EmployeeList() {
                 description="Статистика сотрудников"
             />
             <PageBreadcrumb pageTitle="Статистика сотрудников" /> */}
-            <ComponentCard title="Статистика сотрудников" desc="">
+            <ComponentCard
+                title="Статистика сотрудников"
+                desc={
+                    <button
+                        onClick={() => setExcelModalOpen(true)}
+                        className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
+                    >
+                        <FaDownload />
+                        Excel
+                    </button>
+                }
+            >
                 <div className="flex gap-6 h-[calc(100vh-250px)]">
                     {/* Left Sidebar - Users List */}
                     <div className="w-1/4 border-r border-gray-200 dark:border-gray-700 pr-6 overflow-y-auto">
@@ -795,8 +856,8 @@ export default function EmployeeList() {
                                                                 <p className="mt-0.5 text-lg font-semibold text-gray-900">
                                                                     {formatNumberWithSpaces(
                                                                         userStats
-                                                                            .financial_summary
-                                                                            ?.salary_for_worked_hours
+                                                                            .salary_info
+                                                                            ?.hourly_rate
                                                                     )}{" "}
                                                                 </p>
                                                             </div>
@@ -1200,6 +1261,68 @@ export default function EmployeeList() {
                     </div>
                 </div>
             </ComponentCard>
+
+            {/* Excel Download Modal */}
+            <Modal
+                isOpen={excelModalOpen}
+                onClose={() => {
+                    setExcelModalOpen(false);
+                }}
+                className="max-w-md"
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Скачать Excel отчет
+                    </h3>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Год *
+                            </label>
+                            <Select
+                                options={yearOptions}
+                                placeholder="Выберите год"
+                                onChange={(value) =>
+                                    setSelectedYear(Number(value))
+                                }
+                                defaultValue={selectedYear.toString()}
+                            />
+                        </div>
+                        <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Месяц *
+                            </label>
+                            <Select
+                                options={monthOptions}
+                                placeholder="Месяц"
+                                onChange={(value) =>
+                                    setSelectedMonth(Number(value))
+                                }
+                                defaultValue={selectedMonth.toString()}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                        <Button
+                            onClick={() => {
+                                setExcelModalOpen(false);
+                            }}
+                            disabled={downloading}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            onClick={handleDownloadExcel}
+                            disabled={downloading}
+                            startIcon={<FaDownload />}
+                        >
+                            {downloading ? "Загрузка..." : "Скачать Excel"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </>
     );
 }

@@ -179,7 +179,7 @@ const navItems: NavItem[] = [
         name: "Моя статистика",
         icon: <UserIcon />,
         path: "/my-statistics",
-        roles: [2, 3, 4, 6], // Barcha role_id 1 dan boshqa
+        roles: [ 3, 4, 6], // Barcha role_id 1 dan boshqa
     },
 
     // {
