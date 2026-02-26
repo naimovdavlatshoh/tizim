@@ -25,8 +25,12 @@ export default function ClientList() {
     console.log(response);
     const [loading, setLoading] = useState(false);
     const [excelModalOpen, setExcelModalOpen] = useState(false);
-    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState<number>(
+        new Date().getFullYear(),
+    );
+    const [selectedMonth, setSelectedMonth] = useState<number>(
+        new Date().getMonth() + 1,
+    );
     const [downloading, setDownloading] = useState(false);
 
     // Get month name in Russian
@@ -53,13 +57,13 @@ export default function ClientList() {
         (month) => ({
             value: month,
             label: getMonthName(month),
-        })
+        }),
     );
 
     // Year options for Select
     const yearOptions = Array.from(
         { length: 5 },
-        (_, i) => new Date().getFullYear() - 2 + i
+        (_, i) => new Date().getFullYear() - 2 + i,
     ).map((year) => ({
         value: year,
         label: year.toString(),
@@ -88,7 +92,7 @@ export default function ClientList() {
         setDownloading(true);
         try {
             const response = await GetDataSimpleBlobExel(
-                `api/excel/attendance?year=${selectedYear}&month=${selectedMonth}`
+                `api/excel/attendance?year=${selectedYear}&month=${selectedMonth}`,
             );
 
             // Create blob and download
@@ -109,7 +113,10 @@ export default function ClientList() {
         } catch (error: any) {
             setExcelModalOpen(false);
             console.error(error?.response?.data?.error);
-            toast.error(error?.response?.data?.error || "Ошибка при загрузке Excel файла");
+            toast.error(
+                error?.response?.data?.error ||
+                    "Ошибка при загрузке Excel файла",
+            );
         } finally {
             setDownloading(false);
         }
@@ -186,7 +193,9 @@ export default function ClientList() {
                             <Select
                                 options={yearOptions}
                                 placeholder="Выберите год"
-                                onChange={(value) => setSelectedYear(Number(value))}
+                                onChange={(value) =>
+                                    setSelectedYear(Number(value))
+                                }
                                 className="dark:bg-dark-900"
                                 defaultValue={selectedYear.toString()}
                             />
@@ -199,7 +208,9 @@ export default function ClientList() {
                             <Select
                                 options={monthOptions}
                                 placeholder="Выберите месяц"
-                                onChange={(value) => setSelectedMonth(Number(value))}
+                                onChange={(value) =>
+                                    setSelectedMonth(Number(value))
+                                }
                                 className="dark:bg-dark-900"
                                 defaultValue={selectedMonth.toString()}
                             />

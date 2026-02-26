@@ -209,7 +209,6 @@ interface Contract {
 
 const ContractDetails = () => {
     const { id } = useParams();
-    const [contracts, setContracts] = useState<Contract[]>([]);
     // @ts-ignore
     const [qrCode, setQrCode] = useState<string>("");
     const [currentContract, setCurrentContract] = useState<Contract | null>(
@@ -218,63 +217,32 @@ const ContractDetails = () => {
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    console.log(contracts);
 
     useEffect(() => {
-        if (id) {
-            GetDataSimple(`api/contracts/list?page=1&limit=30`)
-                .then((res) => {
-                    const contractsData = res?.result || [];
-                    console.log("All contracts:", contractsData);
-                    console.log(
-                        "Contract IDs:",
-                        contractsData.map((c: Contract) => c.contract_id)
-                    );
+        if (!id) return;
 
-                    setContracts(contractsData);
+        const fetchContract = async () => {
+            setLoading(true);
+            try {
+                const response: any = await GetDataSimple(
+                    `api/contracts/read/${id}`
+                );
+                const data = response?.data || response;
 
-                    // Try different ways to find the contract
-                    let filteredContract = contractsData.find(
-                        (contract: Contract) => {
-                            console.log(
-                                "Comparing:",
-                                contract.contract_id,
-                                "with",
-                                id,
-                                "Types:",
-                                typeof contract.contract_id,
-                                typeof id
-                            );
-                            return contract.contract_id === parseInt(id);
-                        }
-                    );
+                if (data) {
+                    setCurrentContract(data as Contract);
+                } else {
+                    setCurrentContract(null);
+                }
+            } catch (error) {
+                console.error("Error fetching contract:", error);
+                setCurrentContract(null);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-                    // If not found, try string comparison
-                    if (!filteredContract) {
-                        filteredContract = contractsData.find(
-                            (contract: Contract) =>
-                                contract.contract_id.toString() === id
-                        );
-                        console.log(
-                            "Trying string comparison, found:",
-                            filteredContract
-                        );
-                    }
-
-                    if (filteredContract) {
-                        setCurrentContract(filteredContract);
-                        console.log(
-                            "Final filtered contract:",
-                            filteredContract
-                        );
-                    }
-                    setLoading(false);
-                })
-                .catch((error) => {
-                    console.error("Error fetching contracts:", error);
-                    setLoading(false);
-                });
-        }
+        fetchContract();
     }, [id]);
 
     useEffect(() => {
@@ -375,6 +343,9 @@ const ContractDetails = () => {
     }
 
     if (!currentContract) {
+        console.log(currentContract);
+
+
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">

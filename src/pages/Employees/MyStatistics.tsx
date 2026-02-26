@@ -199,11 +199,15 @@ export default function MyStatistics() {
         });
     };
 
-    const getMonthCalendarDays = () => {
+    const getMonthCalendarDays = (): (number | null)[] => {
         if (!userStats?.period) return [];
         const { month, year } = userStats.period;
         const daysInMonth = new Date(year, month, 0).getDate();
-        return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        const firstDayOfWeek = new Date(year, month - 1, 1).getDay();
+        const padCount = (firstDayOfWeek + 6) % 7;
+        const pad = Array.from({ length: padCount }, () => null);
+        const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        return [...pad, ...days];
     };
 
     const getCalendarDayStatus = (day: number) => {
@@ -365,9 +369,9 @@ export default function MyStatistics() {
                                             </div>
                                         </div>
 
-                                        <div className="overflow-x-auto -mx-1 px-1">
-                                            <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 px-3 sm:px-4 pt-4 pb-3 min-w-[280px]">
-                                                <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-[11px] font-medium text-slate-400 mb-3">
+                                        <div className="overflow-x-auto -mx-1 px-1 ">
+                                            <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 px-3 sm:px-4 pt-4 pb-3 min-w-[280px] h-[350px] flex flex-col justify-center">
+                                                <div className="grid grid-cols-7 gap-1 md:px-16 sm:gap-2 text-center text-[11px] font-medium text-slate-400 mb-3">
                                                     {[
                                                         "Du",
                                                         "Se",
@@ -380,9 +384,14 @@ export default function MyStatistics() {
                                                         <span key={w}>{w}</span>
                                                     ))}
                                                 </div>
-                                                <div className="grid grid-cols-7 gap-1 sm:gap-2">
+                                                <div className="grid grid-cols-7 md:px-16 gap-1 sm:gap-2">
                                                     {getMonthCalendarDays().map(
                                                         (day, index) => {
+                                                            if (day === null) {
+                                                                return (
+                                                                    <div key={`empty-${index}`} className="flex h-7 w-7 sm:h-8 sm:w-8" />
+                                                                );
+                                                            }
                                                             const {
                                                                 color,
                                                                 details,
@@ -399,6 +408,7 @@ export default function MyStatistics() {
                                                             const showBelow =
                                                                 rowNumber <= 2;
 
+
                                                             return (
                                                                 <div
                                                                     key={day}
@@ -411,7 +421,7 @@ export default function MyStatistics() {
                                                                     </div>
                                                                     {details && (
                                                                         <div
-                                                                            className={`absolute z-50 left-3/4 -translate-x-1/2 hidden group-hover:block w-44 ${
+                                                                            className={`absolute z-50 left-3/4 -translate-x-1/2 hidden group-hover:block w-44  ${
                                                                                 showBelow
                                                                                     ? "top-full mt-2"
                                                                                     : "bottom-full mb-2"

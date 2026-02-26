@@ -316,11 +316,16 @@ export default function EmployeeList() {
     //     return (first + second).toUpperCase();
     // };
 
-    const getMonthCalendarDays = () => {
+    const getMonthCalendarDays = (): (number | null)[] => {
         if (!userStats?.period) return [];
         const { month, year } = userStats.period;
         const daysInMonth = new Date(year, month, 0).getDate();
-        return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        // getDay(): 0=Yakshanba, 1=Dushanba, ... 6=Shanba. Ustunlar: Du,Se,Ch,Pa,Ju,Sh,Ya
+        const firstDayOfWeek = new Date(year, month - 1, 1).getDay();
+        const padCount = (firstDayOfWeek + 6) % 7; // Dushanba birinchi ustun
+        const pad = Array.from({ length: padCount }, () => null);
+        const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        return [...pad, ...days];
     };
 
     const getCalendarDayStatus = (day: number) => {
@@ -652,6 +657,11 @@ export default function EmployeeList() {
                                                                     day,
                                                                     index
                                                                 ) => {
+                                                                    if (day === null) {
+                                                                        return (
+                                                                            <div key={`empty-${index}`} className="flex h-8 w-8" />
+                                                                        );
+                                                                    }
                                                                     const {
                                                                         color,
                                                                         details,
@@ -1306,6 +1316,7 @@ export default function EmployeeList() {
 
                     <div className="flex justify-end gap-3 mt-6">
                         <Button
+                        variant="outline"
                             onClick={() => {
                                 setExcelModalOpen(false);
                             }}
