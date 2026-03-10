@@ -8,6 +8,9 @@ import {
 import { Modal } from "../../components/ui/modal";
 import { useState } from "react";
 import AddPaymentModal from "../Payments/AddPayment.tsx";
+import { EyeIcon } from "../../icons/index.ts";
+import { useNavigate } from "react-router";
+// import Button from "../../components/ui/button/Button";
 
 interface Payment {
     payment_id: number;
@@ -35,8 +38,10 @@ interface Debtor {
     remaining_amount: string;
     client_id: number;
     client_name: string;
+    phone_number?: string;
     contract_document_id: number;
     document_file_path: string;
+    overdue_months?: number;
     payments: Payment[];
 }
 
@@ -54,6 +59,7 @@ export default function DebtorsTable({
     const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState(false);
     const [selectedContractIdForPayment, setSelectedContractIdForPayment] =
         useState<number | undefined>(undefined);
+    const navigate = useNavigate();
 
     // Helper function to render field value or "Не указано" badge
     const renderFieldValue = (value: any) => {
@@ -157,6 +163,12 @@ export default function DebtorsTable({
                                 isHeader
                                 className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                             >
+                                Телефон
+                            </TableCell>
+                            <TableCell
+                                isHeader
+                                className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
                                 Сумма договора
                             </TableCell>
                             <TableCell
@@ -191,7 +203,12 @@ export default function DebtorsTable({
                         {debtors?.map((debtor: Debtor, index: number) => (
                             <TableRow
                                 key={debtor.contract_id}
-                                className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                className={`hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                                    debtor.overdue_months &&
+                                    debtor.overdue_months > 2
+                                        ? "bg-red-100 dark:bg-red-900/20"
+                                        : ""
+                                }`}
                             >
                                 <TableCell className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     {index + 1}
@@ -201,6 +218,24 @@ export default function DebtorsTable({
                                 </TableCell>
                                 <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     {renderFieldValue(debtor.client_name)}
+                                </TableCell>
+                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {debtor.phone_number ? (
+                                        <div className="flex flex-col gap-0.5">
+                                            {debtor.phone_number
+                                                .split(",")
+                                                .map((num, idx) => (
+                                                    <span
+                                                        key={idx}
+                                                        className="whitespace-nowrap"
+                                                    >
+                                                        {num.trim()}
+                                                    </span>
+                                                ))}
+                                        </div>
+                                    ) : (
+                                        renderFieldValue(debtor.phone_number)
+                                    )}
                                 </TableCell>
                                 <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     {formatCurrency(debtor.contract_price)}
@@ -214,7 +249,7 @@ export default function DebtorsTable({
                                 <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     {getStatusBadge(debtor.remaining_amount)}
                                 </TableCell>
-                                <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                 <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <div className="flex flex-row items-center gap-2 justify-center flex-nowrap">
                                         <button
                                             onClick={() =>
@@ -222,8 +257,8 @@ export default function DebtorsTable({
                                             }
                                             className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors"
                                         >
-                                            История (
-                                            {debtor.payments?.length || 0})
+                                            История 
+                                            
                                         </button>
                                         <button
                                             onClick={() =>
@@ -232,6 +267,17 @@ export default function DebtorsTable({
                                             className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 transition-colors"
                                         >
                                             Оплатить
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                navigate(
+                                                    `/contracts/detail/${debtor.contract_id}`
+                                                )
+                                            }
+                                            title="Посмотреть договор"
+                                            className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                        >
+                                            <EyeIcon className="w-4 h-4" />
                                         </button>
                                     </div>
                                 </TableCell>

@@ -79,13 +79,19 @@ const navItems: NavItem[] = [
         roles: [1, 2], // Admin va Director
     },
     {
+        name: "Договоры в процессе",
+        icon: <DocsIcon />,
+        path: "/pending-contracts",
+        roles: [1, 2], // Admin va Director
+    },
+    {
         name: "Договоры",
         icon: <DocsIcon />,
         roles: [1, 2],
         subItems: [
             { name: "Договоры", path: "/contracts" },
             { name: "Новые договоры", path: "/new-contracts" },
-            { name: "Договоры в процессе", path: "/pending-contracts" },
+            // { name: "Договоры в процессе", path: "/pending-contracts" },
             { name: "Завершенные договоры", path: "/completed-contracts" },
         ],
     },

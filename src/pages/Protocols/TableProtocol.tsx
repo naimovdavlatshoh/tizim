@@ -8,7 +8,7 @@ import {
     GetDataSimplePDF,
 } from "../../service/data.ts";
 import { Modal } from "../../components/ui/modal/index.tsx";
-import { TrashBinIcon } from "../../icons/index.ts";
+import { TrashBinIcon, ChatIcon } from "../../icons/index.ts";
 
 interface Protocol {
     protocol_id: number;
@@ -58,6 +58,8 @@ export default function TableProtocol({
         useState<Protocol | null>(null);
     const [uploadingWord, setUploadingWord] = useState(false);
     const [downloadingWord, setDownloadingWord] = useState(false);
+    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+    const [selectedComment, setSelectedComment] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const wordFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -373,6 +375,16 @@ export default function TableProtocol({
         }
     };
 
+    const openCommentModal = (comment: string) => {
+        setSelectedComment(comment);
+        setIsCommentModalOpen(true);
+    };
+
+    const closeCommentModal = () => {
+        setIsCommentModalOpen(false);
+        setSelectedComment("");
+    };
+
     const formatDate = (dateString: string) => {
         if (!dateString) return "";
 
@@ -423,7 +435,7 @@ export default function TableProtocol({
                             <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Статус
                             </th>
-                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Комментарии
                             </th>
                             <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
@@ -462,27 +474,22 @@ export default function TableProtocol({
                                         {protocol.acceptance_status || "-"}
                                     </span>
                                 </td>
-                                <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 overflow-visible">
-                                    <div className="relative group max-w-xs">
-                                        <span className="cursor-help inline-block">
-                                            {protocol.sender_comments &&
-                                            protocol.sender_comments.length > 20
-                                                ? `${protocol.sender_comments.substring(
-                                                      0,
-                                                      20
-                                                  )}...`
-                                                : protocol.sender_comments ||
-                                                  "-"}
-                                        </span>
-                                        {protocol.sender_comments &&
-                                            protocol.sender_comments.length >
-                                                20 && (
-                                                <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[9999] w-80 max-w-sm break-words shadow-lg pointer-events-none whitespace-normal">
-                                                    {protocol.sender_comments}
-                                                    <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                                                </div>
-                                            )}
-                                    </div>
+                                 <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100 overflow-visible text-center">
+                                    {protocol.sender_comments ? (
+                                        <button
+                                            onClick={() =>
+                                                openCommentModal(
+                                                    protocol.sender_comments
+                                                )
+                                            }
+                                            className="text-gray-500 hover:text-blue-600 transition-colors"
+                                            title="Посмотреть комментарий"
+                                        >
+                                            <ChatIcon className="w-5 h-5" />
+                                        </button>
+                                    ) : (
+                                        "-"
+                                    )}
                                 </td>
 
                                 <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
@@ -697,7 +704,7 @@ export default function TableProtocol({
                 onClose={closeQrModal}
                 showCloseButton={true}
             >
-                <div className="p-6">
+                <div className="p-6 pt-10 sm:pt-16">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         QR-код протокола
                         {selectedProtocolForQr?.protocol_number !==
@@ -748,7 +755,7 @@ export default function TableProtocol({
                 onClose={closeWordUploadModal}
                 showCloseButton={true}
             >
-                <div className="p-6">
+                <div className="p-6 pt-10 sm:pt-16">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         Загрузить Word файл
                         {selectedProtocolForWord?.protocol_number !==
@@ -799,7 +806,7 @@ export default function TableProtocol({
                 onClose={closePdfUploadModal}
                 showCloseButton={true}
             >
-                <div className="p-6">
+                <div className="p-6 pt-10 sm:pt-16">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         Загрузить PDF файл
                         {selectedProtocolForPdf?.protocol_number !==
@@ -850,7 +857,7 @@ export default function TableProtocol({
                 onClose={() => setIsDeleteModalOpen(false)}
                 showCloseButton={true}
             >
-                <div className="p-6">
+                <div className="p-6 pt-10 sm:pt-16">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         Подтверждение удаления
                     </h3>
@@ -877,6 +884,33 @@ export default function TableProtocol({
                             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {deletingId !== null ? "Удаление..." : "Удалить"}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Comment Modal */}
+            <Modal
+                isOpen={isCommentModalOpen}
+                onClose={closeCommentModal}
+                showCloseButton={true}
+            >
+                <div className="p-6 pt-10 sm:pt-14">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+                        <ChatIcon className="w-5 h-5 text-blue-600" />
+                        Комментарий
+                    </h3>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto">
+                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                            {selectedComment || "Нет комментария"}
+                        </p>
+                    </div>
+                    <div className="flex justify-end mt-6">
+                        <button
+                            onClick={closeCommentModal}
+                            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Закрыть
                         </button>
                     </div>
                 </div>

@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import { Modal } from "../../components/ui/modal";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
-import { PostDataToken } from "../../service/data";
+import { PostDataToken, GetDataSimple } from "../../service/data";
 import { toast } from "react-hot-toast";
+import { FaSearch } from "react-icons/fa";
 
 interface AddClientModalProps {
     isOpen: boolean;
@@ -83,6 +84,41 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
         // passport_given_by: "", // Commented out - not needed for legal entities
         // passport_given_date: "", // Commented out - not needed for legal entities
     });
+
+    const [isSearchingInn, setIsSearchingInn] = useState(false);
+
+    const handleSearchInn = async () => {
+        // if (!legalData.inn || legalData.inn.length < 9) {
+        //     toast.error("Пожалуйста, введите корректный ИНН");
+        //     return;
+        // }
+
+        setIsSearchingInn(true);
+        try {
+            const response = await GetDataSimple(`api/clients/inninfo/${legalData.inn}`);
+            if (response && response.found) {
+                setLegalData((prev) => ({
+                    ...prev,
+                    business_name: response.business_name || prev.business_name,
+                    oked: response.oked || prev.oked,
+                    phone_number: response.phone_number || prev.phone_number,
+                    business_address: response.business_address || prev.business_address,
+                    client_name: response.client_name || prev.client_name,
+                }));
+                toast.success("Данные успешно найдены!");
+                setFormError(""); 
+            } else {
+                setFormError("Информация по данному ИНН не найдена");
+                toast.error("Информация по данному ИНН не найдена");
+            }
+        } catch (error) {
+            console.error("Error fetching INN info:", error);
+            setFormError("Ошибка при поиске информации по ИНН");
+            toast.error("Ошибка при поисke информации по ИНН");
+        } finally {
+            setIsSearchingInn(false);
+        }
+    };
 
     // File state for both forms
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -585,17 +621,33 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                             }
                         />
                     </div>
-                    <div>
+                    <div className="relative">
                         <Label htmlFor="legalInn">ИНН *</Label>
-                        <Input
-                            type="text"
-                            id="legalInn"
-                            placeholder="ИНН"
-                            value={legalData.inn}
-                            onChange={(e) =>
-                                handleLegalInputChange("inn", e.target.value)
-                            }
-                        />
+                        <div className="relative">
+                            <Input
+                                type="text"
+                                id="legalInn"
+                                placeholder="ИНН"
+                                value={legalData.inn}
+                                onChange={(e) =>
+                                    handleLegalInputChange("inn", e.target.value)
+                                }
+                                className="pr-10"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSearchInn}
+                                disabled={isSearchingInn}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors disabled:opacity-50"
+                                title="Поиск по ИНН"
+                            >
+                                {isSearchingInn ? (
+                                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <FaSearch className="w-4 h-4" />
+                                )}
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <Label htmlFor="legalMfo">МФО *</Label>
