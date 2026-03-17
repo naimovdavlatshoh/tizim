@@ -375,7 +375,7 @@ const PendingContracts = () => {
         if (!selectedContractForResult || !resultModalAction) return;
         if (resultTaskId == null) return;
         const commentTrimmed = resultComment.trim();
-        if (!commentTrimmed) {
+        if (resultModalAction === "cancel" && !commentTrimmed) {
             setResultCommentError("Комментарий не может быть пустым");
             return;
         }
