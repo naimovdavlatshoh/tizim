@@ -300,6 +300,12 @@ const MyContracts = () => {
                                         isHeader
                                         className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
                                     >
+                                        Осталось дней
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
+                                    >
                                         Бонус
                                     </TableCell>
                                     <TableCell
@@ -399,6 +405,16 @@ const MyContracts = () => {
                                                           contract.deadline_date
                                                       )
                                                     : "-"}
+                                            </TableCell>
+                                            <TableCell
+                                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                    {contract.days_diff_text}
+                                                </span>
                                             </TableCell>
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap"
