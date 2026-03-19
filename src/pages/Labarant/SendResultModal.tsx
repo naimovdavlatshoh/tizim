@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PostDataToken } from "../../service/data";
+import { PostSimpleFormData } from "../../service/data";
 import { toast } from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
@@ -45,7 +45,7 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
             const formDataToSend = new FormData();
             formDataToSend.append("file", selectedFile);
 
-            const response = await PostDataToken(
+            const response = await PostSimpleFormData(
                 `api/appointment/addresult/${appointmentId}`,
                 formDataToSend
             );
