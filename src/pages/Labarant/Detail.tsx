@@ -15,6 +15,7 @@ import { FaUser, FaPhone, FaBuilding, FaMapMarkerAlt } from "react-icons/fa";
 import { HiDocumentText } from "react-icons/hi";
 
 interface MyContract {
+    appointment_id: number;
     contract_id: string;
     contract_number: string;
     contract_status: string;
@@ -401,16 +402,17 @@ const MyContractDetail = () => {
                 </div>
             </div>
 
-            {/* Send Result Modal */}
-            <SendResultModal
-                isOpen={sendResultModalOpen}
-                onClose={() => setSendResultModalOpen(false)}
-                contractId={contract.contract_id}
-                onSuccess={() => {
-                    // Refresh the contract details after successful submission
-                    fetchContractDetails();
-                }}
-            />
+            {contract && (
+                <SendResultModal
+                    isOpen={sendResultModalOpen}
+                    onClose={() => setSendResultModalOpen(false)}
+                    appointmentId={contract.appointment_id}
+                    onSuccess={() => {
+                        // Refresh the contract details after successful submission
+                        fetchContractDetails();
+                    }}
+                />
+            )}
 
             {/* Information Modal */}
             <Modal
