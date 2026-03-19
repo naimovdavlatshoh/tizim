@@ -83,11 +83,10 @@ const AssignModal: React.FC<AssignModalProps> = ({
         setLoading(true);
         try {
             const response = await PostDataTokenJson("api/appointment/create", {
-                user_id: parseInt(formData.user_id),
+                main_worker_id: parseInt(formData.user_id),
                 contract_id: parseInt(formData.contract_id),
-                percent: parseFloat(formData.percent),
+                main_percent: parseFloat(formData.percent),
                 deadline_date: formData.deadline_date,
-                comments: formData.comments,
             });
 
             if (response) {

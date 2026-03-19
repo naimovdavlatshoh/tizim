@@ -7,14 +7,14 @@ import { Modal } from "../../components/ui/modal";
 interface SendResultModalProps {
     isOpen: boolean;
     onClose: () => void;
-    contractId: string;
+    appointmentId: string | number;
     onSuccess?: () => void;
 }
 
 const SendResultModal: React.FC<SendResultModalProps> = ({
     isOpen,
     onClose,
-    contractId,
+    appointmentId,
     onSuccess,
 }) => {
     const [loading, setLoading] = useState(false);
@@ -43,11 +43,10 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
         setLoading(true);
         try {
             const formDataToSend = new FormData();
-            formDataToSend.append("data", JSON.stringify({ contract_id: contractId }));
             formDataToSend.append("file", selectedFile);
 
             const response = await PostDataToken(
-                "api/appointment/addresult",
+                `api/appointment/addresult/${appointmentId}`,
                 formDataToSend
             );
 
@@ -77,8 +76,8 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Договор ID:{" "}
-                        <span className="font-medium">{contractId}</span>
+                        Назначение ID:{" "}
+                        <span className="font-medium">{appointmentId}</span>
                     </p>
                 </div>
 

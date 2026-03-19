@@ -12,8 +12,9 @@ import {
 import Pagination from "../../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
-import { FaQrcode } from "react-icons/fa";
+import { FaQrcode, FaRegEye } from "react-icons/fa";
 import { TbDownload } from "react-icons/tb";
+import { useNavigate } from "react-router";
 import {
     Table,
     TableBody,
@@ -31,6 +32,7 @@ import Button from "../../../components/ui/button/Button";
 import { Modal } from "../../../components/ui/modal";
 
 interface PendingContract {
+    appointment_id: number;
     contract_id: string;
     contract_number: string;
     contract_status: string;
@@ -54,6 +56,14 @@ interface PendingContract {
     worker_name: string | null;
     comments: string | null;
     final_document?: string | boolean | null;
+    status: number;
+    status_text: string;
+    current_pdf?: {
+        pdf_id: number;
+        file_path: string;
+        attempt_number: number;
+        created_at: string;
+    } | null;
     task_info?: {
         tasks: Array<{
             task_id: number;
@@ -87,6 +97,7 @@ const PendingContracts = () => {
     const [replacing, setReplacing] = useState(false);
     const [downloadingQr, setDownloadingQr] = useState<string | null>(null);
     const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
+    const navigate = useNavigate();
     const [uploadingPdf, setUploadingPdf] = useState(false);
     const [isPdfUploadModalOpen, setIsPdfUploadModalOpen] = useState(false);
     const [selectedContractForPdf, setSelectedContractForPdf] =
@@ -118,42 +129,8 @@ const PendingContracts = () => {
 
     useEffect(() => {
         if (!resultModalOpen || !selectedContractForResult) return;
-        let cancelled = false;
-        setResultTaskId(null);
-        setResultInfoLoading(true);
-        GetDataSimple(
-            `api/appointment/info?contract_id=${selectedContractForResult.contract_id}`
-        )
-            .then((response: any) => {
-                if (cancelled) return;
-                const raw =
-                    response?.task_info ??
-                    response?.data?.task_info ??
-                    response?.data ??
-                    response;
-                const tasks =
-                    raw?.tasks ??
-                    raw?.task_info?.tasks ??
-                    response?.tasks ??
-                    response?.data?.tasks;
-                const lastTask =
-                    Array.isArray(tasks) && tasks.length > 0
-                        ? tasks[tasks.length - 1]
-                        : null;
-                const taskId = lastTask?.task_id ?? lastTask?.id ?? null;
-                if (taskId != null) setResultTaskId(Number(taskId));
-                setResultInfoLoading(false);
-            })
-            .catch(() => {
-                if (!cancelled) {
-                    setResultTaskId(null);
-                    setResultInfoLoading(false);
-                }
-            });
-        return () => {
-            cancelled = true;
-        };
-    }, [resultModalOpen, selectedContractForResult?.contract_id]);
+        setResultTaskId(selectedContractForResult.appointment_id);
+    }, [resultModalOpen, selectedContractForResult?.appointment_id]);
 
     const fetchPendingContracts = async () => {
         setLoading(true);
@@ -182,17 +159,14 @@ const PendingContracts = () => {
         console.log("Contract clicked:", contract);
     };
 
-    const getResultBadgeStatus = (
-        contract: PendingContract
-    ): "no_result" | "waiting" | "rejected" => {
-        if (!contract.final_document) return "no_result";
-        const tasks = contract?.task_info?.tasks;
-        if (!Array.isArray(tasks) || tasks.length === 0) return "waiting";
-        const lastTask = tasks[tasks.length - 1];
-        const taskItem = lastTask?.task_item;
-        if (!Array.isArray(taskItem) || taskItem.length === 0) return "waiting";
-        return "rejected";
-    };
+    // const getResultBadgeStatus = (
+    //     contract: PendingContract
+    // ): "no_result" | "waiting" | "rejected" => {
+    //     if (!contract.current_pdf) return "no_result";
+    //     // If status is 3, it means it was rejected (based on previous logic/types)
+    //     if (contract.contract_status === "3") return "rejected";
+    //     return "waiting";
+    // };
 
     const fetchUsers = async () => {
         setLoadingUsers(true);
@@ -322,11 +296,11 @@ const PendingContracts = () => {
     };
 
     const handleDownloadPdf = async (contract: PendingContract) => {
-        if (!contract.final_document) return;
+        if (!contract.appointment_id) return;
         setDownloadingPdf(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/contracts/pdf/${contract.contract_id}`
+                `api/appointment/result/pdf/${contract.appointment_id}`
             );
             const blob = new Blob([response.data], {
                 type: "application/pdf",
@@ -384,12 +358,10 @@ const PendingContracts = () => {
         try {
             const url =
                 resultModalAction === "accept"
-                    ? "api/appointment/accept/result"
-                    : "api/appointment/cancel/result";
+                    ? `api/appointment/accept/result/${resultTaskId}`
+                    : `api/appointment/cancel/result/${resultTaskId}`;
             const response: any = await PostDataTokenJson(url, {
-                contract_id: Number(selectedContractForResult.contract_id),
-                task_id: resultTaskId,
-                comments: commentTrimmed,
+                comment: commentTrimmed,
             });
             if (response?.success || response?.data?.success) {
                 toast.success(
@@ -619,34 +591,20 @@ const PendingContracts = () => {
                                                     handleRowClick(contract)
                                                 }
                                             >
-                                                {(() => {
-                                                    const status =
-                                                        getResultBadgeStatus(
-                                                            contract
-                                                        );
-                                                    if (
-                                                        status === "no_result"
-                                                    ) {
-                                                        return (
-                                                            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                                                                Ещё нет
-                                                                результата
-                                                            </span>
-                                                        );
-                                                    }
-                                                    if (status === "rejected") {
-                                                        return (
-                                                            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                                Отказано
-                                                            </span>
-                                                        );
-                                                    }
-                                                    return (
-                                                        <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-200 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
-                                                            Ждут ответ
-                                                        </span>
-                                                    );
-                                                })()}
+                                                <span
+                                                    className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                        contract.status === 3 ||
+                                                        contract.status === 4
+                                                            ? "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                                            : contract.status ===
+                                                              2
+                                                            ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                            : "bg-yellow-200 text-yellow-800"
+                                                    }`}
+                                                >
+                                                    {contract.status_text ||
+                                                        "В ожидании"}
+                                                </span>
                                             </TableCell>
                                             {/* <TableCell
                                                     className="py-3 text-gray-500 text-theme-sm dark:text-gray-400"
@@ -715,6 +673,21 @@ const PendingContracts = () => {
                                                     </Button>
                                                     <Button
                                                         size="xs"
+                                                        variant="outline"
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/pending-contracts/${contract.appointment_id}`
+                                                            )
+                                                        }
+                                                        startIcon={
+                                                            <FaRegEye className="size-4" />
+                                                        }
+                                                        aria-label="Просмотр инфо"
+                                                    >
+                                                        {""}
+                                                    </Button>
+                                                    <Button
+                                                        size="xs"
                                                         variant="primary"
                                                         onClick={() =>
                                                             openPdfUploadModal(
@@ -751,7 +724,7 @@ const PendingContracts = () => {
                                                             )
                                                         }
                                                         disabled={
-                                                            !contract.final_document ||
+                                                            !contract.current_pdf?.pdf_id ||
                                                             downloadingPdf ===
                                                                 contract.contract_id
                                                         }
@@ -775,10 +748,9 @@ const PendingContracts = () => {
                                                             )
                                                         }
                                                         disabled={
-                                                            !contract.final_document ||
-                                                            getResultBadgeStatus(
-                                                                contract
-                                                            ) === "rejected"
+                                                            !contract.current_pdf?.pdf_id ||
+                                                            contract.status === 3 ||
+                                                            contract.status === 4
                                                         }
                                                         aria-label="Принять результат"
                                                     >
@@ -794,10 +766,9 @@ const PendingContracts = () => {
                                                             )
                                                         }
                                                         disabled={
-                                                            !contract.final_document ||
-                                                            getResultBadgeStatus(
-                                                                contract
-                                                            ) === "rejected"
+                                                            !contract.current_pdf?.pdf_id ||
+                                                            contract.status === 3 ||
+                                                            contract.status === 4
                                                         }
                                                         aria-label="Отказать в результате"
                                                     >

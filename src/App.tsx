@@ -44,11 +44,10 @@ import { SearchProvider } from "./context/SearchContext";
 import NewContracts from "./pages/Director/NewContracts/NewContracts";
 import NewContractDetail from "./pages/Director/NewContracts/Detail";
 import PendingContracts from "./pages/Director/PendingContracts/PendingContracts";
-import PendingContractDetail from "./pages/Director/PendingContracts/Detail";
 import CompletedContracts from "./pages/Director/CompletedContracts/CompletedContracts";
 import CompletedContractDetail from "./pages/Director/CompletedContracts/Detail";
 import MyContracts from "./pages/Labarant/MyContracts";
-import MyContractDetail from "./pages/Labarant/Detail";
+import AppointmentDetailPage from "./pages/Labarant/AppointmentDetailPage";
 import Reports from "./pages/Labarant/Reports";
 
 // Protected Route Component
@@ -139,7 +138,7 @@ export default function App() {
                             />
                             <Route
                                 path="/pending-contracts/:id"
-                                element={<PendingContractDetail />}
+                                element={<AppointmentDetailPage />}
                             />
                             <Route
                                 path="/completed-contracts"
@@ -155,7 +154,7 @@ export default function App() {
                             />
                             <Route
                                 path="/my-contracts/:id"
-                                element={<MyContractDetail />}
+                                element={<AppointmentDetailPage />}
                             />
                             <Route path="/reports" element={<Reports />} />
                             <Route path="/payments" element={<PaymentList />} />

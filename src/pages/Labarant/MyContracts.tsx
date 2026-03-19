@@ -19,12 +19,14 @@ import Button from "../../components/ui/button/Button";
 import SendResultModal from "./SendResultModal";
 import { formatCurrency, formatDate } from "../../utils/numberFormat";
 import Loader from "../../components/ui/loader/Loader.tsx";
+import { useNavigate } from "react-router";
 
 import { TbDownload } from "react-icons/tb";
-import Linkto from "../../components/ui/link/LinkTo.tsx";
+// import Linkto from "../../components/ui/link/LinkTo.tsx";
 import Badge from "../../components/ui/badge/Badge.tsx";
 
 interface MyContract {
+    appointment_id: number;
     contract_id: string;
     contract_number: string;
     contract_status: number;
@@ -33,6 +35,8 @@ interface MyContract {
     deadline_date: string;
     days_diff: string;
     days_diff_text: string;
+    status: number;
+    status_text: string;
     client_id: string;
     client_name: string;
     client_type: string | number;
@@ -53,8 +57,10 @@ interface MyContract {
         test_type: string;
     }>;
     result_for_worker: boolean;
-    final_document: {
-        document_id: number;
+    current_pdf: {
+        pdf_id: number;
+        file_path: string;
+        attempt_number: number;
         created_at: string;
     } | null;
     task_info?: {
@@ -79,6 +85,7 @@ const MyContracts = () => {
     );
     const [downloadingQr, setDownloadingQr] = useState<string | null>(null);
     const [downloadingPdf, setDownloadingPdf] = useState<number | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchMyContracts();
@@ -114,6 +121,10 @@ const MyContracts = () => {
     const handleSendResult = (contract: MyContract) => {
         setSelectedContract(contract);
         setSendResultModalOpen(true);
+    };
+
+    const handleViewDetail = (contract: MyContract) => {
+        navigate(`/my-contracts/${contract.appointment_id}`);
     };
 
     const handleResultSent = () => {
@@ -173,15 +184,15 @@ const MyContracts = () => {
     };
 
     const handleDownloadResultPdf = async (contract: MyContract) => {
-        if (!contract?.final_document?.document_id) {
+        if (!contract?.current_pdf?.pdf_id) {
             toast.error("Документ не найден");
             return;
         }
 
-        setDownloadingPdf(contract.final_document.document_id);
+        setDownloadingPdf(contract.appointment_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/result/pdf/${contract.final_document.document_id}`
+                `api/appointment/result/pdf/${contract.appointment_id}`
             );
 
             // Create blob and download
@@ -407,24 +418,19 @@ const MyContracts = () => {
                                                     handleRowClick(contract)
                                                 }
                                             >
-                                                {rejectInfo ? (
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className="inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                            Отказано
-                                                        </span>
-                                                        {rejectInfo.comment && (
-                                                            <span className="text-xs text-gray-600 dark:text-gray-300">
-                                                                {
-                                                                    rejectInfo.comment
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <span className="inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-200 text-yellow-800  ">
-                                                        В ожидании
-                                                    </span>
-                                                )}
+                                                <span
+                                                    className={`inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                        contract.status === 4
+                                                            ? "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                                            : contract.status === 2 ||
+                                                              contract.status === 3
+                                                            ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                            : "bg-yellow-200 text-yellow-800"
+                                                    }`}
+                                                >
+                                                    {contract.status_text ||
+                                                        "В ожидании"}
+                                                </span>
                                             </TableCell>
                                             <TableCell className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                 <div className="flex flex-row items-center gap-2 flex-nowrap">
@@ -450,16 +456,20 @@ const MyContracts = () => {
                                                             ? ""
                                                             : ""}
                                                     </Button>
-                                                    <Linkto
-                                                        to={`/my-contracts/${contract.contract_id}`}
+                                                    <Button
                                                         size="xs"
                                                         variant="outline"
+                                                        onClick={() =>
+                                                            handleViewDetail(
+                                                                contract
+                                                            )
+                                                        }
                                                         startIcon={
                                                             <FaRegEye className="size-4" />
                                                         }
                                                     >
                                                         {""}
-                                                    </Linkto>
+                                                    </Button>
                                                     <Button
                                                         size="xs"
                                                         variant="primary"
@@ -498,20 +508,20 @@ const MyContracts = () => {
                                                         }
                                                         disabled={
                                                             !contract
-                                                                ?.final_document
-                                                                ?.document_id ||
+                                                                ?.current_pdf
+                                                                ?.pdf_id ||
                                                             downloadingPdf ===
                                                                 contract
-                                                                    .final_document
-                                                                    ?.document_id
+                                                                    .current_pdf
+                                                                    ?.pdf_id
                                                         }
                                                         startIcon={
                                                             <TbDownload className="size-4" />
                                                         }
                                                     >
                                                         {downloadingPdf ===
-                                                        contract?.final_document
-                                                            ?.document_id
+                                                        contract?.current_pdf
+                                                            ?.pdf_id
                                                             ? ""
                                                             : ""}
                                                     </Button>
@@ -544,7 +554,7 @@ const MyContracts = () => {
                 <SendResultModal
                     isOpen={sendResultModalOpen}
                     onClose={() => setSendResultModalOpen(false)}
-                    contractId={selectedContract.contract_id}
+                    appointmentId={selectedContract.appointment_id}
                     onSuccess={handleResultSent}
                 />
             )}
