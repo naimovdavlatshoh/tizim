@@ -57,6 +57,7 @@ const SendResultModal: React.FC<SendResultModalProps> = ({
                 setSelectedFile(null);
             }
         } catch (error: any) {
+            onClose();
             toast.error(error.response?.data?.error);
         } finally {
             setLoading(false);

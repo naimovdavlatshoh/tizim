@@ -473,6 +473,7 @@ const MyContracts = () => {
                                                     <Button
                                                         size="xs"
                                                         variant="primary"
+                                                        disabled={contract.status === 3}
                                                         onClick={() =>
                                                             handleSendResult(
                                                                 contract
