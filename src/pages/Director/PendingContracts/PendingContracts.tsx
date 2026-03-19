@@ -593,13 +593,15 @@ const PendingContracts = () => {
                                             >
                                                 <span
                                                     className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                        contract.status === 3 ||
-                                                        contract.status === 4
-                                                            ? "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                                            : contract.status ===
-                                                              2
-                                                            ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                            : "bg-yellow-200 text-yellow-800"
+                                                        contract.status === 1
+                                                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                                            : contract.status === 2
+                                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200"
+                                                            : contract.status === 3
+                                                            ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
+                                                            : contract.status === 4
+                                                            ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
+                                                            : "bg-gray-100 text-gray-800"
                                                     }`}
                                                 >
                                                     {contract.status_text ||
