@@ -79,7 +79,7 @@ const CompletedContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=6&page=${page}&limit=30&year=${getStoredYear()}`
+                `api/appointment/completed/list?page=${page}&limit=30&year=${getStoredYear()}`
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -201,7 +201,12 @@ const CompletedContracts = () => {
                                     </TableCell>
                                     <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-left whitespace-nowrap">
                                         <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                            Срок выполнения
+                                            Сrok выполнения
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-left whitespace-nowrap">
+                                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                            Осталось дней
                                         </span>
                                     </TableCell>
                                     <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-left whitespace-nowrap">
@@ -288,6 +293,16 @@ const CompletedContracts = () => {
                                                           contract.deadline_date
                                                       )
                                                     : "Не указано"}
+                                            </TableCell>
+                                            <TableCell
+                                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap"
+                                                onClick={() =>
+                                                    handleRowClick(contract)
+                                                }
+                                            >
+                                                <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                    {contract.days_diff_text}
+                                                </span>
                                             </TableCell>
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
