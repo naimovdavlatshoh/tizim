@@ -10,48 +10,49 @@ import axios from "axios";
 import { DownloadIcon } from "../../../icons";
 import { toast } from "react-hot-toast";
 
+interface Worker {
+    worker_entry_id: number;
+    user_id: number;
+    full_name: string;
+    worker_role: number;
+    worker_role_text: string;
+    percent: string;
+    reward_amount: string;
+    created_at: string;
+}
+
+interface PdfHistory {
+    pdf_id: number;
+    file_path: string;
+    attempt_number: number;
+    is_current: number;
+    uploaded_by: number;
+    uploaded_by_name: string;
+    created_at: string;
+}
+
 interface CompletedContract {
-    contract_id: string;
-    contract_number: string;
-    contract_status: string;
-    object_address: string;
-    worker_price: string;
+    appointment_id: number;
+    contract_id: number;
+    director_user_id: number;
+    director_name: string;
     deadline_date: string;
-    days_diff: string;
-    days_diff_text: string;
-    client_id: string;
-    client_name: string;
-    client_type: string;
-    business_name: string;
-    phone_number: string;
-    bank_account: string;
-    bank_address: string;
-    inn: string;
-    mfo: string;
-    oked: string;
-    business_address: string;
-    worker_user_id: string | null;
-    worker_name: string | null;
-    comments: string | null;
-    laboratory: Array<{
-        lab_test_id: string;
-        tests_name: string;
-        test_type: string;
-    }>;
-    result_for_director: {
-        result_id: string;
-        task_status: string;
-        contract_id: string;
-        from_user_id: string;
-        from_user_name: string;
-        to_user_id: string;
-        to_user_name: string;
-        document_id: string;
-        comments: string;
-        created_at: string;
-    } | null;
-    final_document: {
-        document_id: string;
+    status: number;
+    status_text: string;
+    director_comment: string | null;
+    created_at: string;
+    updated_at: string;
+    contract_number: number;
+    object_address: string;
+    contract_price: number;
+    contract_status: number;
+    days_left: number;
+    workers: Worker[];
+    pdf_history: PdfHistory[];
+    current_pdf: {
+        pdf_id: number;
+        file_path: string;
+        attempt_number: number;
         created_at: string;
     } | null;
 }
@@ -60,80 +61,37 @@ const CompletedContractDetail = () => {
     const { id } = useParams();
     const [contract, setContract] = useState<CompletedContract | null>(null);
     const [loading, setLoading] = useState(true);
-    const [contractDocumentId, seContractDocumentId] = useState<number | null>(
-        null
-    );
 
     useEffect(() => {
         if (id) {
             fetchContractDetails();
-            GetDataSimple(`api/appointment/info?contract_id=${id}`).then(
-                (response: any) => {
-                    seContractDocumentId(response?.document_id);
-                }
-            );
         }
     }, [id]);
 
-    console.log(contractDocumentId);
-
     const fetchContractDetails = async () => {
+        setLoading(true);
         try {
-            const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=6&page=1&limit=100`
-            );
-            const contractsData =
-                response?.result || response?.data?.result || [];
-
-            // Find the specific contract by ID
-            const foundContract = contractsData.find(
-                (contract: CompletedContract) => contract.contract_id == id
-            );
-
-            if (foundContract) {
-                setContract(foundContract);
+            const response: any = await GetDataSimple(`api/appointment/info/${id}`);
+            if (response) {
+                setContract(response);
             } else {
                 console.log("Contract not found with ID:", id);
             }
         } catch (error) {
             console.error("Error fetching contract details:", error);
+            toast.error("Ошибка при загрузке данных");
         } finally {
             setLoading(false);
         }
     };
 
-    // const getStatusColor = (status: string) => {
-    //     switch (status) {
-    //         case "6":
-    //             return "success";
-    //         default:
-    //             return "light";
-    //     }
-    // };
-
-    const getTaskStatusText = (status: string) => {
+    const getTaskStatusColor = (status: number) => {
         switch (status) {
-            case "1":
-                return "В процессе";
-            case "2":
-                return "Завершено";
-            case "3":
-                return "Отклонено";
-            default:
-                return "Неизвестно";
-        }
-    };
-
-    const getTaskStatusColor = (status: string) => {
-        switch (status) {
-            case "1":
-                return "warning";
-            case "2":
-                return "success";
-            case "3":
-                return "error";
-            default:
-                return "light";
+            case 1: return "info";     // Назначено
+            case 2: return "warning";  // PDF загружен
+            case 3: return "success";  // Одобрено
+            case 4: return "error";    // Отклонено
+            default: return "light";
         }
     };
 
@@ -158,39 +116,47 @@ const CompletedContractDetail = () => {
         );
     }
 
-    const handleDownloadDocument = async (documentId: string) => {
+    const handleDownloadDocument = async (pdfId: number) => {
         try {
             const response = await axios.get(
-                `${BASE_URL}/api/appointment/result/pdf/${documentId}`,
+                `${BASE_URL}api/appointment/result/pdf/${pdfId}`,
                 {
-                    responseType: "blob", // 🔥 majburiy
+                    responseType: "blob",
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem(
-                            "token"
-                        )}`,
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 }
             );
 
-            // Faylni yaratamiz
             const blob = new Blob([response.data], { type: "application/pdf" });
             const url = window.URL.createObjectURL(blob);
-
-            // Faylni avtomatik yuklash
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", `document_${documentId}.pdf`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-
-            // URLni tozalaymiz
-            setTimeout(() => window.URL.revokeObjectURL(url), 30000);
-
-            toast.success("PDF документ успешно скачан!");
+            window.open(url, "_blank");
+            setTimeout(() => window.URL.revokeObjectURL(url), 60000);
         } catch (error: any) {
             console.error(error);
-            toast.error(error.response.data.error);
+            toast.error("Ошибка при открытии PDF");
+        }
+    };
+
+    const downloadContractPdf = async () => {
+        try {
+            const response = await axios.get(
+                `${BASE_URL}api/contracts/pdf/${contract.contract_id}`,
+                {
+                    responseType: "blob",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, "_blank");
+            setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+        } catch (err: any) {
+            console.error(err);
+            toast.error("Ошибка при открытии PDF договора");
         }
     };
 
@@ -201,413 +167,161 @@ const CompletedContractDetail = () => {
                 description="Детали завершенного договора"
             />
             <PageBreadcrumb
-                pageTitle={`Договор №${contract.contract_number} `}
+                pageTitle={`Договор №${contract.contract_number}`}
             />
 
             <div className="space-y-6">
-                {/* Contract Header */}
-                <ComponentCard
-                    title={`Договор №${contract.contract_number} - Завершен`}
-                >
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center justify-start">
+                {/* Header Card */}
+                <ComponentCard title={`Договор №${contract.contract_number}`}>
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div className="flex flex-wrap items-center gap-3">
                             <button
-                                onClick={async () => {
-                                    try {
-                                        const response = await axios.get(
-                                            `${BASE_URL}api/contracts/pdf/${contract.contract_id}`,
-                                            {
-                                                responseType: "blob",
-                                                headers: {
-                                                    Authorization: `Bearer ${localStorage.getItem(
-                                                        "token"
-                                                    )}`,
-                                                },
-                                            }
-                                        );
-
-                                        const blob = new Blob([response.data], {
-                                            type: "application/pdf",
-                                        });
-                                        const url =
-                                            window.URL.createObjectURL(blob);
-                                        const link =
-                                            document.createElement("a");
-                                        link.href = url;
-                                        link.download = `contract_${contract.contract_number}.pdf`;
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        document.body.removeChild(link);
-                                        window.URL.revokeObjectURL(url);
-                                    } catch (err: any) {
-                                        console.error(err);
-                                        toast.error(
-                                            err.response.data.error ||
-                                                "Ошибка при скачивании PDF"
-                                        );
-                                    }
-                                }}
-                                className="bg-blue-600 mr-5 text-white hover:bg-blue-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2"
+                                onClick={downloadContractPdf}
+                                className="bg-blue-600 text-white hover:bg-blue-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2 text-sm"
                             >
-                                <svg
-                                    className="w-5 h-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={1.5}
-                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                Скачать копию договора
+                                Копия договора
                             </button>
-                            {contract.final_document?.document_id && (
+                            {contract.current_pdf && (
                                 <button
-                                    onClick={() =>
-                                        handleDownloadDocument(
-                                            contract.final_document
-                                                ?.document_id || ""
-                                        )
-                                    }
-                                    className="bg-green-600 text-white hover:bg-green-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2"
+                                    onClick={() => handleDownloadDocument(contract.current_pdf!.pdf_id)}
+                                    className="bg-green-600 text-white hover:bg-green-700 transition-colors px-4 py-2 rounded-md font-medium flex items-center gap-2 text-sm"
                                 >
                                     <DownloadIcon />
-                                    Скачать отчёт работы
+                                    Текущий отчёт
                                 </button>
                             )}
                         </div>
                         <div className="text-right">
-                            <p className="text-sm text-gray-500">
-                                Стоимость работ
-                            </p>
-                            <p className="text-2xl font-bold text-brand-500">
-                                {formatCurrency(contract.worker_price)}
+                            <p className="text-sm text-gray-500 uppercase tracking-wider">Стоимость договора</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                {formatCurrency(contract.contract_price)}
                             </p>
                         </div>
                     </div>
                 </ComponentCard>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Client Information */}
-                    <ComponentCard title="Информация о клиенте">
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Имя клиента
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.client_name}
-                                    </p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left & Middle: Info & History */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <ComponentCard title="Основная информация">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-sm text-gray-500">Адрес объекта</p>
+                                        <p className="font-medium">{contract.object_address}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-500">Директор</p>
+                                        <p className="font-medium">{contract.director_name}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-500">Дата создания</p>
+                                        <p className="font-medium">{formatDate(contract.created_at)}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Телефон
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.phone_number}
-                                    </p>
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-sm text-gray-500">Срок выполнения</p>
+                                        <p className="font-medium">{formatDate(contract.deadline_date)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-500">Осталось дней</p>
+                                        <Badge color={contract.days_left > 0 ? "info" : "error"}>
+                                            {contract.days_left} дн.
+                                        </Badge>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-500">Статус</p>
+                                        <Badge color={getTaskStatusColor(contract.status)}>
+                                            {contract.status_text}
+                                        </Badge>
+                                    </div>
                                 </div>
                             </div>
-                            {contract.business_name && (
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Название компании
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.business_name}
-                                    </p>
+                            {contract.director_comment && (
+                                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+                                    <p className="text-sm text-gray-500 mb-1">Комментарий директора</p>
+                                    <p className="italic text-gray-700 dark:text-gray-300">"{contract.director_comment}"</p>
                                 </div>
                             )}
-                            {contract.business_address && (
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Адрес компании
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.business_address}
-                                    </p>
-                                </div>
-                            )}
-                            {(contract.inn ||
-                                contract.mfo ||
-                                contract.oked) && (
-                                <div className="grid grid-cols-3 gap-4">
-                                    {contract.inn && (
-                                        <div>
-                                            <p className="text-sm text-gray-500">
-                                                ИНН
-                                            </p>
-                                            <p className="font-medium">
-                                                {contract.inn}
-                                            </p>
-                                        </div>
-                                    )}
-                                    {contract.mfo && (
-                                        <div>
-                                            <p className="text-sm text-gray-500">
-                                                МФО
-                                            </p>
-                                            <p className="font-medium">
-                                                {contract.mfo}
-                                            </p>
-                                        </div>
-                                    )}
-                                    {contract.oked && (
-                                        <div>
-                                            <p className="text-sm text-gray-500">
-                                                ОКЕД
-                                            </p>
-                                            <p className="font-medium">
-                                                {contract.oked}
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                            {contract.bank_account && (
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Банковский счет
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.bank_account}
-                                    </p>
-                                </div>
-                            )}
-                            {contract.bank_address && (
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Адрес банка
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.bank_address}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </ComponentCard>
+                        </ComponentCard>
 
-                    {/* Contract Information */}
-                    <ComponentCard title="Информация о договоре">
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Номер договора
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.contract_number}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        ID клиента
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.client_id}
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Адрес объекта
-                                </p>
-                                <p className="font-medium">
-                                    {contract.object_address}
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Срок выполнения
-                                    </p>
-                                    <p className="font-medium">
-                                        {formatDate(contract.deadline_date)}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Осталось дней
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.days_diff_text}
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    Стоимость работ
-                                </p>
-                                <p className="font-medium">
-                                    {formatCurrency(contract.worker_price)}
-                                </p>
-                            </div>
-                            {contract.worker_name && (
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Исполнитель
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.worker_name}
-                                    </p>
-                                </div>
-                            )}
-                            {contract.comments && (
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Комментарии
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.comments}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </ComponentCard>
-                </div>
-
-                {/* Laboratory Tests */}
-                {contract.laboratory && contract.laboratory.length > 0 && (
-                    <ComponentCard title="Лабораторные тесты">
-                        <div className="space-y-3">
-                            {contract.laboratory.map((test, index) => (
-                                <div
-                                    key={test.lab_test_id}
-                                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className="w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                            {index + 1}
-                                        </span>
-                                        <span className="font-medium">
-                                            {test.tests_name}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </ComponentCard>
-                )}
-
-                {/* Results for Director */}
-                {contract.result_for_director &&
-                    contract.result_for_director.task_status && (
-                        <ComponentCard title="Результаты для директора">
-                            <div className="space-y-4">
-                                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="text-sm text-gray-500">
-                                                Статус задачи
-                                            </p>
-                                            <Badge
-                                                color={getTaskStatusColor(
-                                                    contract.result_for_director
-                                                        .task_status
-                                                )}
-                                            >
-                                                {getTaskStatusText(
-                                                    contract.result_for_director
-                                                        .task_status
-                                                )}
-                                            </Badge>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500">
-                                                ID документа
-                                            </p>
-                                            <p className="font-medium">
-                                                {
-                                                    contract.result_for_director
-                                                        .document_id
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 mt-4">
-                                        <div>
-                                            <p className="text-sm text-gray-500">
-                                                От кого
-                                            </p>
-                                            <p className="font-medium">
-                                                {
-                                                    contract.result_for_director
-                                                        .from_user_name
-                                                }
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500">
-                                                Кому
-                                            </p>
-                                            <p className="font-medium">
-                                                {
-                                                    contract.result_for_director
-                                                        .to_user_name
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {contract.result_for_director.comments && (
-                                        <div className="mt-4">
-                                            <p className="text-sm text-gray-500">
-                                                Комментарии
-                                            </p>
-                                            <p className="font-medium">
-                                                {
-                                                    contract.result_for_director
-                                                        .comments
-                                                }
-                                            </p>
-                                        </div>
-                                    )}
-                                    <div className="mt-4">
-                                        <p className="text-sm text-gray-500">
-                                            Дата создания
-                                        </p>
-                                        <p className="font-medium">
-                                            {formatDate(
-                                                contract.result_for_director
-                                                    .created_at
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
+                        <ComponentCard title="История PDF файлов">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="border-b border-gray-100 dark:border-gray-800">
+                                            <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">Попытка</th>
+                                            <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">Загрузил</th>
+                                            <th className="pb-3 text-xs font-semibold text-gray-500 uppercase">Дата</th>
+                                            <th className="pb-3 text-xs font-semibold text-gray-500 uppercase text-right">Действие</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                                        {contract.pdf_history.map((pdf) => (
+                                            <tr key={pdf.pdf_id} className={pdf.is_current ? "bg-green-50/50 dark:bg-green-900/10" : ""}>
+                                                <td className="py-4 text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <span>№{pdf.attempt_number}</span>
+                                                        {pdf.is_current ? <Badge color="success" size="sm">Текущий</Badge> : null}
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 text-sm text-gray-600 dark:text-gray-400">
+                                                    {pdf.uploaded_by_name}
+                                                </td>
+                                                <td className="py-4 text-sm text-gray-600 dark:text-gray-400">
+                                                    {formatDate(pdf.created_at)}
+                                                </td>
+                                                <td className="py-4 text-right">
+                                                    <button
+                                                        onClick={() => handleDownloadDocument(pdf.pdf_id)}
+                                                        className="text-brand-500 hover:text-brand-600 font-medium text-sm inline-flex items-center gap-1"
+                                                    >
+                                                        Посмотреть PDF
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </ComponentCard>
-                    )}
+                    </div>
 
-                {/* Final Document Status */}
-                {contract.final_document && (
-                    <ComponentCard title="Финальный документ">
-                        <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        ID документа
-                                    </p>
-                                    <p className="font-medium">
-                                        {contract.final_document.document_id}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">
-                                        Дата создания
-                                    </p>
-                                    <p className="font-medium">
-                                        {formatDate(
-                                            contract.final_document.created_at
-                                        )}
-                                    </p>
-                                </div>
+                    {/* Right: Workers */}
+                    <div className="space-y-6">
+                        <ComponentCard title="Исполнители">
+                            <div className="space-y-4">
+                                {contract.workers.map((worker) => (
+                                    <div key={worker.worker_entry_id} className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div>
+                                                <p className="font-bold text-gray-900 dark:text-white">{worker.full_name}</p>
+                                                <p className="text-xs text-gray-500">{worker.worker_role_text}</p>
+                                            </div>
+                                            <Badge color="info" size="sm">{worker.percent}%</Badge>
+                                        </div>
+                                        <div className="pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center text-sm">
+                                            <span className="text-gray-500">Вознаграждение:</span>
+                                            <span className="font-semibold">{formatCurrency(parseFloat(worker.reward_amount))}</span>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
+                        </ComponentCard>
+                        
+                        <div className="bg-brand-500 rounded-2xl p-6 text-white relative overflow-hidden">
+                            <div className="relative z-10">
+                                <p className="text-brand-100 text-sm mb-1 uppercase tracking-wider font-medium">Сумма договора</p>
+                                <h4 className="text-2xl font-bold">{formatCurrency(contract.contract_price)}</h4>
+                            </div>
+                            <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
                         </div>
-                    </ComponentCard>
-                )}
+                    </div>
+                </div>
             </div>
         </>
     );

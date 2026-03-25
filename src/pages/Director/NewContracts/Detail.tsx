@@ -55,22 +55,11 @@ const NewContractDetail = () => {
     }, [id]);
 
     const fetchContractDetails = async () => {
+        setLoading(true);
         try {
-            const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=2&page=1&limit=100`
-            );
-            const contractsData =
-                response?.result || response?.data?.result || [];
-
-            console.log(contractsData);
-
-            // Find the specific contract by ID
-            const foundContract = contractsData.find(
-                (contract: NewContract) => contract.contract_id == id
-            );
-
-            if (foundContract) {
-                setContract(foundContract);
+            const response: any = await GetDataSimple(`api/contracts/read/${id}`);
+            if (response) {
+                setContract(response);
             } else {
                 console.log("Contract not found with ID:", id);
             }

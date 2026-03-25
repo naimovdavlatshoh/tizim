@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -19,6 +20,7 @@ import Loader from "../../../components/ui/loader/Loader.tsx";
 import { formatAmount, formatDate } from "../../../utils/numberFormat";
 
 interface CompletedContract {
+    appointment_id: number;
     contract_id: string;
     contract_number: string;
     contract_status: string;
@@ -98,8 +100,10 @@ const CompletedContracts = () => {
         }
     };
 
-    const handleRowClick = (contract: CompletedContract) => {
-        console.log("Contract clicked:", contract);
+    const navigate = useNavigate();
+
+    const handleRowClick = (appointmentId: number) => {
+        navigate(`/completed-contracts/${appointmentId}`);
     };
 
     // const getStatusColor = (status: string) => {
@@ -236,7 +240,7 @@ const CompletedContracts = () => {
                                             <TableCell
                                                 className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
-                                                    handleRowClick(contract)
+                                                    handleRowClick(contract.appointment_id)
                                                 }
                                             >
                                                 {index + 1}
@@ -244,7 +248,7 @@ const CompletedContracts = () => {
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
-                                                    handleRowClick(contract)
+                                                    handleRowClick(contract.appointment_id)
                                                 }
                                             >
                                                 {contract.contract_number}
@@ -252,7 +256,7 @@ const CompletedContracts = () => {
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 max-w-[140px] text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
-                                                    handleRowClick(contract)
+                                                    handleRowClick(contract.appointment_id)
                                                 }
                                             >
                                                 <div>
@@ -264,7 +268,7 @@ const CompletedContracts = () => {
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 max-w-[230px] text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
-                                                    handleRowClick(contract)
+                                                    handleRowClick(contract.appointment_id)
                                                 }
                                             >
                                                 {contract.object_address}
@@ -272,7 +276,7 @@ const CompletedContracts = () => {
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
-                                                    handleRowClick(contract)
+                                                    handleRowClick(contract.appointment_id)
                                                 }
                                             >
                                                 {formatAmount(
@@ -285,7 +289,7 @@ const CompletedContracts = () => {
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
-                                                    handleRowClick(contract)
+                                                    handleRowClick(contract.appointment_id)
                                                 }
                                             >
                                                 {contract.deadline_date
@@ -297,7 +301,7 @@ const CompletedContracts = () => {
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap"
                                                 onClick={() =>
-                                                    handleRowClick(contract)
+                                                    handleRowClick(contract.appointment_id)
                                                 }
                                             >
                                                 <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
@@ -307,7 +311,7 @@ const CompletedContracts = () => {
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
                                                 onClick={() =>
-                                                    handleRowClick(contract)
+                                                    handleRowClick(contract.appointment_id)
                                                 }
                                             >
                                                 {contract.worker_name ||
@@ -315,7 +319,7 @@ const CompletedContracts = () => {
                                             </TableCell>
                                             <TableCell className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3">
                                                 <Linkto
-                                                    to={`/completed-contracts/${contract.contract_id}`}
+                                                    to={`/completed-contracts/${contract.appointment_id}`}
                                                     className="mr-2"
                                                     size="xs"
                                                     variant="outline"
