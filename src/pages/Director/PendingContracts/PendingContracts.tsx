@@ -250,10 +250,10 @@ const PendingContracts = () => {
         }
     };
 
-    const openPdfUploadModal = (contract: PendingContract) => {
-        setSelectedContractForPdf(contract);
-        setIsPdfUploadModalOpen(true);
-    };
+    // const openPdfUploadModal = (contract: PendingContract) => {
+    //     setSelectedContractForPdf(contract);
+    //     setIsPdfUploadModalOpen(true);
+    // };
 
     const closePdfUploadModal = () => {
         setIsPdfUploadModalOpen(false);
@@ -688,7 +688,7 @@ const PendingContracts = () => {
                                                     >
                                                         {""}
                                                     </Button>
-                                                    <Button
+                                                    {/* <Button
                                                         size="xs"
                                                         variant="primary"
                                                         onClick={() =>
@@ -716,7 +716,7 @@ const PendingContracts = () => {
                                                         aria-label="Загрузить PDF"
                                                     >
                                                         {""}
-                                                    </Button>
+                                                    </Button> */}
                                                     <Button
                                                         size="xs"
                                                         variant="outline"

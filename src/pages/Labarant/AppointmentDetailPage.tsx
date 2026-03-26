@@ -208,7 +208,7 @@ const AppointmentDetailPage = () => {
                     <ComponentCard title="Детали объекта" desc="Информация o договоре и адресе">
                         <div className="space-y-4">
                             <InfoBox label="Номер договора" value={info.contract_number} />
-                            <InfoBox label="Стоимость работ" value={formatCurrency(info.contract_price)} />
+                            {/* <InfoBox label="Стоимость работ" value={formatCurrency(info.contract_price)} /> */}
                             <InfoBox label="Адрес объекта" value={info.object_address} isFullWidth />
                             <InfoBox label="Директор" value={info.director_name} />
                         </div>

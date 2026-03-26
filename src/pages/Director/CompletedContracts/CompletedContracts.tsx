@@ -8,6 +8,7 @@ import Pagination from "../../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
 import { FaRegEye } from "react-icons/fa";
+import Badge from "../../../components/ui/badge/Badge";
 import {
     Table,
     TableBody,
@@ -17,7 +18,7 @@ import {
 } from "../../../components/ui/table";
 import Linkto from "../../../components/ui/link/LinkTo";
 import Loader from "../../../components/ui/loader/Loader.tsx";
-import { formatAmount, formatDate } from "../../../utils/numberFormat";
+import { formatAmount } from "../../../utils/numberFormat";
 
 interface CompletedContract {
     appointment_id: number;
@@ -205,7 +206,7 @@ const CompletedContracts = () => {
                                     </TableCell>
                                     <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-left whitespace-nowrap">
                                         <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                            Сrok выполнения
+                                            Телефон
                                         </span>
                                     </TableCell>
                                     <TableCell className="px-2 sm:px-4 py-2 sm:py-3 text-left whitespace-nowrap">
@@ -292,11 +293,25 @@ const CompletedContracts = () => {
                                                     handleRowClick(contract.appointment_id)
                                                 }
                                             >
-                                                {contract.deadline_date
-                                                    ? formatDate(
-                                                          contract.deadline_date
-                                                      )
-                                                    : "Не указано"}
+                                                <div className="flex flex-col gap-1 text-gray-500">
+                                                    <span>
+                                                        {contract.phone_number}
+                                                    </span>
+                                                    <Badge
+                                                        size="sm"
+                                                        color={
+                                                            contract.client_type ===
+                                                            "1"
+                                                                ? "success"
+                                                                : "info"
+                                                        }
+                                                    >
+                                                        {contract.client_type ===
+                                                        "1"
+                                                            ? "Физ. лицо"
+                                                            : "Юр. лицо"}
+                                                    </Badge>
+                                                </div>
                                             </TableCell>
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap"
