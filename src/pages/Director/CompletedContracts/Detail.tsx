@@ -43,6 +43,7 @@ interface CompletedContract {
     created_at: string;
     updated_at: string;
     contract_number: number;
+    client_name: string;
     object_address: string;
     contract_price: number;
     contract_status: number;
@@ -209,6 +210,10 @@ const CompletedContractDetail = () => {
                         <ComponentCard title="Основная информация">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
+                                    <div>
+                                        <p className="text-sm text-gray-500">Клиент</p>
+                                        <p className="font-medium">{contract.client_name}</p>
+                                    </div>
                                     <div>
                                         <p className="text-sm text-gray-500">Адрес объекта</p>
                                         <p className="font-medium">{contract.object_address}</p>

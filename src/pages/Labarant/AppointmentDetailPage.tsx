@@ -22,6 +22,7 @@ interface AppointmentInfo {
     created_at: string;
     updated_at: string;
     contract_number: string | number;
+    client_name: string;
     object_address: string;
     contract_price: number;
     days_left: number;
@@ -208,6 +209,7 @@ const AppointmentDetailPage = () => {
                     <ComponentCard title="Детали объекта" desc="Информация o договоре и адресе">
                         <div className="space-y-4">
                             <InfoBox label="Номер договора" value={info.contract_number} />
+                            <InfoBox label="Клиент" value={info.client_name} />
                             {/* <InfoBox label="Стоимость работ" value={formatCurrency(info.contract_price)} /> */}
                             <InfoBox label="Адрес объекта" value={info.object_address} isFullWidth />
                             <InfoBox label="Директор" value={info.director_name} />

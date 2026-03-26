@@ -24,6 +24,7 @@ interface AppointmentInfo {
     created_at: string;
     updated_at: string;
     contract_number: string | number;
+    client_name: string;
     object_address: string;
     contract_price: number;
     days_left: number;
@@ -150,6 +151,7 @@ const AppointmentDetailModal: React.FC<AppointmentDetailModalProps> = ({
                                     Общая информация
                                 </h4>
                                 <div className="space-y-3 bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                                    <InfoRow label="Клиент" value={info.client_name} />
                                     <InfoRow label="Адрес объекта" value={info.object_address} />
                                     <InfoRow label="Стоимость договора" value={formatCurrency(info.contract_price)} />
                                     <InfoRow label="Директор" value={info.director_name} />
