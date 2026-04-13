@@ -54,15 +54,14 @@ export default function TableExpense({
                 setSelectedExpense(null);
                 changeStatus(); // Table list ni yangilash
             } else {
-                toast.error("Ошибка при удалении расхода");
+                // toast.error("Ошибка при удалении расхода");
                 // Error holatida ham modal yopish
                 setIsDeleteModalOpen(false);
                 setSelectedExpense(null);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error deleting expense:", error);
-            toast.error("Что-то пошло не так при удалении расхода");
-            // Error holatida ham modal yopish
+            toast.error(error.response.data.error);
             setIsDeleteModalOpen(false);
             setSelectedExpense(null);
         } finally {
