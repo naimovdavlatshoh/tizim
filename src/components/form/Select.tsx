@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
 interface Option {
-    value: number;
+    value: string | number;
     label: string;
     disabled?: boolean;
 }

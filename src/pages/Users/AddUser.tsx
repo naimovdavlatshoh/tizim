@@ -35,6 +35,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     const [salary, setSalary] = useState<string>("");
     const [displaySalary, setDisplaySalary] = useState("");
     const [hourlyRate, setHourlyRate] = useState<number | null>(null);
+    const [shiftStart, setShiftStart] = useState("09:00");
+    const [shiftEnd, setShiftEnd] = useState("18:00");
     const [isSalaryChecked, setIsSalaryChecked] = useState(false);
     const [isCheckingSalary, setIsCheckingSalary] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -71,6 +73,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             setSalary("");
             setDisplaySalary("");
             setHourlyRate(null);
+            setShiftStart("09:00");
+            setShiftEnd("18:00");
             setIsSalaryChecked(false);
             // Clear timeout when modal closes
             if (salaryCheckTimeoutRef.current) {
@@ -226,6 +230,45 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
         }
     };
 
+    const formatTimeChange = (value: string, setter: (val: string) => void) => {
+        let cleanValue = value.replace(/[^0-9:]/g, "");
+        
+        if (cleanValue.length === 3 && !cleanValue.includes(":")) {
+            cleanValue = cleanValue.slice(0, 2) + ":" + cleanValue.slice(2);
+        }
+
+        const parts = cleanValue.split(":");
+        if (parts[0] && parseInt(parts[0], 10) > 23) {
+            parts[0] = "23";
+        }
+        if (parts[1] && parseInt(parts[1], 10) > 59) {
+            parts[1] = "59";
+        }
+        
+        if (parts.length > 2) {
+             cleanValue = parts[0] + ":" + parts[1];
+        } else {
+             cleanValue = parts.join(":");
+        }
+
+        setter(cleanValue.slice(0, 5));
+    };
+
+    const formatTimeBlur = (value: string, setter: (val: string) => void) => {
+        if (!value) {
+            setter("00:00");
+            return;
+        }
+        const parts = value.split(":");
+        let h = parts[0] || "00";
+        let m = parts[1] || "00";
+        
+        h = h.padStart(2, "0");
+        m = m.padEnd(2, "0");
+        
+        setter(`${h}:${m}`);
+    };
+
     const handleSubmit = () => {
         if (
             !firstname ||
@@ -236,6 +279,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             !roleId ||
             !fineBeingLate ||
             !salary ||
+            !shiftStart ||
+            !shiftEnd ||
             !isSalaryChecked
         ) {
             alert(
@@ -255,6 +300,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             role_id: roleId,
             fine_being_late: Number(fineBeingLate),
             salary: Number(salary),
+            shift_start: shiftStart,
+            shift_end: shiftEnd,
         };
 
         if (employeeNoString) {
@@ -277,6 +324,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                     setSalary("");
                     setDisplaySalary("");
                     setHourlyRate(null);
+                    setShiftStart("09:00");
+                    setShiftEnd("18:00");
                     setIsSalaryChecked(false);
                     changeStatus();
                     onClose();
@@ -301,6 +350,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                 setSalary("");
                 setDisplaySalary("");
                 setHourlyRate(null);
+                setShiftStart("09:00");
+                setShiftEnd("18:00");
                 setIsSalaryChecked(false);
             })
             .finally(() => {
@@ -420,6 +471,28 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                                 <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
                             )}
                         </button>
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label>Начало смены *</Label>
+                        <Input
+                            type="text"
+                            placeholder="09:00"
+                            value={shiftStart}
+                            onChange={(e) => formatTimeChange(e.target.value, setShiftStart)}
+                            onBlur={(e) => formatTimeBlur(e.target.value, setShiftStart)}
+                        />
+                    </div>
+                    <div>
+                        <Label>Конец смены *</Label>
+                        <Input
+                            type="text"
+                            placeholder="18:00"
+                            value={shiftEnd}
+                            onChange={(e) => formatTimeChange(e.target.value, setShiftEnd)}
+                            onBlur={(e) => formatTimeBlur(e.target.value, setShiftEnd)}
+                        />
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

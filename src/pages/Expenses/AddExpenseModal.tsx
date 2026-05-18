@@ -3,6 +3,7 @@ import { PostSimple } from "../../service/data.ts";
 import { toast } from "react-hot-toast";
 import { Modal } from "../../components/ui/modal/index.tsx";
 import InputField from "../../components/form/input/InputField.tsx";
+import DatePicker from "../../components/form/date-picker.tsx";
 
 interface ExpenseCategory {
     expenses_category_id: number;
@@ -22,10 +23,17 @@ export default function AddExpenseModal({
     changeStatus,
     categories,
 }: AddExpenseModalProps) {
+    const getTodayLocalDate = () => {
+        const now = new Date();
+        const tzOffsetMs = now.getTimezoneOffset() * 60000;
+        return new Date(now.getTime() - tzOffsetMs).toISOString().split("T")[0];
+    };
+
     const [formData, setFormData] = useState({
         expenses_category_id: "",
         amount: "",
         comments: "",
+        date_of_expense: getTodayLocalDate(),
     });
     const [displayAmount, setDisplayAmount] = useState("");
     const [loading, setLoading] = useState(false);
@@ -40,7 +48,11 @@ export default function AddExpenseModal({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.expenses_category_id || !formData.amount) {
+        if (
+            !formData.expenses_category_id ||
+            !formData.amount ||
+            !formData.date_of_expense
+        ) {
             toast.error("Пожалуйста, заполните все обязательные поля");
             return;
         }
@@ -51,6 +63,7 @@ export default function AddExpenseModal({
                 expenses_category_id: parseInt(formData.expenses_category_id),
                 amount: parseFloat(formData.amount),
                 comments: formData.comments || undefined,
+                date_of_expense: formData.date_of_expense,
             });
 
             if (response) {
@@ -59,6 +72,7 @@ export default function AddExpenseModal({
                     expenses_category_id: "",
                     amount: "",
                     comments: "",
+                    date_of_expense: getTodayLocalDate(),
                 });
                 setDisplayAmount("");
                 changeStatus();
@@ -74,7 +88,12 @@ export default function AddExpenseModal({
 
     const handleClose = () => {
         // Loading bo'lsa ham modal yopish mumkin
-        setFormData({ expenses_category_id: "", amount: "", comments: "" });
+        setFormData({
+            expenses_category_id: "",
+            amount: "",
+            comments: "",
+            date_of_expense: getTodayLocalDate(),
+        });
         setDisplayAmount("");
         setSearchQuery("");
         setFilteredCategories([]);
@@ -337,6 +356,32 @@ export default function AddExpenseModal({
                                     сум
                                 </span>
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                <span className="text-red-500">*</span> Дата расхода
+                            </label>
+                            <DatePicker
+                                id="expense-date-of-expense"
+                                placeholder="Выберите дату расхода"
+                                defaultDate={formData.date_of_expense}
+                                onChange={(selectedDates) => {
+                                    const selected = selectedDates?.[0];
+                                    if (!selected) return;
+                                    const tzOffsetMs =
+                                        selected.getTimezoneOffset() * 60000;
+                                    const formattedDate = new Date(
+                                        selected.getTime() - tzOffsetMs
+                                    )
+                                        .toISOString()
+                                        .split("T")[0];
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        date_of_expense: formattedDate,
+                                    }));
+                                }}
+                            />
                         </div>
 
                         <div>

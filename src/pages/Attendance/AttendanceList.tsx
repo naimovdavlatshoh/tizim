@@ -13,6 +13,7 @@ import { GroupIcon } from "../../icons";
 import { Attendance, AttendanceStats } from "./types";
 import { IoCheckmarkDone, IoClose } from "react-icons/io5";
 import { IoIosTimer } from "react-icons/io";
+import AddAttendanceModal from "./AddAttendanceModal.tsx";
 
 export default function AttendanceList() {
     const [attendances, setAttendances] = useState<Attendance[]>([]);
@@ -29,6 +30,7 @@ export default function AttendanceList() {
     const [loading, setLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [status, setStatus] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     // Set default date to today
     useEffect(() => {
@@ -242,13 +244,12 @@ export default function AttendanceList() {
                                 }
                             />
                         </div>
-                        {/* <button
-                            onClick={handleDownloadReport}
-                            className="bg-green-500 border border-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2 w-full sm:w-auto"
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="bg-blue-600 border border-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 w-full sm:w-auto font-medium"
                         >
-                            <FaDownload />
-                            Скачать отчет
-                        </button> */}
+                            Ручное добавление
+                        </button>
                     </div>
                 }
             >
@@ -265,6 +266,12 @@ export default function AttendanceList() {
                     </>
                 )}
             </ComponentCard>
+
+            <AddAttendanceModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                changeStatus={changeStatus}
+            />
 
             <Toaster
                 position="bottom-right"

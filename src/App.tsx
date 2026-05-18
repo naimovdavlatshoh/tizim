@@ -37,6 +37,8 @@ import BrokerContractList from "./pages/BrokerContracts";
 import FineList from "./pages/Fines";
 import BonusList from "./pages/Bonuses";
 import SalaryAdvanceList from "./pages/SalaryAdvances";
+import SalaryPaymentList from "./pages/SalaryPayments/SalaryPaymentList";
+import AbsenceList from "./pages/Absences/AbsenceList";
 import AttendanceList from "./pages/Attendance";
 import EmployeeList from "./pages/Employees";
 import MyStatistics from "./pages/Employees/MyStatistics";
@@ -176,6 +178,14 @@ export default function App() {
                             <Route
                                 path="/salary-advances"
                                 element={<SalaryAdvanceList />}
+                            />
+                            <Route
+                                path="/salary-payments"
+                                element={<SalaryPaymentList />}
+                            />
+                            <Route
+                                path="/absences"
+                                element={<AbsenceList />}
                             />
                             <Route
                                 path="/attendance"

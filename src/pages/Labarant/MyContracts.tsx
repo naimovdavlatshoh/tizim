@@ -81,7 +81,7 @@ const MyContracts = () => {
     const [loading, setLoading] = useState(false);
     const [sendResultModalOpen, setSendResultModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] = useState<MyContract | null>(
-        null
+        null,
     );
     const [downloadingQr, setDownloadingQr] = useState<string | null>(null);
     const [downloadingPdf, setDownloadingPdf] = useState<number | null>(null);
@@ -95,7 +95,7 @@ const MyContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/my/list?contract_status=5&page=${page}&limit=30`
+                `api/appointment/my/list?contract_status=5&page=${page}&limit=30`,
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -153,7 +153,7 @@ const MyContracts = () => {
         setDownloadingQr(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/downloadqrcode/${contract.contract_id}`
+                `api/appointment/downloadqrcode/${contract.contract_id}`,
             );
 
             // Create blob and download
@@ -176,7 +176,7 @@ const MyContracts = () => {
             console.error("Error downloading QR code:", error);
             toast.error(
                 error?.response?.data?.error ||
-                    "Что-то пошло не так при скачивании QR-кода"
+                    "Что-то пошло не так при скачивании QR-кода",
             );
         } finally {
             setDownloadingQr(null);
@@ -192,7 +192,7 @@ const MyContracts = () => {
         setDownloadingPdf(contract.appointment_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/result/pdf/${contract.appointment_id}`
+                `api/appointment/result/pdf/${contract.appointment_id}`,
             );
 
             // Create blob and download
@@ -215,7 +215,7 @@ const MyContracts = () => {
             console.error("Error downloading PDF:", error);
             toast.error(
                 error?.response?.data?.error ||
-                    "Что-то пошло не так при скачивании PDF"
+                    "Что-то пошло не так при скачивании PDF",
             );
         } finally {
             setDownloadingPdf(null);
@@ -270,7 +270,7 @@ const MyContracts = () => {
                                         isHeader
                                         className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
                                     >
-                                        #
+                                        #   
                                     </TableCell>
                                     <TableCell
                                         isHeader
@@ -360,7 +360,9 @@ const MyContracts = () => {
                                                     handleRowClick(contract)
                                                 }
                                             >
-                                                {contract.client_name}
+                                                {contract.client_name
+                                                    ? contract.client_name
+                                                    : contract.business_name}
                                             </TableCell>
                                             <TableCell
                                                 className="px-2 sm:px-4 py-2 sm:py-3 text-theme-sm dark:text-gray-400"
@@ -402,7 +404,7 @@ const MyContracts = () => {
                                             >
                                                 {contract.deadline_date
                                                     ? formatDate(
-                                                          contract.deadline_date
+                                                          contract.deadline_date,
                                                       )
                                                     : "-"}
                                             </TableCell>
@@ -424,8 +426,8 @@ const MyContracts = () => {
                                             >
                                                 {formatCurrency(
                                                     parseFloat(
-                                                        contract.worker_price
-                                                    )
+                                                        contract.worker_price,
+                                                    ),
                                                 )}
                                             </TableCell>
                                             <TableCell
@@ -438,13 +440,16 @@ const MyContracts = () => {
                                                     className={`inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                                         contract.status === 1
                                                             ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                                            : contract.status === 2
-                                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200"
-                                                            : contract.status === 3
-                                                            ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
-                                                            : contract.status === 4
-                                                            ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
-                                                            : "bg-gray-100 text-gray-800"
+                                                            : contract.status ===
+                                                                2
+                                                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200"
+                                                              : contract.status ===
+                                                                  3
+                                                                ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
+                                                                : contract.status ===
+                                                                    4
+                                                                  ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
+                                                                  : "bg-gray-100 text-gray-800"
                                                     }`}
                                                 >
                                                     {contract.status_text ||
@@ -459,7 +464,7 @@ const MyContracts = () => {
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleDownloadQrCode(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         disabled={
@@ -480,7 +485,7 @@ const MyContracts = () => {
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleViewDetail(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         startIcon={
@@ -492,10 +497,13 @@ const MyContracts = () => {
                                                     <Button
                                                         size="xs"
                                                         variant="primary"
-                                                        disabled={contract.status === 3}
+                                                        disabled={
+                                                            contract.status ===
+                                                            3
+                                                        }
                                                         onClick={() =>
                                                             handleSendResult(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         startIcon={
@@ -523,7 +531,7 @@ const MyContracts = () => {
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleDownloadResultPdf(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         disabled={

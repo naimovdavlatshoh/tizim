@@ -12,7 +12,7 @@ import {
 import Pagination from "../../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
-import { FaQrcode, FaRegEye } from "react-icons/fa";
+import { FaQrcode, FaRegEye, FaUserEdit } from "react-icons/fa";
 import { TbDownload } from "react-icons/tb";
 import { useNavigate } from "react-router";
 import {
@@ -26,7 +26,7 @@ import {
 import AssignModal from "../NewContracts/AssignModal";
 import { formatDate } from "../../../utils/numberFormat";
 import Loader from "../../../components/ui/loader/Loader.tsx";
-import { PostDataToken } from "../../../service/data.ts";
+
 import Select from "../../../components/form/Select";
 import Button from "../../../components/ui/button/Button";
 import { Modal } from "../../../components/ui/modal";
@@ -111,7 +111,7 @@ const PendingContracts = () => {
         useState<PendingContract | null>(null);
     const [resultComment, setResultComment] = useState("");
     const [resultCommentError, setResultCommentError] = useState<string | null>(
-        null
+        null,
     );
     const [resultSubmitting, setResultSubmitting] = useState(false);
     const [resultTaskId, setResultTaskId] = useState<number | null>(null);
@@ -136,7 +136,7 @@ const PendingContracts = () => {
         setLoading(true);
         try {
             const response: any = await GetDataSimple(
-                `api/appointment/all/list?contract_status=5&page=${page}&limit=30&year=${getStoredYear()}`
+                `api/appointment/all/list?contract_status=5&page=${page}&limit=30&year=${getStoredYear()}`,
             );
             const contractsData =
                 response?.result || response?.data?.result || [];
@@ -172,7 +172,7 @@ const PendingContracts = () => {
         setLoadingUsers(true);
         try {
             const response: any = await GetDataSimple(
-                "api/user/list?page=1&limit=100"
+                "api/user/list?page=1&limit=100",
             );
             const usersData = response?.result || response?.data?.result || [];
             setUsers(Array.isArray(usersData) ? usersData : []);
@@ -192,12 +192,12 @@ const PendingContracts = () => {
 
         setReplacing(true);
         try {
-            const response = await PostDataToken(
-                "api/appointment/replaceworker",
+            const response = await PostDataTokenJson(
+                "api/appointment/replace/worker",
                 {
-                    user_id: selectedUserId,
-                    contract_id: Number(selectedContract.contract_id),
-                }
+                    appointment_id: selectedContract.appointment_id,
+                    new_worker_id: selectedUserId,
+                },
             );
 
             if (response?.status === 200 || response?.data?.success) {
@@ -206,10 +206,10 @@ const PendingContracts = () => {
                 setSelectedUserId(null);
                 setSelectedContract(null);
                 fetchPendingContracts(); // Refresh the contracts list
-            } else {
-                toast.error("Что-то пошло не так при переназначении");
             }
         } catch (error: any) {
+           setReplaceModalOpen(false);
+            
             const errorMessage =
                 error?.response?.data?.message ||
                 "Ошибка при переназначении сотрудника";
@@ -227,7 +227,7 @@ const PendingContracts = () => {
         setDownloadingQr(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/contracts/qrcode/${contract.contract_id}`
+                `api/appointment/downloadqrcode/${contract.contract_id}`,
             );
             const blob = new Blob([response.data], { type: "image/png" });
             const url = window.URL.createObjectURL(blob);
@@ -243,7 +243,7 @@ const PendingContracts = () => {
             toast.success("QR-код скачан");
         } catch (error: any) {
             toast.error(
-                error?.response?.data?.error || "Ошибка при скачивании QR-кода"
+                error?.response?.data?.error || "Ошибка при скачивании QR-кода",
             );
         } finally {
             setDownloadingQr(null);
@@ -277,7 +277,7 @@ const PendingContracts = () => {
             formData.append("file", file);
             const response: any = await PostSimpleFormData(
                 `api/contracts/upload-pdf/${selectedContractForPdf.contract_id}`,
-                formData
+                formData,
             );
             if (response?.status === 200 || response?.data?.success) {
                 toast.success("PDF успешно загружен");
@@ -288,7 +288,7 @@ const PendingContracts = () => {
             }
         } catch (error: any) {
             toast.error(
-                error?.response?.data?.error || "Ошибка при загрузке PDF"
+                error?.response?.data?.error || "Ошибка при загрузке PDF",
             );
         } finally {
             setUploadingPdf(false);
@@ -300,7 +300,7 @@ const PendingContracts = () => {
         setDownloadingPdf(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/result/pdf/${contract.appointment_id}`
+                `api/appointment/result/pdf/${contract.appointment_id}`,
             );
             const blob = new Blob([response.data], {
                 type: "application/pdf",
@@ -318,7 +318,7 @@ const PendingContracts = () => {
             toast.success("PDF скачан");
         } catch (error: any) {
             toast.error(
-                error?.response?.data?.error || "Ошибка при скачивании PDF"
+                error?.response?.data?.error || "Ошибка при скачивании PDF",
             );
         } finally {
             setDownloadingPdf(null);
@@ -327,7 +327,7 @@ const PendingContracts = () => {
 
     const openResultModal = (
         contract: PendingContract,
-        action: "accept" | "cancel"
+        action: "accept" | "cancel",
     ) => {
         setSelectedContractForResult(contract);
         setResultModalAction(action);
@@ -367,7 +367,7 @@ const PendingContracts = () => {
                 toast.success(
                     resultModalAction === "accept"
                         ? "Результат принят"
-                        : "Результат отклонён"
+                        : "Результат отклонён",
                 );
                 closeResultModal();
                 fetchPendingContracts();
@@ -375,14 +375,14 @@ const PendingContracts = () => {
                 toast.error(
                     response?.message ||
                         response?.data?.message ||
-                        "Ошибка при выполнении"
+                        "Ошибка при выполнении",
                 );
             }
         } catch (error: any) {
             toast.error(
                 error?.response?.data?.message ||
                     error?.response?.data?.error ||
-                    "Ошибка при выполнении"
+                    "Ошибка при выполнении",
             );
         } finally {
             setResultSubmitting(false);
@@ -498,7 +498,7 @@ const PendingContracts = () => {
                                 {contracts?.map(
                                     (
                                         contract: PendingContract,
-                                        index: number
+                                        index: number,
                                     ) => (
                                         <TableRow
                                             key={contract.contract_id}
@@ -556,7 +556,7 @@ const PendingContracts = () => {
                                                 }
                                             >
                                                 {formatDate(
-                                                    contract.deadline_date
+                                                    contract.deadline_date,
                                                 )}
                                             </TableCell>
                                             <TableCell
@@ -595,13 +595,16 @@ const PendingContracts = () => {
                                                     className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                                         contract.status === 1
                                                             ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                                            : contract.status === 2
-                                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200"
-                                                            : contract.status === 3
-                                                            ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
-                                                            : contract.status === 4
-                                                            ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
-                                                            : "bg-gray-100 text-gray-800"
+                                                            : contract.status ===
+                                                                2
+                                                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200"
+                                                              : contract.status ===
+                                                                  3
+                                                                ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
+                                                                : contract.status ===
+                                                                    4
+                                                                  ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
+                                                                  : "bg-gray-100 text-gray-800"
                                                     }`}
                                                 >
                                                     {contract.status_text ||
@@ -619,44 +622,35 @@ const PendingContracts = () => {
                                                 </TableCell> */}
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                 <div className="flex flex-row items-center gap-2 flex-nowrap">
-                                                    {/* <Linkto
-                                                            to={`/pending-contracts/${contract.contract_id}`}
+                                                    {contract.worker_name && (
+                                                        <Button
+                                                            onClick={() => {
+                                                                setReplaceModalOpen(
+                                                                    true,
+                                                                );
+                                                                setSelectedContract(
+                                                                    contract,
+                                                                );
+                                                                setSelectedUserId(
+                                                                    null,
+                                                                );
+                                                            }}
                                                             size="xs"
                                                             variant="outline"
                                                             startIcon={
-                                                                <FaRegEye className="size-4" />
+                                                                <FaUserEdit className="size-4" />
                                                             }
+                                                            aria-label="Замена назначенного сотрудника"
                                                         >
                                                             {""}
-                                                        </Linkto>
-                                                        {contract.worker_name && (
-                                                            <Button
-                                                                onClick={() => {
-                                                                    setReplaceModalOpen(
-                                                                        true
-                                                                    );
-                                                                    setSelectedContract(
-                                                                        contract
-                                                                    );
-                                                                    setSelectedUserId(
-                                                                        null
-                                                                    );
-                                                                }}
-                                                                size="xs"
-                                                                variant="outline"
-                                                                startIcon={
-                                                                    <FaUserEdit className="size-4" />
-                                                                }
-                                                            >
-                                                                {""}
-                                                            </Button>
-                                                        )} */}
+                                                        </Button>
+                                                    )}
                                                     <Button
                                                         size="xs"
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleDownloadQr(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         disabled={
@@ -678,7 +672,7 @@ const PendingContracts = () => {
                                                         variant="outline"
                                                         onClick={() =>
                                                             navigate(
-                                                                `/pending-contracts/${contract.appointment_id}`
+                                                                `/pending-contracts/${contract.appointment_id}`,
                                                             )
                                                         }
                                                         startIcon={
@@ -722,11 +716,13 @@ const PendingContracts = () => {
                                                         variant="outline"
                                                         onClick={() =>
                                                             handleDownloadPdf(
-                                                                contract
+                                                                contract,
                                                             )
                                                         }
                                                         disabled={
-                                                            !contract.current_pdf?.pdf_id ||
+                                                            !contract
+                                                                .current_pdf
+                                                                ?.pdf_id ||
                                                             downloadingPdf ===
                                                                 contract.contract_id
                                                         }
@@ -746,13 +742,17 @@ const PendingContracts = () => {
                                                         onClick={() =>
                                                             openResultModal(
                                                                 contract,
-                                                                "accept"
+                                                                "accept",
                                                             )
                                                         }
                                                         disabled={
-                                                            !contract.current_pdf?.pdf_id ||
-                                                            contract.status === 3 ||
-                                                            contract.status === 4
+                                                            !contract
+                                                                .current_pdf
+                                                                ?.pdf_id ||
+                                                            contract.status ===
+                                                                3 ||
+                                                            contract.status ===
+                                                                4
                                                         }
                                                         aria-label="Принять результат"
                                                     >
@@ -764,13 +764,17 @@ const PendingContracts = () => {
                                                         onClick={() =>
                                                             openResultModal(
                                                                 contract,
-                                                                "cancel"
+                                                                "cancel",
                                                             )
                                                         }
                                                         disabled={
-                                                            !contract.current_pdf?.pdf_id ||
-                                                            contract.status === 3 ||
-                                                            contract.status === 4
+                                                            !contract
+                                                                .current_pdf
+                                                                ?.pdf_id ||
+                                                            contract.status ===
+                                                                3 ||
+                                                            contract.status ===
+                                                                4
                                                         }
                                                         aria-label="Отказать в результате"
                                                     >
@@ -779,7 +783,7 @@ const PendingContracts = () => {
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                    )
+                                    ),
                                 )}
                             </TableBody>
                         </Table>
@@ -823,7 +827,7 @@ const PendingContracts = () => {
             >
                 <div className="p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        Переназначить сотрудника
+                        Замена назначенного сотрудника
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         Договор: {selectedContract?.contract_number}
@@ -998,8 +1002,8 @@ const PendingContracts = () => {
                             {resultSubmitting
                                 ? "..."
                                 : resultModalAction === "accept"
-                                ? "Принять"
-                                : "Отказать"}
+                                  ? "Принять"
+                                  : "Отказать"}
                         </Button>
                     </div>
                 </div>

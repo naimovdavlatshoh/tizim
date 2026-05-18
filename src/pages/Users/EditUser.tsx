@@ -39,6 +39,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     const [salary, setSalary] = useState<string>("");
     const [displaySalary, setDisplaySalary] = useState("");
     const [hourlyRate, setHourlyRate] = useState<number | null>(null);
+    const [shiftStart, setShiftStart] = useState("09:00");
+    const [shiftEnd, setShiftEnd] = useState("18:00");
     const [isSalaryChecked, setIsSalaryChecked] = useState(false);
     const [isCheckingSalary, setIsCheckingSalary] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -218,6 +220,45 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         }
     };
 
+    const formatTimeChange = (value: string, setter: (val: string) => void) => {
+        let cleanValue = value.replace(/[^0-9:]/g, "");
+        
+        if (cleanValue.length === 3 && !cleanValue.includes(":")) {
+            cleanValue = cleanValue.slice(0, 2) + ":" + cleanValue.slice(2);
+        }
+
+        const parts = cleanValue.split(":");
+        if (parts[0] && parseInt(parts[0], 10) > 23) {
+            parts[0] = "23";
+        }
+        if (parts[1] && parseInt(parts[1], 10) > 59) {
+            parts[1] = "59";
+        }
+        
+        if (parts.length > 2) {
+             cleanValue = parts[0] + ":" + parts[1];
+        } else {
+             cleanValue = parts.join(":");
+        }
+
+        setter(cleanValue.slice(0, 5));
+    };
+
+    const formatTimeBlur = (value: string, setter: (val: string) => void) => {
+        if (!value) {
+            setter("00:00");
+            return;
+        }
+        const parts = value.split(":");
+        let h = parts[0] || "00";
+        let m = parts[1] || "00";
+        
+        h = h.padStart(2, "0");
+        m = m.padEnd(2, "0");
+        
+        setter(`${h}:${m}`);
+    };
+
     // User ma'lumotlarini yuklash
     useEffect(() => {
         if (user) {
@@ -244,6 +285,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 setIsSalaryChecked(false);
                 setHourlyRate(null);
             }
+            
+            setShiftStart(user?.shift_start || "09:00");
+            setShiftEnd(user?.shift_end || "18:00");
+
             // Password ni bo'sh qoldiramiz, chunki edit qilganda yangi password kiritish kerak
             setPassword("");
         }
@@ -260,6 +305,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             !employeeNoString ||
             !fineBeingLate ||
             !salary ||
+            !shiftStart ||
+            !shiftEnd ||
             !isSalaryChecked
         ) {
             alert(
@@ -279,6 +326,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             employeeNoString: Number(employeeNoString),
             fine_being_late: Number(fineBeingLate),
             salary: Number(salary),
+            shift_start: shiftStart,
+            shift_end: shiftEnd,
         };
 
         if (password.trim()) {
@@ -477,6 +526,28 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                             placeholder="Введите сумму штрафа"
                             value={displayFineBeingLate}
                             onChange={handleFineBeingLateChange}
+                        />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label>Начало смены *</Label>
+                        <Input
+                            type="text"
+                            placeholder="09:00"
+                            value={shiftStart}
+                            onChange={(e) => formatTimeChange(e.target.value, setShiftStart)}
+                            onBlur={(e) => formatTimeBlur(e.target.value, setShiftStart)}
+                        />
+                    </div>
+                    <div>
+                        <Label>Конец смены *</Label>
+                        <Input
+                            type="text"
+                            placeholder="18:00"
+                            value={shiftEnd}
+                            onChange={(e) => formatTimeChange(e.target.value, setShiftEnd)}
+                            onBlur={(e) => formatTimeBlur(e.target.value, setShiftEnd)}
                         />
                     </div>
                 </div>

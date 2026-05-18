@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import ComponentCard from "../../../components/common/ComponentCard";
 import Badge from "../../../components/ui/badge/Badge";
@@ -9,6 +9,7 @@ import PageMeta from "../../../components/common/PageMeta";
 import axios from "axios";
 import { DownloadIcon } from "../../../icons";
 import { toast } from "react-hot-toast";
+import { GrEdit } from "react-icons/gr";
 
 interface Worker {
     worker_entry_id: number;
@@ -58,10 +59,32 @@ interface CompletedContract {
     } | null;
 }
 
+interface ContractPaymentItem {
+    payment_id: number;
+    amount: number;
+    payment_type_text: string;
+    comments?: string;
+    created_at: string;
+}
+
+interface ContractReadPaymentInfo {
+    contract_price: number;
+    payments: ContractPaymentItem[];
+}
+
 const CompletedContractDetail = () => {
     const { id } = useParams();
     const [contract, setContract] = useState<CompletedContract | null>(null);
     const [loading, setLoading] = useState(true);
+    const [uploadingPdfId, setUploadingPdfId] = useState<number | null>(null);
+    const [selectedPdfIdForReplace, setSelectedPdfIdForReplace] = useState<
+        number | null
+    >(null);
+    const [paymentInfo, setPaymentInfo] = useState<ContractReadPaymentInfo | null>(
+        null
+    );
+    const [paymentInfoLoading, setPaymentInfoLoading] = useState(false);
+    const replacePdfInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (id) {
@@ -75,6 +98,11 @@ const CompletedContractDetail = () => {
             const response: any = await GetDataSimple(`api/appointment/info/${id}`);
             if (response) {
                 setContract(response);
+                if (response?.contract_id) {
+                    fetchContractPaymentInfo(response.contract_id);
+                } else {
+                    setPaymentInfo(null);
+                }
             } else {
                 console.log("Contract not found with ID:", id);
             }
@@ -83,6 +111,25 @@ const CompletedContractDetail = () => {
             toast.error("Ошибка при загрузке данных");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchContractPaymentInfo = async (contractId: number) => {
+        setPaymentInfoLoading(true);
+        try {
+            const response: any = await GetDataSimple(
+                `api/contracts/read/${contractId}`
+            );
+            const data = response?.data || response;
+            setPaymentInfo({
+                contract_price: Number(data?.contract_price) || 0,
+                payments: Array.isArray(data?.payments) ? data.payments : [],
+            });
+        } catch (error) {
+            console.error("Error fetching contract payments:", error);
+            setPaymentInfo(null);
+        } finally {
+            setPaymentInfoLoading(false);
         }
     };
 
@@ -134,8 +181,7 @@ const CompletedContractDetail = () => {
             window.open(url, "_blank");
             setTimeout(() => window.URL.revokeObjectURL(url), 60000);
         } catch (error: any) {
-            console.error(error);
-            toast.error("Ошибка при открытии PDF");
+            toast.error(error?.response?.data?.error || error?.response?.data?.message || "Ошибка: Протокол не найден!");
         }
     };
 
@@ -161,6 +207,65 @@ const CompletedContractDetail = () => {
         }
     };
 
+    const openReplacePdfPicker = (pdfId: number) => {
+        setSelectedPdfIdForReplace(pdfId);
+        if (replacePdfInputRef.current) {
+            replacePdfInputRef.current.value = "";
+            replacePdfInputRef.current.click();
+        }
+    };
+
+    const handleReplacePdfUpload = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file || !selectedPdfIdForReplace) return;
+
+        if (file.type !== "application/pdf") {
+            toast.error("Пожалуйста, выберите PDF файл");
+            return;
+        }
+
+        setUploadingPdfId(selectedPdfIdForReplace);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            await axios.post(
+                `${BASE_URL}api/appointment/replace/pdf/${selectedPdfIdForReplace}`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            toast.success("PDF файл успешно обновлен");
+            fetchContractDetails();
+        } catch (error: any) {
+            toast.error(
+                error?.response?.data?.error ||
+                    error?.response?.data?.message ||
+                    "Ошибка при обновлении PDF файла"
+            );
+        } finally {
+            setUploadingPdfId(null);
+            setSelectedPdfIdForReplace(null);
+            if (replacePdfInputRef.current) {
+                replacePdfInputRef.current.value = "";
+            }
+        }
+    };
+
+    const totalPaid = (paymentInfo?.payments || []).reduce(
+        (sum, payment) => sum + (Number(payment.amount) || 0),
+        0
+    );
+    const contractPriceFromRead =
+        paymentInfo?.contract_price || Number(contract.contract_price) || 0;
+    const remainingAmount = contractPriceFromRead - totalPaid;
+
     return (
         <>
             <PageMeta
@@ -172,6 +277,13 @@ const CompletedContractDetail = () => {
             />
 
             <div className="space-y-6">
+                <input
+                    ref={replacePdfInputRef}
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    className="hidden"
+                    onChange={handleReplacePdfUpload}
+                />
                 {/* Header Card */}
                 <ComponentCard title={`Договор №${contract.contract_number}`}>
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -281,18 +393,140 @@ const CompletedContractDetail = () => {
                                                     {formatDate(pdf.created_at)}
                                                 </td>
                                                 <td className="py-4 text-right">
-                                                    <button
-                                                        onClick={() => handleDownloadDocument(pdf.pdf_id)}
-                                                        className="text-brand-500 hover:text-brand-600 font-medium text-sm inline-flex items-center gap-1"
-                                                    >
-                                                        Посмотреть PDF
-                                                    </button>
+                                                    <div className="inline-flex items-center gap-3">
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDownloadDocument(
+                                                                    pdf.pdf_id
+                                                                )
+                                                            }
+                                                            className="text-brand-500 hover:text-brand-600 font-medium text-sm inline-flex items-center gap-1"
+                                                        >
+                                                            Посмотреть PDF
+                                                        </button>
+                                                        <button
+                                                            onClick={() =>
+                                                                openReplacePdfPicker(
+                                                                    pdf.pdf_id
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                uploadingPdfId ===
+                                                                pdf.pdf_id
+                                                            }
+                                                            className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300 transition-colors disabled:opacity-50"
+                                                            aria-label="Обновить PDF"
+                                                            title="Обновить PDF"
+                                                        >
+                                                            <GrEdit size={16} />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
+                        </ComponentCard>
+
+                        <ComponentCard title="История оплаты">
+                            {paymentInfoLoading ? (
+                                <div className="py-6 text-sm text-gray-500">
+                                    Загрузка истории оплат...
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-3">
+                                            <p className="text-xs text-gray-500">
+                                                Сумма договора
+                                            </p>
+                                            <p className="font-semibold">
+                                                {formatCurrency(
+                                                    contractPriceFromRead
+                                                )}
+                                            </p>
+                                        </div>
+                                        <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-3">
+                                            <p className="text-xs text-gray-500">
+                                                Оплачено
+                                            </p>
+                                            <p className="font-semibold text-green-600">
+                                                {formatCurrency(totalPaid)}
+                                            </p>
+                                        </div>
+                                        <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-3">
+                                            <p className="text-xs text-gray-500">
+                                                Остаток
+                                            </p>
+                                            <p className="font-semibold text-amber-600">
+                                                {formatCurrency(
+                                                    Math.max(remainingAmount, 0)
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {paymentInfo?.payments?.length ? (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left">
+                                                <thead>
+                                                    <tr className="border-b border-gray-100 dark:border-gray-800">
+                                                        <th className="pb-2 text-xs font-semibold text-gray-500 uppercase">
+                                                            Дата
+                                                        </th>
+                                                        <th className="pb-2 text-xs font-semibold text-gray-500 uppercase">
+                                                            Тип
+                                                        </th>
+                                                        <th className="pb-2 text-xs font-semibold text-gray-500 uppercase">
+                                                            Комментарий
+                                                        </th>
+                                                        <th className="pb-2 text-xs font-semibold text-gray-500 uppercase text-right">
+                                                            Сумма
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                                                    {paymentInfo.payments.map(
+                                                        (payment) => (
+                                                            <tr
+                                                                key={
+                                                                    payment.payment_id
+                                                                }
+                                                            >
+                                                                <td className="py-3 text-sm text-gray-600 dark:text-gray-400">
+                                                                    {formatDate(
+                                                                        payment.created_at
+                                                                    )}
+                                                                </td>
+                                                                <td className="py-3 text-sm">
+                                                                    {payment.payment_type_text ||
+                                                                        "-"}
+                                                                </td>
+                                                                <td className="py-3 text-sm text-gray-600 dark:text-gray-400">
+                                                                    {payment.comments ||
+                                                                        "-"}
+                                                                </td>
+                                                                <td className="py-3 text-sm text-right font-medium">
+                                                                    {formatCurrency(
+                                                                        Number(
+                                                                            payment.amount
+                                                                        ) || 0
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <div className="py-4 text-sm text-gray-500">
+                                            История оплат пока пуста
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </ComponentCard>
                     </div>
 
@@ -317,7 +551,7 @@ const CompletedContractDetail = () => {
                                 ))}
                             </div>
                         </ComponentCard>
-                        
+
                         <div className="bg-brand-500 rounded-2xl p-6 text-white relative overflow-hidden">
                             <div className="relative z-10">
                                 <p className="text-brand-100 text-sm mb-1 uppercase tracking-wider font-medium">Сумма договора</p>
