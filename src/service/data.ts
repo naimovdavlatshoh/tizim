@@ -10,7 +10,7 @@ axios.interceptors.response.use(
             return Promise.resolve({ data: { handled: true } });
         }
         return Promise.reject(error);
-    }
+    },
 );
 export const GetDataSimpleBlob = async (url: string, config: any = {}) => {
     const token = localStorage.getItem("token");
@@ -69,7 +69,7 @@ export const PostDataToken = async (url: string, data: any) => {
 export const PostDocxContract = async (
     url: string,
     contractData: any,
-    docxBlob: Blob
+    docxBlob: Blob,
 ) => {
     const formData = new FormData();
     formData.append("contract_file", docxBlob, "shartnoma.docx");
@@ -157,4 +157,11 @@ export const DeleteData = async (url: string) => {
 export const getStoredYear = () => {
     const stored = localStorage.getItem("selectedYear");
     return stored;
+};
+
+export const GetDataTest = async () => {
+    const response = await axios.get(
+        "https://eticket.argon.uz/api/queue/categories",
+    );
+    console.log(response);
 };

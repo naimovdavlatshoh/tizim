@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { GrMoney } from "react-icons/gr";
 import { TbMessageReport } from "react-icons/tb";
-import { FaGift } from "react-icons/fa";
+import { FaGift, FaBoxOpen } from "react-icons/fa";
 
 // Assume these icons are imported from an icon library
 import {
@@ -139,6 +139,15 @@ const navItems: NavItem[] = [
             { name: "Бонусы", path: "/bonuses", roles: [1] },
             { name: "Штрафы", path: "/fines", roles: [1] },
             { name: "Авансы зарплаты", path: "/salary-advances", roles: [1] },
+        ],
+    },
+    {
+        name: "Инвентаризация",
+        icon: <FaBoxOpen />,
+        roles: [1, 2],
+        subItems: [
+            { name: "Список инвентаря", path: "/inventory", roles: [1, 2] },
+            { name: "Списание", path: "/inventory-movements", roles: [1, 2] },
         ],
     },
     {
@@ -293,6 +302,8 @@ const AppSidebar: React.FC = () => {
             setCurrentPage("salary-payments");
         } else if (path === "/absences") {
             setCurrentPage("absences");
+        } else if (path === "/inventory" || path === "/inventory-movements") {
+            setCurrentPage("inventory");
         } else {
             setCurrentPage("");
         }
@@ -472,7 +483,7 @@ const AppSidebar: React.FC = () => {
             onMouseEnter={() => !isExpanded && setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div className="px-0 pt-5">
+            <div className="pt-5 flex justify-center">
                 <img
                     src="/logo.jpg"
                     alt="logo"

@@ -51,6 +51,8 @@ import CompletedContractDetail from "./pages/Director/CompletedContracts/Detail"
 import MyContracts from "./pages/Labarant/MyContracts";
 import AppointmentDetailPage from "./pages/Labarant/AppointmentDetailPage";
 import Reports from "./pages/Labarant/Reports";
+import InventoryList from "./pages/Inventory";
+import InventoryMovements from "./pages/InventoryMovements";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -186,6 +188,14 @@ export default function App() {
                             <Route
                                 path="/absences"
                                 element={<AbsenceList />}
+                            />
+                            <Route
+                                path="/inventory"
+                                element={<InventoryList />}
+                            />
+                            <Route
+                                path="/inventory-movements"
+                                element={<InventoryMovements />}
                             />
                             <Route
                                 path="/attendance"

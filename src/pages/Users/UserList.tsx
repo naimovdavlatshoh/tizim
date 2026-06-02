@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
-import { GetDataSimple, GetDataSimpleBlobExel } from "../../service/data";
+import {
+    GetDataSimple,
+    GetDataSimpleBlobExel,
+    GetDataTest,
+} from "../../service/data";
 import { useModal } from "../../hooks/useModal";
 import AddUserModal from "./AddUser";
 import TableUser from "./TableUser";
@@ -70,6 +74,7 @@ export default function ClientList() {
     }));
 
     useEffect(() => {
+        GetDataTest();
         setLoading(true);
         GetDataSimple(`api/user/list?page=${page}&limit=30`).then((res) => {
             setUsers(res?.result || []);

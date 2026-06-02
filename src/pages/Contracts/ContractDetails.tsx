@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import ComponentCard from "../../components/common/ComponentCard";
 import Badge from "../../components/ui/badge/Badge";
-import { BASE_URL, GetDataSimple, PostDataToken } from "../../service/data";
+import { BASE_URL, GetDataSimple, PostDataToken, PostSimple } from "../../service/data";
 // import generateChequeFromData from "../../utils/contractGeneratorFile";
 import Loader from "../../components/ui/loader/Loader";
 import toast from "react-hot-toast";
@@ -217,6 +217,37 @@ const ContractDetails = () => {
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [editedPayments, setEditedPayments] = useState<Record<number, number>>({});
+    const [isSavingPlan, setIsSavingPlan] = useState(false);
+
+    const handleSavePaymentPlan = async () => {
+        setIsSavingPlan(true);
+        try {
+            const plan = Object.entries(editedPayments).map(([monthly_id, monthly_fee]) => ({
+                payment_id: Number(monthly_id),
+                monthly_fee
+            }));
+            
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const response: any = await PostSimple(`api/contracts/payment-plan/${id}`, { plan });
+            if (response) {
+                toast.success("План платежей успешно обновлен");
+                setEditedPayments({});
+                
+                // re-fetch contract
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const freshContract: any = await GetDataSimple(`api/contracts/read/${id}`);
+                setCurrentContract((freshContract?.data || freshContract) as Contract);
+            }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            console.error("Error saving payment plan:", error);
+            toast.error(error?.response?.data?.message || error?.response?.data?.error || "Ошибка при сохранении");
+        } finally {
+            setIsSavingPlan(false);
+        }
+    };
 
     useEffect(() => {
         if (!id) return;
@@ -749,12 +780,32 @@ const ContractDetails = () => {
             {/* Monthly Payments */}
             {currentContract.contract_type === 5 && (
                 <ComponentCard title="Ежемесячные платежи">
-                    <div className="flex items-center gap-2 mb-4">
-                        <PaymentIcon />
-                        <span className="text-gray-600 font-medium">
-                            {currentContract.monthlypayments?.length || 0}{" "}
-                            платежей
-                        </span>
+                    <div className="flex items-center gap-2 mb-4 justify-between">
+                        <div className="flex items-center gap-2">
+                            <PaymentIcon />
+                            <span className="text-gray-600 font-medium">
+                                {currentContract.monthlypayments?.length || 0}{" "}
+                                платежей
+                            </span>
+                        </div>
+                        {Object.keys(editedPayments).length > 0 && (
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => setEditedPayments({})}
+                                    className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                                    disabled={isSavingPlan}
+                                >
+                                    Отмена
+                                </button>
+                                <button 
+                                    onClick={handleSavePaymentPlan}
+                                    className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex items-center gap-2"
+                                    disabled={isSavingPlan}
+                                >
+                                    {isSavingPlan ? "Сохранение..." : "Сохранить"}
+                                </button>
+                            </div>
+                        )}
                     </div>
                     {currentContract.monthlypayments &&
                     currentContract.monthlypayments.length > 0 ? (
@@ -796,9 +847,32 @@ const ContractDetails = () => {
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {formatCurrency(
-                                                        payment.monthly_fee
-                                                    )}
+                                                    <div className="flex items-center h-7">
+                                                        {editedPayments[payment.monthly_id] !== undefined ? (
+                                                            <input 
+                                                                type="number" 
+                                                                className="w-[120px] px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none"
+                                                                value={editedPayments[payment.monthly_id]}
+                                                                onChange={(e) => setEditedPayments({...editedPayments, [payment.monthly_id]: Number(e.target.value)})}
+                                                                autoFocus
+                                                            />
+                                                        ) : (
+                                                            <>
+                                                                {formatCurrency(payment.monthly_fee)}
+                                                                {payment.payment_status !== 1 && (
+                                                                    <button 
+                                                                        className="ml-2 text-gray-400 hover:text-blue-500 focus:outline-none"
+                                                                        onClick={() => setEditedPayments({...editedPayments, [payment.monthly_id]: payment.monthly_fee})}
+                                                                        title="Редактировать"
+                                                                    >
+                                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                                        </svg>
+                                                                    </button>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {formatCurrency(

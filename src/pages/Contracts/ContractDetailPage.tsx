@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { GetDataSimple } from "../../service/data";
+import { GetDataSimple, PostSimple } from "../../service/data";
 import { formatAmount, formatDate } from "../../utils/numberFormat";
 import Button from "../../components/ui/button/Button";
 import { toast } from "react-hot-toast";
@@ -70,6 +70,8 @@ const ContractDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const [contract, setContract] = useState<ContractDetail | null>(null);
     const [loading, setLoading] = useState(true);
+    const [editedPayments, setEditedPayments] = useState<Record<number, number>>({});
+    const [isSavingPlan, setIsSavingPlan] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -95,6 +97,28 @@ const ContractDetailPage: React.FC = () => {
             navigate(-1);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSavePaymentPlan = async () => {
+        setIsSavingPlan(true);
+        try {
+            const plan = Object.entries(editedPayments).map(([monthly_id, monthly_fee]) => ({
+                payment_id: Number(monthly_id),
+                monthly_fee
+            }));
+            
+            const response = await PostSimple(`api/contracts/payment-plan/${id}`, { plan });
+            if (response) {
+                toast.success("План платежей успешно обновлен");
+                setEditedPayments({});
+                fetchContractDetails();
+            }
+        } catch (error: any) {
+            console.error("Error saving payment plan:", error);
+            toast.error(error?.response?.data?.message || error?.response?.data?.error || "Ошибка при сохранении");
+        } finally {
+            setIsSavingPlan(false);
         }
     };
 
@@ -524,9 +548,29 @@ const ContractDetailPage: React.FC = () => {
                     <div className="space-y-6">
                         {/* Monthly Payments */}
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                                Ежемесячные платежи
-                            </h2>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                    Ежемесячные платежи
+                                </h2>
+                                {Object.keys(editedPayments).length > 0 && (
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => setEditedPayments({})}
+                                            className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                                            disabled={isSavingPlan}
+                                        >
+                                            Отмена
+                                        </button>
+                                        <button 
+                                            onClick={handleSavePaymentPlan}
+                                            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex items-center gap-2"
+                                            disabled={isSavingPlan}
+                                        >
+                                            {isSavingPlan ? "Сохранение..." : "Сохранить"}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                             <div className="space-y-3">
                                 {contract.monthlypayments.map((payment) => (
                                     <div
@@ -552,11 +596,31 @@ const ContractDetailPage: React.FC = () => {
                                                 <span className="text-gray-500 dark:text-gray-400">
                                                     Сумма:
                                                 </span>
-                                                <p className="text-gray-900 dark:text-white font-medium">
-                                                    {formatAmount(
-                                                        payment.monthly_fee,
-                                                    )}{" "}
-                                                    сум
+                                                <p className="text-gray-900 dark:text-white font-medium flex items-center h-7">
+                                                    {editedPayments[payment.monthly_id] !== undefined ? (
+                                                        <input 
+                                                            type="number" 
+                                                            className="w-full max-w-[120px] px-2 py-0.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                                            value={editedPayments[payment.monthly_id]}
+                                                            onChange={(e) => setEditedPayments({...editedPayments, [payment.monthly_id]: Number(e.target.value)})}
+                                                            autoFocus
+                                                        />
+                                                    ) : (
+                                                        <>
+                                                            {formatAmount(payment.monthly_fee)} сум
+                                                            {payment.payment_status !== 1 && (
+                                                                <button 
+                                                                    className="ml-2 text-gray-400 hover:text-blue-500 focus:outline-none"
+                                                                    onClick={() => setEditedPayments({...editedPayments, [payment.monthly_id]: payment.monthly_fee})}
+                                                                    title="Редактировать"
+                                                                >
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                                    </svg>
+                                                                </button>
+                                                            )}
+                                                        </>
+                                                    )}
                                                 </p>
                                             </div>
                                             <div>
