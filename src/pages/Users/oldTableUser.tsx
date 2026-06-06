@@ -12,11 +12,10 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import Button from "../../components/ui/button/Button";
 import DeleteUserModal from "./DeleteUser";
-import { DeleteData, GetDataSimple } from "../../service/data";
+import { DeleteData } from "../../service/data";
 import { Modal } from "../../components/ui/modal";
 import { useNavigate } from "react-router";
 import { FiEye } from "react-icons/fi";
-import { FaTelegram } from "react-icons/fa";
 
 interface Users {
     user_id: number;
@@ -57,14 +56,6 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
     const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
     const [previewImageUrl, setPreviewImageUrl] = useState<string>("");
     const [previewUserName, setPreviewUserName] = useState<string>("");
-
-    // Access code modal state
-    const [accessCodeModalOpen, setAccessCodeModalOpen] = useState(false);
-    const [accessCode, setAccessCode] = useState<string | number>("");
-    const [accessCodeUserName, setAccessCodeUserName] = useState<string>("");
-    const [loadingCodeUserId, setLoadingCodeUserId] = useState<number | null>(
-        null
-    );
     console.log(response);
 
     // Get user role from localStorage
@@ -83,30 +74,6 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
             setIsDeleting(false);
             setDeleteModalOpen(false);
         }
-    };
-
-    const onGetAccessCode = async (user: Users) => {
-        setLoadingCodeUserId(user.user_id);
-        try {
-            const res = await GetDataSimple(`api/user/access-code/${user.user_id}`);
-            const code = res?.access_code ?? res?.data?.access_code;
-            if (code === undefined || code === null) {
-                toast.error("Код доступа не найден");
-                return;
-            }
-            setAccessCode(code);
-            setAccessCodeUserName(`${user.firstname} ${user.lastname}`);
-            setAccessCodeModalOpen(true);
-        } catch (error) {
-            toast.error("Не удалось получить код доступа");
-        } finally {
-            setLoadingCodeUserId(null);
-        }
-    };
-
-    const copyAccessCode = () => {
-        navigator.clipboard.writeText(String(accessCode));
-        toast.success("Код скопирован!");
     };
 
     return (
@@ -213,20 +180,6 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                                     </Button>
                                     <Button
                                         className="mr-2"
-                                        onClick={() => onGetAccessCode(order)}
-                                        disabled={
-                                            loadingCodeUserId === order.user_id
-                                        }
-                                        size="xs"
-                                        variant="outline"
-                                        startIcon={
-                                            <FaTelegram className="size-4 text-[#229ED9]" />
-                                        }
-                                    >
-                                        {""}
-                                    </Button>
-                                    <Button
-                                        className="mr-2"
                                         onClick={() => {
                                             openModal();
                                             setSelectedUser(order);
@@ -292,34 +245,6 @@ export default function TableUser({ users, changeStatus }: TableUserProps) {
                         alt={previewUserName}
                         className="w-full h-auto rounded-lg"
                     />
-                </div>
-            </Modal>
-
-            {/* Access Code Modal */}
-            <Modal
-                isOpen={accessCodeModalOpen}
-                onClose={() => setAccessCodeModalOpen(false)}
-                className="max-w-md p-6"
-            >
-                <div className="text-center">
-                    <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[#229ED9]/10">
-                        <FaTelegram className="size-8 text-[#229ED9]" />
-                    </div>
-                    <h2 className="text-lg font-bold mb-1 dark:text-gray-100">
-                        Код доступа
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-                        {accessCodeUserName}
-                    </p>
-                    <div
-                        onClick={copyAccessCode}
-                        className="cursor-pointer select-all rounded-lg border border-gray-200 bg-gray-50 px-6 py-4 text-3xl font-bold tracking-widest text-gray-800 dark:border-gray-700 dark:bg-white/[0.05] dark:text-white/90"
-                    >
-                        {accessCode}
-                    </div>
-                    <p className="mt-3 text-xs text-gray-400">
-                        Нажмите на код, чтобы скопировать
-                    </p>
                 </div>
             </Modal>
         </div>
