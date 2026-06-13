@@ -3,6 +3,7 @@ import { handleAuthError } from "../utils/authUtils";
 
 // export const BASE_URL = "https://apitizim.argon.uz/";
 export const BASE_URL = "https://api.bnm-expert.uz/";
+// export const BASE_URL = "https://unilineapi.bnm-expert.uz/";
 axios.interceptors.response.use(
     (response) => response,
     (error) => {

@@ -18,6 +18,7 @@ interface SalaryPayment {
     year: string;
     month: number;
     amount: number;
+    payment_type?: "cash" | "card";
 }
 
 interface TableProps {
@@ -42,6 +43,24 @@ export default function TableSalaryPayment({ payments, changeStatus }: TableProp
         "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
     ];
 
+    const renderPaymentType = (type?: string) => {
+        if (type === "card") {
+            return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                    На карту
+                </span>
+            );
+        }
+        if (type === "cash") {
+            return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                    Наличка
+                </span>
+            );
+        }
+        return <span className="text-gray-400">—</span>;
+    };
+
     if (payments.length === 0) {
         return (
             <div className="text-center py-8 text-gray-500">
@@ -53,7 +72,7 @@ export default function TableSalaryPayment({ payments, changeStatus }: TableProp
     return (
         <>
             <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
-                <table className="w-full table-auto min-w-[640px]">
+                <table className="w-full table-auto min-w-[720px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800">
                             <th className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
@@ -70,6 +89,9 @@ export default function TableSalaryPayment({ payments, changeStatus }: TableProp
                             </th>
                             <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Сумма
+                            </th>
+                            <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                                Тип оплаты
                             </th>
                             <th className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                 Действия
@@ -94,6 +116,9 @@ export default function TableSalaryPayment({ payments, changeStatus }: TableProp
                                     </td>
                                     <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                         {formatNumberWithSpaces(payment.amount)} сум
+                                    </td>
+                                    <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm">
+                                        {renderPaymentType(payment.payment_type)}
                                     </td>
                                     <td className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-sm text-gray-900 dark:text-gray-100">
                                         <div className="flex flex-row items-center gap-2 flex-nowrap">

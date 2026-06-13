@@ -28,8 +28,9 @@ export default function AddSalaryPaymentModal({
         year: new Date().getFullYear().toString(),
         month: (new Date().getMonth() + 1).toString(),
         amount: "",
+        payment_type: "cash",
     });
-    
+
     const [displayAmount, setDisplayAmount] = useState("");
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
@@ -92,7 +93,7 @@ export default function AddSalaryPaymentModal({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.user_id || !formData.year || !formData.month || !formData.amount) {
+        if (!formData.user_id || !formData.year || !formData.month || !formData.amount || !formData.payment_type) {
             toast.error("Пожалуйста, заполните все поля");
             return;
         }
@@ -104,6 +105,7 @@ export default function AddSalaryPaymentModal({
                 year: formData.year,
                 month: Number(formData.month),
                 amount: Number(formData.amount),
+                payment_type: formData.payment_type,
             };
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -131,6 +133,7 @@ export default function AddSalaryPaymentModal({
             year: new Date().getFullYear().toString(),
             month: (new Date().getMonth() + 1).toString(),
             amount: "",
+            payment_type: "cash",
         });
         setDisplayAmount("");
         setLoading(false);
@@ -149,6 +152,11 @@ export default function AddSalaryPaymentModal({
         { value: "7", label: "Июль" }, { value: "8", label: "Август" },
         { value: "9", label: "Сентябрь" }, { value: "10", label: "Октябрь" },
         { value: "11", label: "Ноябрь" }, { value: "12", label: "Декабрь" },
+    ];
+
+    const paymentTypeOptions = [
+        { value: "cash", label: "Наличка" },
+        { value: "card", label: "На карту" },
     ];
 
     const currentYear = new Date().getFullYear();
@@ -209,6 +217,19 @@ export default function AddSalaryPaymentModal({
                                     defaultValue={formData.month}
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                <span className="text-red-500">*</span> Тип оплаты
+                            </label>
+                            <Select
+                                options={paymentTypeOptions}
+                                placeholder="Выберите тип оплаты"
+                                onChange={(value) => setFormData({ ...formData, payment_type: value })}
+                                className="w-full"
+                                defaultValue={formData.payment_type}
+                            />
                         </div>
 
                         <div>

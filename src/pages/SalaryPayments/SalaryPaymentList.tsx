@@ -8,8 +8,8 @@ import { Toaster } from "react-hot-toast";
 import TableSalaryPayment from "./TableSalaryPayment.tsx";
 import { toast } from "react-hot-toast";
 import Loader from "../../components/ui/loader/Loader.tsx";
-import { useModal } from "../../hooks/useModal.ts";
 import AddSalaryPaymentModal from "./AddSalaryPaymentModal.tsx";
+import { useModal } from "../../hooks/useModal.ts";
 
 interface SalaryPayment {
     id: number;
@@ -22,6 +22,7 @@ interface SalaryPayment {
     year: string;
     month: number;
     amount: number;
+    payment_type: "cash" | "card";
     created_at?: string;
 }
 
