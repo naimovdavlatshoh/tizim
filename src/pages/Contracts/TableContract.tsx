@@ -1,333 +1,386 @@
-// import { EyeIcon } from "../../icons";
-import { FaRegEye } from "react-icons/fa";
-import { FaTrash } from "react-icons/fa";
-
+import { FaRegEye, FaTrash, FaBan } from "react-icons/fa";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
 } from "../../components/ui/table";
-// import { useModal } from "../../hooks/useModal";
-// import EditClientModal from "./EditClient";
 import { useState } from "react";
 import Button from "../../components/ui/button/Button";
-// import DeleteUserModal from "./DeleteClient";
-// import ClientDetailsModal from "./ClientDetailsModal";
-// import { Link } from "react-router";
 import Linkto from "../../components/ui/link/LinkTo";
 import { formatCurrency, formatDate } from "../../utils/numberFormat";
 import DeleteContractModal from "./DeleteContract";
+import TerminateContractModal from "./TerminateContractModal.tsx";
 
 interface Contract {
+  contract_id: number;
+  contract_number: string;
+  client_id: number;
+  contract_type: number;
+  contract_price: number;
+  percent: number;
+  contract_date: string;
+  client_name: string;
+  business_name: string;
+  phone_number: string;
+  bank_account: string;
+  bank_address: string;
+  client_type: number;
+  inn: number;
+  mfo: number;
+  oked: number;
+  business_address: string;
+  contract_status: number;
+  contract_status_text: string;
+  contract_payment_status: number;
+  contract_payment_status_text: string;
+  created_at: string;
+  termination_reason?: string;
+  laboratory: Array<{
+    lab_test_id: number;
+    tests_name: string;
+    test_type: number;
+  }>;
+  monthlypayments: Array<{
+    monthly_id: number;
+    monthly_fee: number;
+    month_of_payment: number;
+    date_of_payment: string;
+    given_amount: number;
+    payment_status: number;
+    created_at: string;
+  }>;
+  payments: Array<{
+    payment_id: number;
+    amount: number;
+    payment_type: number;
+    payment_type_text: string;
+    comments: string;
     contract_id: number;
     contract_number: string;
     client_id: number;
-    contract_type: number;
-    contract_price: number;
-    percent: number;
-    contract_date: string;
     client_name: string;
     business_name: string;
-    phone_number: string;
-    bank_account: string;
-    bank_address: string;
-    client_type: number;
-    inn: number;
-    mfo: number;
-    oked: number;
-    business_address: string;
-    contract_status: number;
-    contract_status_text: string;
-    contract_payment_status: number;
-    contract_payment_status_text: string;
+    operator_name: string;
     created_at: string;
-    laboratory: Array<{
-        lab_test_id: number;
-        tests_name: string;
-        test_type: number;
-    }>;
-    monthlypayments: Array<{
-        monthly_id: number;
-        monthly_fee: number;
-        month_of_payment: number;
-        date_of_payment: string;
-        given_amount: number;
-        payment_status: number;
-        created_at: string;
-    }>;
-    payments: Array<{
-        payment_id: number;
-        amount: number;
-        payment_type: number;
-        payment_type_text: string;
-        comments: string;
-        contract_id: number;
-        contract_number: string;
-        client_id: number;
-        client_name: string;
-        business_name: string;
-        operator_name: string;
-        created_at: string;
-    }>;
+  }>;
 }
 
 interface TableContractProps {
-    contracts: Contract[];
-    changeStatus: () => void;
+  contracts: Contract[];
+  changeStatus: () => void;
+}
+
+// ── Статус договора ──────────────────────────────────────────
+const CONTRACT_STATUS_STYLES: Record<
+  number,
+  { bg: string; text: string; label?: string }
+> = {
+  1: {
+    bg: "bg-gray-100 dark:bg-gray-700",
+    text: "text-gray-600 dark:text-gray-300",
+  },
+  2: {
+    bg: "bg-green-100 dark:bg-green-900/40",
+    text: "text-green-700 dark:text-green-300",
+  },
+  3: {
+    bg: "bg-blue-100 dark:bg-blue-900/40",
+    text: "text-blue-700 dark:text-blue-300",
+  },
+  4: {
+    bg: "bg-yellow-100 dark:bg-yellow-900/40",
+    text: "text-yellow-700 dark:text-yellow-300",
+  },
+  5: {
+    bg: "bg-purple-100 dark:bg-purple-900/40",
+    text: "text-purple-700 dark:text-purple-300",
+  },
+  6: {
+    bg: "bg-teal-100 dark:bg-teal-900/40",
+    text: "text-teal-700 dark:text-teal-300",
+  },
+  7: {
+    bg: "bg-red-100 dark:bg-red-900/40",
+    text: "text-red-700 dark:text-red-300",
+    label: "Расторгнут",
+  },
+};
+
+// ── Статус оплаты ────────────────────────────────────────────
+const PAYMENT_STATUS_STYLES: Record<number, { bg: string; text: string }> = {
+  0: {
+    bg: "bg-gray-100 dark:bg-gray-700",
+    text: "text-gray-600 dark:text-gray-300",
+  },
+  1: {
+    bg: "bg-blue-100 dark:bg-blue-900/40",
+    text: "text-blue-700 dark:text-blue-300",
+  },
+  2: {
+    bg: "bg-green-100 dark:bg-green-900/40",
+    text: "text-green-700 dark:text-green-300",
+  },
+};
+
+function StatusBadge({
+  styleMap,
+  statusKey,
+  label,
+}: {
+  styleMap: Record<number, { bg: string; text: string; label?: string }>;
+  statusKey: number;
+  label: string;
+}) {
+  const style = styleMap[statusKey] ?? {
+    bg: "bg-gray-100 dark:bg-gray-700",
+    text: "text-gray-600 dark:text-gray-300",
+  };
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${style.bg} ${style.text}`}
+    >
+      {style.label ?? label}
+    </span>
+  );
 }
 
 export default function TableContract({
-    contracts,
-    changeStatus,
+  contracts,
+  changeStatus,
 }: TableContractProps) {
-    // const { isOpen, openModal, closeModal } = useModal();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [terminateModalOpen, setTerminateModalOpen] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(
+    null,
+  );
 
-    // const [response, setResponse] = useState("");
-    // const [selectedContract, setSelectedContract] = useState<Contract | null>(
-    //     null
-    // );
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [selectedContract, setSelectedContract] = useState<Contract | null>(
-        null
-    );
+  const userRole = parseInt(localStorage.getItem("role_id") || "0");
+  const canDelete = userRole === 1;
+  const canTerminate = userRole === 1 || userRole === 2; // ROLE_ADMIN + ROLE_MANAGER
 
-    // Get user role from localStorage
-    const userRole = parseInt(localStorage.getItem("role_id") || "0");
-    const canDelete = userRole === 1;
+  const handleSuccess = () => changeStatus();
 
-    const handleRowClick = (contract: Contract) => {
-        // Handle row click if needed
-        console.log("Contract clicked:", contract);
-    };
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
+      <Table className="min-w-[1000px]">
+        {/* ── Header ─────────────────────────────────────────── */}
+        <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50/60 dark:bg-white/[0.02]">
+          <TableRow>
+            {[
+              { label: "#", cls: "pl-4 pr-2 w-10" },
+              { label: "№ договора", cls: "px-3 whitespace-nowrap" },
+              { label: "Компания / Клиент", cls: "px-3 min-w-[180px]" },
+              { label: "Тип", cls: "px-3 whitespace-nowrap" },
+              { label: "Сумма", cls: "px-3 whitespace-nowrap text-right" },
+              { label: "Дата", cls: "px-3 whitespace-nowrap" },
+              { label: "Статус", cls: "px-3 whitespace-nowrap" },
+              { label: "Оплата", cls: "px-3 whitespace-nowrap" },
+              { label: "Телефон", cls: "px-3 whitespace-nowrap" },
+              { label: "Действия", cls: "pl-3 pr-4 whitespace-nowrap" },
+            ].map(({ label, cls }) => (
+              <TableCell
+                key={label}
+                isHeader
+                className={`py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 text-start ${cls}`}
+              >
+                {label}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHeader>
 
-    const handleDeleteSuccess = () => {
-        changeStatus(); // Refresh the contracts list
-    };
+        {/* ── Body ───────────────────────────────────────────── */}
+        <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.04]">
+          {contracts?.map((contract, index) => {
+            const isTerminated = contract.contract_status === 7;
+            return (
+              <TableRow
+                key={contract.contract_id}
+                className={`transition-colors ${
+                  isTerminated
+                    ? "bg-red-50/40 dark:bg-red-900/10 opacity-80"
+                    : "hover:bg-gray-50/70 dark:hover:bg-white/[0.02]"
+                }`}
+              >
+                {/* # */}
+                <TableCell className="pl-4 pr-2 py-3 text-xs text-gray-400 dark:text-gray-500 tabular-nums">
+                  {index + 1}
+                </TableCell>
 
-    return (
-        <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-x-auto">
-            <Table className="min-w-[900px]">
-                {/* Table Header */}
-                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                    <TableRow>
-                        <TableCell
-                            isHeader
-                            className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            #
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            Н/договора
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                        >
-                            Компания
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                        >
-                            Клиент
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            Тип клиента
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            Сумма договора
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            Дата договора
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            Статус договора
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            Статус оплаты
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            Телефон
-                        </TableCell>
-                        <TableCell
-                            isHeader
-                            className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 whitespace-nowrap"
-                        >
-                            Действия
-                        </TableCell>
-                    </TableRow>
-                </TableHeader>
+                {/* № договора */}
+                <TableCell className="px-3 py-3">
+                  <span className="text-sm font-medium text-gray-800 dark:text-gray-100 tabular-nums">
+                    {contract.contract_number}
+                  </span>
+                </TableCell>
 
-                {/* Table Body */}
-                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {contracts?.map((contract: Contract, index: number) => (
-                        <TableRow
-                            key={contract.contract_id}
-                            className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                        >
-                            <TableCell
-                                className="pl-3 sm:pl-5 pr-2 sm:pr-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                {index + 1}
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                {contract.contract_number}
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm w-[200px] text-start"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                {contract.business_name ? (
-                                    contract.business_name
-                                ) : (
-                                    <span className="text-end">-</span>
-                                )}
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 w-[150px] text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                {contract.client_name}
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                <span
-                                    className={`px-2 py-1 rounded-full text-xs ${
-                                        contract.client_type === 1
-                                            ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                                            : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                    }`}
-                                >
-                                    {contract.client_type === 1
-                                        ? "Юр. лицо"
-                                        : contract.client_type === 2
-                                        ? "Физ. лицо"
-                                        : "-"}
-                                </span>
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                {formatCurrency(contract.contract_price)}
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                {formatDate(contract.contract_date)}
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                <span
-                                    className={`px-2 py-1 rounded-full text-xs ${
-                                        contract.contract_status === 2
-                                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                    }`}
-                                >
-                                    {contract.contract_status_text}
-                                </span>
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                <span
-                                    className={`px-2 py-1 rounded-full text-xs ${
-                                        contract.contract_payment_status === 1
-                                            ? "bg-blue-100 text-blue-800 "
-                                            : contract.contract_payment_status ===
-                                              2
-                                            ? "bg-green-100 text-green-800 "
-                                            : "bg-gray-100 text-gray-800 "
-                                    }`}
-                                >
-                                    {contract.contract_payment_status_text}
-                                </span>
-                            </TableCell>
-                            <TableCell
-                                className="px-2 sm:px-4 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400"
-                                onClick={() => handleRowClick(contract)}
-                            >
-                                {contract.phone_number}
-                            </TableCell>
-                            <TableCell className="pl-2 sm:pl-4 pr-3 sm:pr-5 py-2 sm:py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                <div className="flex flex-row items-center gap-2 flex-nowrap">
-                                    <Linkto
-                                        to={`/contract-details/${contract.contract_id}`}
-                                        size="xs"
-                                        variant="outline"
-                                        startIcon={
-                                            <FaRegEye className="size-4" />
-                                        }
-                                    >
-                                        {""}
-                                    </Linkto>
-                                    {canDelete && (
-                                        <Button
-                                            onClick={() => {
-                                                setDeleteModalOpen(true);
-                                                setSelectedContract(contract);
-                                            }}
-                                            size="xs"
-                                            variant="danger"
-                                            startIcon={
-                                                <FaTrash className="size-4" />
-                                            }
-                                        >
-                                            {""}
-                                        </Button>
-                                    )}
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                {/* Компания / Клиент */}
+                <TableCell className="px-3 py-3 min-w-[180px]">
+                  {contract.business_name && (
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate max-w-[200px]">
+                      {contract.business_name}
+                    </p>
+                  )}
+                  <p
+                    className={`text-xs truncate max-w-[200px] ${contract.business_name ? "text-gray-400 dark:text-gray-500 mt-0.5" : "text-sm text-gray-700 dark:text-gray-200"}`}
+                  >
+                    {contract.client_name}
+                  </p>
+                </TableCell>
 
-            {/* Delete Contract Modal */}
-            <DeleteContractModal
-                isOpen={deleteModalOpen}
-                onClose={() => {
-                    setDeleteModalOpen(false);
-                    setSelectedContract(null);
-                }}
-                contractNumber={selectedContract?.contract_number}
-                contractId={selectedContract?.contract_id}
-                onSuccess={handleDeleteSuccess}
-            />
-        </div>
-    );
+                {/* Тип клиента */}
+                <TableCell className="px-3 py-3">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      contract.client_type === 1
+                        ? "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"
+                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                    }`}
+                  >
+                    {contract.client_type === 1 ? "Юр." : "Физ."}
+                  </span>
+                </TableCell>
+
+                {/* Сумма */}
+                <TableCell className="px-3 py-3 text-right">
+                  <span className="text-sm font-medium text-gray-800 dark:text-gray-100 tabular-nums whitespace-nowrap">
+                    {formatCurrency(contract.contract_price)}
+                  </span>
+                </TableCell>
+
+                {/* Дата */}
+                <TableCell className="px-3 py-3">
+                  <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    {formatDate(contract.contract_date)}
+                  </span>
+                </TableCell>
+
+                {/* Статус договора */}
+                <TableCell className="px-3 py-3">
+                  <StatusBadge
+                    styleMap={CONTRACT_STATUS_STYLES}
+                    statusKey={contract.contract_status}
+                    label={contract.contract_status_text}
+                  />
+                  {isTerminated && contract.termination_reason && (
+                    <p
+                      className="mt-1 text-xs text-red-500 dark:text-red-400 max-w-[140px] truncate"
+                      title={contract.termination_reason}
+                    >
+                      {contract.termination_reason}
+                    </p>
+                  )}
+                </TableCell>
+
+                {/* Статус оплаты */}
+                <TableCell className="px-3 py-3">
+                  <StatusBadge
+                    styleMap={PAYMENT_STATUS_STYLES}
+                    statusKey={contract.contract_payment_status}
+                    label={contract.contract_payment_status_text}
+                  />
+                </TableCell>
+
+                {/* Телефон */}
+                <TableCell className="px-3 py-3">
+                  <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap tabular-nums">
+                    {contract.phone_number || "—"}
+                  </span>
+                </TableCell>
+
+                {/* Действия */}
+                <TableCell className="pl-3 pr-4 py-3">
+                  <div className="flex items-center gap-1.5 flex-nowrap">
+                    {/* Просмотр */}
+                    <Linkto
+                      to={`/contract-details/${contract.contract_id}`}
+                      size="xs"
+                      variant="outline"
+                      startIcon={<FaRegEye className="size-3.5" />}
+                    >
+                      {""}
+                    </Linkto>
+
+                    {/* Расторгнуть */}
+                    {canTerminate &&
+                      !isTerminated &&
+                      contract.contract_status !== 6 && (
+                        <span title="Расторгнуть договор">
+                          <Button
+                            onClick={() => {
+                              setSelectedContract(contract);
+                              setTerminateModalOpen(true);
+                            }}
+                            size="xs"
+                            variant="outline"
+                            className="border-orange-300 text-orange-600 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900/20"
+                            startIcon={<FaBan className="size-3.5" />}
+                          >
+                            {""}
+                          </Button>
+                        </span>
+                      )}
+
+                    {/* Удалить */}
+                    {canDelete && (
+                      <span title="Удалить договор">
+                        <Button
+                          onClick={() => {
+                            setSelectedContract(contract);
+                            setDeleteModalOpen(true);
+                          }}
+                          size="xs"
+                          variant="danger"
+                          startIcon={<FaTrash className="size-3.5" />}
+                        >
+                          {""}
+                        </Button>
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+
+          {/* Пустое состояние */}
+          {(!contracts || contracts.length === 0) && (
+            <TableRow>
+              <TableCell
+                className="py-12 text-center text-sm text-gray-400 dark:text-gray-500"
+                colSpan={10}
+              >
+                Договоры не найдены
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      {/* ── Modals ──────────────────────────────────────────────── */}
+      <DeleteContractModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedContract(null);
+        }}
+        contractNumber={selectedContract?.contract_number}
+        contractId={selectedContract?.contract_id}
+        onSuccess={handleSuccess}
+      />
+
+      <TerminateContractModal
+        isOpen={terminateModalOpen}
+        onClose={() => {
+          setTerminateModalOpen(false);
+          setSelectedContract(null);
+        }}
+        contractNumber={selectedContract?.contract_number}
+        contractId={selectedContract?.contract_id}
+        onSuccess={handleSuccess}
+      />
+    </div>
+  );
 }
