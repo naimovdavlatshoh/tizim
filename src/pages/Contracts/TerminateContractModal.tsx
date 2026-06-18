@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Modal } from "../../components/ui/modal";
 import Button from "../../components/ui/button/Button";
 import { FaBan } from "react-icons/fa";
+import { PostSimple } from "../../service/data";
 
 interface TerminateContractModalProps {
     isOpen: boolean;
@@ -40,33 +41,25 @@ export default function TerminateContractModal({
         setError("");
 
         try {
-            const token = localStorage.getItem("jwt");
-            const apiKey = import.meta.env.VITE_API_KEY;
-
-            const res = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/contracts/terminate/${contractId}`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                        "X-API-KEY": apiKey,
-                    },
-                    body: JSON.stringify({ reason: reason.trim() }),
-                }
+            const res = await PostSimple(
+                `api/contracts/terminate/${contractId}`,
+                { reason: reason.trim() }
             );
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data?.message || data?.error || "Ошибка при расторжении");
+            // PostSimple возвращает весь axios response — данные в res.data
+            if (res?.data?.handled) {
+                // авторизация перехвачена интерсептором
                 return;
             }
 
             onSuccess();
             handleClose();
-        } catch {
-            setError("Ошибка сети. Попробуйте снова.");
+        } catch (err: any) {
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                "Ошибка при расторжении договора";
+            setError(msg);
         } finally {
             setLoading(false);
         }
@@ -98,7 +91,7 @@ export default function TerminateContractModal({
                     </p>
                 </div>
 
-                {/* Reason input */}
+                {/* Reason */}
                 <div className="mb-5">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                         Причина расторжения{" "}
@@ -111,6 +104,7 @@ export default function TerminateContractModal({
                             if (error) setError("");
                         }}
                         rows={3}
+                        maxLength={512}
                         placeholder="Укажите причину расторжения договора..."
                         className={`w-full px-3 py-2 text-sm rounded-lg border transition-colors resize-none
                             bg-white dark:bg-gray-900

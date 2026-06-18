@@ -323,16 +323,24 @@ export default function TableContract({
                         </span>
                       )}
 
-                    {/* Удалить */}
+                    {/* Удалить — нельзя удалить расторгнутый */}
                     {canDelete && (
-                      <span title="Удалить договор">
+                      <span
+                        title={
+                          isTerminated
+                            ? "Нельзя удалить расторгнутый договор"
+                            : "Удалить договор"
+                        }
+                      >
                         <Button
                           onClick={() => {
+                            if (isTerminated) return;
                             setSelectedContract(contract);
                             setDeleteModalOpen(true);
                           }}
                           size="xs"
                           variant="danger"
+                          disabled={isTerminated}
                           startIcon={<FaTrash className="size-3.5" />}
                         >
                           {""}
