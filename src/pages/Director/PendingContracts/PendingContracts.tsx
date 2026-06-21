@@ -13,7 +13,7 @@ import {
 import Pagination from "../../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
-import { FaQrcode, FaRegEye, FaUserEdit, FaDownload } from "react-icons/fa";
+import { FaQrcode, FaRegEye, FaUserEdit, FaDownload, FaCheck, FaTimes } from "react-icons/fa";
 import { TbDownload } from "react-icons/tb";
 import { useNavigate } from "react-router";
 import {
@@ -88,6 +88,7 @@ const PendingContracts = () => {
     const [contracts, setContracts] = useState<PendingContract[]>([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalContracts, setTotalContracts] = useState(0);
     const [loading, setLoading] = useState(false);
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] =
@@ -165,9 +166,18 @@ const PendingContracts = () => {
                 response?.result || response?.data?.result || [];
             const totalPagesData =
                 response?.pages || response?.data?.pages || 1;
+            const totalData =
+                response?.total ??
+                response?.count ??
+                response?.total_count ??
+                response?.data?.total ??
+                response?.data?.count ??
+                response?.data?.total_count ??
+                0;
 
             setContracts(contractsData);
             setTotalPages(totalPagesData);
+            setTotalContracts(totalData);
             setLoading(false);
         } catch (error) {
             console.error("Error fetching pending contracts:", error);
@@ -393,11 +403,12 @@ const PendingContracts = () => {
     };
 
     const handleDownloadPdf = async (contract: PendingContract) => {
-        if (!contract.appointment_id) return;
+        const pdfId = contract.current_pdf?.pdf_id;
+        if (!pdfId) return;
         setDownloadingPdf(contract.contract_id);
         try {
             const response = await GetDataSimplePDF(
-                `api/appointment/result/pdf/${contract.appointment_id}`,
+                `api/appointment/result/pdf/${pdfId}`,
             );
             const blob = new Blob([response.data], {
                 type: "application/pdf",
@@ -486,6 +497,30 @@ const PendingContracts = () => {
         }
     };
 
+    // Derived stats for the header (current page)
+    const assignedCount = contracts.filter((c) => c.worker_name).length;
+    const awaitingResultCount = contracts.filter(
+        (c) => c.current_pdf?.pdf_id && c.status !== 3 && c.status !== 4,
+    ).length;
+    const overdueCount = contracts.filter(
+        (c) => Number(c.days_diff) < 0,
+    ).length;
+
+    // Color logic for the "days left" badge
+    const getDaysLeftBadgeClass = (daysDiff: string | number) => {
+        const diff = Number(daysDiff);
+        if (Number.isNaN(diff)) {
+            return "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200";
+        }
+        if (diff < 0) {
+            return "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-200";
+        }
+        if (diff <= 3) {
+            return "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200";
+        }
+        return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200";
+    };
+
     if (loading) {
         return <Loader />;
     }
@@ -498,19 +533,55 @@ const PendingContracts = () => {
             />
             <PageBreadcrumb pageTitle="Договоры в процессе" />
             <div className="space-y-6">
+                {/* Stat cards */}
+                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                    <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
+                        <p className="text-theme-xs font-medium text-gray-500 dark:text-gray-400">
+                            Всего в процессе
+                        </p>
+                        <p className="mt-1 text-2xl font-semibold text-gray-800 dark:text-white/90">
+                            {totalContracts}
+                        </p>
+                    </div>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
+                        <p className="text-theme-xs font-medium text-gray-500 dark:text-gray-400">
+                            Назначено (стр.)
+                        </p>
+                        <p className="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+                            {assignedCount}
+                        </p>
+                    </div>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
+                        <p className="text-theme-xs font-medium text-gray-500 dark:text-gray-400">
+                            Ждут результата (стр.)
+                        </p>
+                        <p className="mt-1 text-2xl font-semibold text-blue-600 dark:text-blue-400">
+                            {awaitingResultCount}
+                        </p>
+                    </div>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
+                        <p className="text-theme-xs font-medium text-gray-500 dark:text-gray-400">
+                            Просрочено (стр.)
+                        </p>
+                        <p className="mt-1 text-2xl font-semibold text-red-600 dark:text-red-400">
+                            {overdueCount}
+                        </p>
+                    </div>
+                </div>
+
                 <ComponentCard
                     title="Договоры в процессе"
                     desc={
-                        <div className="flex gap-3 items-center">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                                Договоры со статусом 'В процессе'
-                            </span>
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            {/* <span className="text-sm text-gray-500 dark:text-gray-400">
+                                Договоры со статусом «В процессе»
+                            </span> */}
                             <button
                                 onClick={() => setExcelModalOpen(true)}
-                                className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
+                                className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-600"
                             >
-                                <FaDownload />
-                                Excel
+                                <FaDownload className="size-3.5" />
+                                Скачать Excel
                             </button>
                         </div>
                     }
@@ -605,6 +676,13 @@ const PendingContracts = () => {
 
                             {/* Table Body */}
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                {contracts?.length === 0 && (
+                                    <TableRow>
+                                        <TableCell className="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                                            Договоры в процессе не найдены
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                                 {contracts?.map(
                                     (
                                         contract: PendingContract,
@@ -612,7 +690,7 @@ const PendingContracts = () => {
                                     ) => (
                                         <TableRow
                                             key={contract.contract_id}
-                                            className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                            className="transition-colors odd:bg-white even:bg-gray-50/60 hover:bg-brand-50/40 dark:odd:bg-transparent dark:even:bg-white/[0.02] dark:hover:bg-white/[0.05]"
                                         >
                                             <TableCell
                                                 className="pl-5 py-3 text-gray-500 text-theme-sm dark:text-gray-400"
@@ -675,7 +753,11 @@ const PendingContracts = () => {
                                                     handleRowClick(contract)
                                                 }
                                             >
-                                                <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                <span
+                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getDaysLeftBadgeClass(
+                                                        contract.days_diff,
+                                                    )}`}
+                                                >
                                                     {contract.days_diff_text}
                                                 </span>
                                             </TableCell>
@@ -733,163 +815,178 @@ const PendingContracts = () => {
                                             <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                                 <div className="flex flex-row items-center gap-2 flex-nowrap">
                                                     {contract.worker_name && (
+                                                        <span
+                                                            className="inline-flex"
+                                                            title={
+                                                                contract.status ===
+                                                                3
+                                                                    ? "Договор одобрен — замена недоступна"
+                                                                    : "Заменить исполнителя"
+                                                            }
+                                                        >
+                                                            <Button
+                                                                onClick={() => {
+                                                                    setReplaceModalOpen(
+                                                                        true,
+                                                                    );
+                                                                    setSelectedContract(
+                                                                        contract,
+                                                                    );
+                                                                    setSelectedUserId(
+                                                                        null,
+                                                                    );
+                                                                }}
+                                                                size="xs"
+                                                                variant="outline"
+                                                                disabled={
+                                                                    contract.status ===
+                                                                    3
+                                                                }
+                                                                startIcon={
+                                                                    <FaUserEdit className="size-4" />
+                                                                }
+                                                                aria-label="Заменить исполнителя"
+                                                            >
+                                                                {""}
+                                                            </Button>
+                                                        </span>
+                                                    )}
+                                                    <span
+                                                        className="inline-flex"
+                                                        title="Скачать QR-код"
+                                                    >
                                                         <Button
-                                                            onClick={() => {
-                                                                setReplaceModalOpen(
-                                                                    true,
-                                                                );
-                                                                setSelectedContract(
-                                                                    contract,
-                                                                );
-                                                                setSelectedUserId(
-                                                                    null,
-                                                                );
-                                                            }}
                                                             size="xs"
                                                             variant="outline"
-                                                            startIcon={
-                                                                <FaUserEdit className="size-4" />
+                                                            onClick={() =>
+                                                                handleDownloadQr(
+                                                                    contract,
+                                                                )
                                                             }
-                                                            aria-label="Замена назначенного сотрудника"
+                                                            disabled={
+                                                                downloadingQr ===
+                                                                contract.contract_id
+                                                            }
+                                                            startIcon={
+                                                                <FaQrcode className="size-4" />
+                                                            }
+                                                            aria-label="Скачать QR-код"
                                                         >
                                                             {""}
                                                         </Button>
-                                                    )}
-                                                    <Button
-                                                        size="xs"
-                                                        variant="outline"
-                                                        onClick={() =>
-                                                            handleDownloadQr(
-                                                                contract,
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            downloadingQr ===
-                                                            contract.contract_id
-                                                        }
-                                                        startIcon={
-                                                            <FaQrcode className="size-4" />
-                                                        }
-                                                        aria-label="Скачать QR-код"
+                                                    </span>
+                                                    <span
+                                                        className="inline-flex"
+                                                        title="Просмотр информации"
                                                     >
-                                                        {downloadingQr ===
-                                                        contract.contract_id
-                                                            ? ""
-                                                            : ""}
-                                                    </Button>
-                                                    <Button
-                                                        size="xs"
-                                                        variant="outline"
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/pending-contracts/${contract.appointment_id}`,
-                                                            )
+                                                        <Button
+                                                            size="xs"
+                                                            variant="outline"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/pending-contracts/${contract.appointment_id}`,
+                                                                )
+                                                            }
+                                                            startIcon={
+                                                                <FaRegEye className="size-4" />
+                                                            }
+                                                            aria-label="Просмотр информации"
+                                                        >
+                                                            {""}
+                                                        </Button>
+                                                    </span>
+                                                    <span
+                                                        className="inline-flex"
+                                                        title={
+                                                            contract.current_pdf
+                                                                ?.pdf_id
+                                                                ? "Скачать PDF результата"
+                                                                : "PDF ещё не загружен"
                                                         }
-                                                        startIcon={
-                                                            <FaRegEye className="size-4" />
-                                                        }
-                                                        aria-label="Просмотр инфо"
                                                     >
-                                                        {""}
-                                                    </Button>
-                                                    {/* <Button
-                                                        size="xs"
-                                                        variant="primary"
-                                                        onClick={() =>
-                                                            openPdfUploadModal(
-                                                                contract
-                                                            )
-                                                        }
-                                                        startIcon={
-                                                            <svg
-                                                                className="w-4 h-4"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={
-                                                                        2
-                                                                    }
-                                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                                />
-                                                            </svg>
-                                                        }
-                                                        aria-label="Загрузить PDF"
+                                                        <Button
+                                                            size="xs"
+                                                            variant="outline"
+                                                            onClick={() =>
+                                                                handleDownloadPdf(
+                                                                    contract,
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                !contract
+                                                                    .current_pdf
+                                                                    ?.pdf_id ||
+                                                                downloadingPdf ===
+                                                                    contract.contract_id
+                                                            }
+                                                            startIcon={
+                                                                <TbDownload className="size-4" />
+                                                            }
+                                                            aria-label="Скачать PDF результата"
+                                                        >
+                                                            {""}
+                                                        </Button>
+                                                    </span>
+                                                    <span
+                                                        className="inline-flex"
+                                                        title="Принять результат"
                                                     >
-                                                        {""}
-                                                    </Button> */}
-                                                    <Button
-                                                        size="xs"
-                                                        variant="outline"
-                                                        onClick={() =>
-                                                            handleDownloadPdf(
-                                                                contract,
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            !contract
-                                                                .current_pdf
-                                                                ?.pdf_id ||
-                                                            downloadingPdf ===
-                                                                contract.contract_id
-                                                        }
-                                                        startIcon={
-                                                            <TbDownload className="size-4" />
-                                                        }
-                                                        aria-label="Скачать PDF"
+                                                        <Button
+                                                            size="xs"
+                                                            variant="primary"
+                                                            onClick={() =>
+                                                                openResultModal(
+                                                                    contract,
+                                                                    "accept",
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                !contract
+                                                                    .current_pdf
+                                                                    ?.pdf_id ||
+                                                                contract.status ===
+                                                                    3 ||
+                                                                contract.status ===
+                                                                    4
+                                                            }
+                                                            startIcon={
+                                                                <FaCheck className="size-4" />
+                                                            }
+                                                            aria-label="Принять результат"
+                                                        >
+                                                            {""}
+                                                        </Button>
+                                                    </span>
+                                                    <span
+                                                        className="inline-flex"
+                                                        title="Отказать в результате"
                                                     >
-                                                        {downloadingPdf ===
-                                                        contract.contract_id
-                                                            ? ""
-                                                            : ""}
-                                                    </Button>
-                                                    <Button
-                                                        size="xs"
-                                                        variant="primary"
-                                                        onClick={() =>
-                                                            openResultModal(
-                                                                contract,
-                                                                "accept",
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            !contract
-                                                                .current_pdf
-                                                                ?.pdf_id ||
-                                                            contract.status ===
-                                                                3 ||
-                                                            contract.status ===
-                                                                4
-                                                        }
-                                                        aria-label="Принять результат"
-                                                    >
-                                                        Принять
-                                                    </Button>
-                                                    <Button
-                                                        size="xs"
-                                                        variant="danger"
-                                                        onClick={() =>
-                                                            openResultModal(
-                                                                contract,
-                                                                "cancel",
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            !contract
-                                                                .current_pdf
-                                                                ?.pdf_id ||
-                                                            contract.status ===
-                                                                3 ||
-                                                            contract.status ===
-                                                                4
-                                                        }
-                                                        aria-label="Отказать в результате"
-                                                    >
-                                                        Отказать
-                                                    </Button>
+                                                        <Button
+                                                            size="xs"
+                                                            variant="danger"
+                                                            onClick={() =>
+                                                                openResultModal(
+                                                                    contract,
+                                                                    "cancel",
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                !contract
+                                                                    .current_pdf
+                                                                    ?.pdf_id ||
+                                                                contract.status ===
+                                                                    3 ||
+                                                                contract.status ===
+                                                                    4
+                                                            }
+                                                            startIcon={
+                                                                <FaTimes className="size-4" />
+                                                            }
+                                                            aria-label="Отказать в результате"
+                                                        >
+                                                            {""}
+                                                        </Button>
+                                                    </span>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
