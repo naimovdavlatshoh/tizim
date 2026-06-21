@@ -6,14 +6,13 @@ import {
     GetDataSimple,
     getStoredYear,
     GetDataSimplePDF,
-    GetDataSimpleBlobExel,
     PostSimpleFormData,
     PostDataTokenJson,
 } from "../../../service/data.ts";
 import Pagination from "../../../components/common/Pagination.tsx";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
-import { FaQrcode, FaRegEye, FaUserEdit, FaDownload } from "react-icons/fa";
+import { FaQrcode, FaRegEye, FaUserEdit } from "react-icons/fa";
 import { TbDownload } from "react-icons/tb";
 import { useNavigate } from "react-router";
 import {
@@ -31,7 +30,6 @@ import Loader from "../../../components/ui/loader/Loader.tsx";
 import Select from "../../../components/form/Select";
 import Button from "../../../components/ui/button/Button";
 import { Modal } from "../../../components/ui/modal";
-import DatePicker from "../../../components/form/date-picker";
 
 interface PendingContract {
     appointment_id: number;
@@ -119,14 +117,6 @@ const PendingContracts = () => {
     const [resultTaskId, setResultTaskId] = useState<number | null>(null);
     const [resultInfoLoading, setResultInfoLoading] = useState(false);
 
-    // Excel download modal state
-    const [excelModalOpen, setExcelModalOpen] = useState(false);
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [downloading, setDownloading] = useState(false);
-    const [availableCount, setAvailableCount] = useState<number | null>(null);
-    const [checkingCount, setCheckingCount] = useState(false);
-
     useEffect(() => {
         fetchPendingContracts();
     }, [page]);
@@ -141,19 +131,6 @@ const PendingContracts = () => {
         if (!resultModalOpen || !selectedContractForResult) return;
         setResultTaskId(selectedContractForResult.appointment_id);
     }, [resultModalOpen, selectedContractForResult?.appointment_id]);
-
-    // Auto-check count when dates change (debounced)
-    useEffect(() => {
-        if (startDate && endDate) {
-            const timeoutId = setTimeout(() => {
-                checkAvailableCount();
-            }, 500);
-
-            return () => clearTimeout(timeoutId);
-        } else {
-            setAvailableCount(null);
-        }
-    }, [startDate, endDate]);
 
     const fetchPendingContracts = async () => {
         setLoading(true);
@@ -182,88 +159,14 @@ const PendingContracts = () => {
         console.log("Contract clicked:", contract);
     };
 
-    // Convert Y-m-d format to d-m-Y format for the API
-    const formatDateForAPI = (dateString: string) => {
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, "0");
-        const month = (date.getMonth() + 1).toString().padStart(2, "0");
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
-    };
-
-    const checkAvailableCount = async (): Promise<void> => {
-        if (!startDate || !endDate) {
-            setAvailableCount(null);
-            return;
-        }
-
-        setCheckingCount(true);
-        try {
-            const formattedStartDate = formatDateForAPI(startDate);
-            const formattedEndDate = formatDateForAPI(endDate);
-
-            const url = `api/excel/contract-tasks?start_date=${formattedStartDate}&end_date=${formattedEndDate}&count=1`;
-
-            const response = await GetDataSimple(url);
-            const count =
-                response?.total_count || response?.data?.total_count || 0;
-            setAvailableCount(count);
-
-            if (count > 0) {
-                toast.success(`По вашему запросу найдено ${count} записей`);
-            } else {
-                toast.error("Данные не найдены");
-            }
-        } catch (error) {
-            console.error("Error checking count:", error);
-            toast.error("Данные не найдены");
-            setAvailableCount(null);
-        } finally {
-            setCheckingCount(false);
-        }
-    };
-
-    const handleDownloadExcel = async (): Promise<void> => {
-        if (!startDate || !endDate) {
-            setExcelModalOpen(false);
-            toast.error("Пожалуйста, выберите даты");
-            return;
-        }
-
-        setDownloading(true);
-        try {
-            const formattedStartDate = formatDateForAPI(startDate);
-            const formattedEndDate = formatDateForAPI(endDate);
-
-            const url = `api/excel/contract-tasks?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
-
-            const response = await GetDataSimpleBlobExel(url);
-
-            const blob = new Blob([response], {
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            });
-            const url_download = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url_download;
-            link.download = `contract-tasks-${startDate}-${endDate}.xlsx`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url_download);
-
-            toast.success("Excel файл загружен");
-            setExcelModalOpen(false);
-            setStartDate("");
-            setEndDate("");
-            setAvailableCount(null);
-        } catch (error: any) {
-            setExcelModalOpen(false);
-            console.error("Error downloading excel:", error);
-            toast.error(error?.response?.data?.error);
-        } finally {
-            setDownloading(false);
-        }
-    };
+    // const getResultBadgeStatus = (
+    //     contract: PendingContract
+    // ): "no_result" | "waiting" | "rejected" => {
+    //     if (!contract.current_pdf) return "no_result";
+    //     // If status is 3, it means it was rejected (based on previous logic/types)
+    //     if (contract.contract_status === "3") return "rejected";
+    //     return "waiting";
+    // };
 
     const fetchUsers = async () => {
         setLoadingUsers(true);
@@ -500,20 +403,7 @@ const PendingContracts = () => {
             <div className="space-y-6">
                 <ComponentCard
                     title="Договоры в процессе"
-                    desc={
-                        <div className="flex gap-3 items-center">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                                Договоры со статусом 'В процессе'
-                            </span>
-                            <button
-                                onClick={() => setExcelModalOpen(true)}
-                                className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
-                            >
-                                <FaDownload />
-                                Excel
-                            </button>
-                        </div>
-                    }
+                    desc="Договоры со статусом 'В процессе'"
                 >
                     {/* Loading indicator */}
                     {loading && (
@@ -913,107 +803,6 @@ const PendingContracts = () => {
             </div>
 
             <Toaster position="top-right" reverseOrder={false} />
-
-            {/* Excel Download Modal */}
-            <Modal
-                isOpen={excelModalOpen}
-                onClose={() => {
-                    setExcelModalOpen(false);
-                    setStartDate("");
-                    setEndDate("");
-                    setAvailableCount(null);
-                }}
-                className="max-w-md"
-            >
-                <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Скачать Excel отчет
-                    </h3>
-
-                    <div className="space-y-4">
-                        <DatePicker
-                            id="contract-tasks-start-date"
-                            label="Начальная дата *"
-                            placeholder="Выберите начальную дату"
-                            onChange={(selectedDates) => {
-                                if (selectedDates[0]) {
-                                    const date = new Date(selectedDates[0]);
-                                    const year = date.getFullYear();
-                                    const month = String(
-                                        date.getMonth() + 1,
-                                    ).padStart(2, "0");
-                                    const day = String(
-                                        date.getDate(),
-                                    ).padStart(2, "0");
-                                    const formattedDate = `${year}-${month}-${day}`;
-                                    setStartDate(formattedDate);
-                                }
-                            }}
-                        />
-
-                        <DatePicker
-                            id="contract-tasks-end-date"
-                            label="Конечная дата *"
-                            placeholder="Выберите конечную дату"
-                            onChange={(selectedDates) => {
-                                if (selectedDates[0]) {
-                                    const date = new Date(selectedDates[0]);
-                                    const year = date.getFullYear();
-                                    const month = String(
-                                        date.getMonth() + 1,
-                                    ).padStart(2, "0");
-                                    const day = String(
-                                        date.getDate(),
-                                    ).padStart(2, "0");
-                                    const formattedDate = `${year}-${month}-${day}`;
-                                    setEndDate(formattedDate);
-                                }
-                            }}
-                        />
-
-                        {checkingCount && (
-                            <div className="p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                                    Проверка количества записей...
-                                </p>
-                            </div>
-                        )}
-                        {availableCount !== null && !checkingCount && (
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                <p className="text-sm text-blue-800 dark:text-blue-200">
-                                    Найдено записей:{" "}
-                                    <span className="font-semibold">
-                                        {availableCount}
-                                    </span>
-                                </p>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="flex justify-end gap-3 mt-6">
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                setExcelModalOpen(false);
-                                setStartDate("");
-                                setEndDate("");
-                                setAvailableCount(null);
-                            }}
-                            disabled={downloading}
-                        >
-                            Отмена
-                        </Button>
-                        <Button
-                            onClick={handleDownloadExcel}
-                            disabled={downloading}
-                            startIcon={<FaDownload />}
-                        >
-                            {downloading ? "Загрузка..." : "Скачать Excel"}
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
 
             {/* Assignment Modal */}
             {selectedContract && (
